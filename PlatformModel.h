@@ -1,0 +1,35 @@
+#ifndef PLATFORMMODEL_H
+#define PLATFORMMODEL_H
+
+#include "chrono/physics/ChSystem.h"
+#include "chrono/physics/ChBodyEasy.h"
+
+#include "chrono_fea/ChBuilderBeam.h"
+#include "chrono_fea/ChMesh.h"
+#include "chrono_fea/ChElementCableANCF.h"
+
+#include "../XLLT/QLLTSimulation.h"
+
+#include "MooringLine.h"
+#include "Buoyancy.h"
+#include "PlatformParams.h"
+
+
+class PlatformModel{
+
+  private:
+    std::shared_ptr<chrono::fea::ChNodeFEAxyzD> monopileInitNode;
+    std::shared_ptr<chrono::ChBodyEasyCylinder> monopile;
+    std::shared_ptr<Buoyancy> buoyancy;
+    std::vector<MooringLine> mooringLines;
+    QLLTSimulation *qLLTSim;
+    chrono::ChSystemNSC system;
+    PlatformParams p;
+
+  public:
+    PlatformModel(QLLTSimulation *qLLTSim);
+    void update();
+
+};
+
+#endif
