@@ -38,6 +38,10 @@ public:
   void computeBuoyancy(ChVector<> vecE, ChVector<> vecI, ChVector<> intersectionPoint);
   double computeMaximumBuoyancyForce();
   double computeBuoyancyForce(double submergedLength);
+
+  std::shared_ptr<ChMarker> getMarkerTop(){return markerTop;};
+  std::shared_ptr<ChMarker> getMarkerBottom(){return markerBottom;};
+
 };
 
 #endif

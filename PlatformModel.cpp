@@ -1,13 +1,12 @@
 #include "chrono/physics/ChSystem.h"
 #include "chrono/physics/ChBodyEasy.h"
 
+#include "chrono/solver/ChSolverMINRES.h"
 #include "chrono_fea/ChBuilderBeam.h"
 #include "chrono_fea/ChMesh.h"
-#include "chrono_fea/ChVisualizationFEAmesh.h"
-#include "chrono_fea/ChLinkPointFrame.h"
-#include "chrono_fea/ChLinkDirFrame.h"
 #include "chrono_fea/ChElementCableANCF.h"
 
+#include "../GlobalFunctions.h"
 #include "../XLLT/QLLTSimulation.h"
 #include <QtOpenGL>
 
@@ -18,58 +17,58 @@
 using namespace chrono;
 using namespace chrono::fea;
 
-//PlatformModel::PlatformModel( PlatformParams p, QLLTSimulation *qLLTSim)
 PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 {
 
-      std::shared_ptr<ChMesh> mesh = std::make_shared<ChMesh>();
+    // Change solver settings
+    system.SetSolverType(ChSolver::Type::MINRES);
+    system.SetSolverWarmStarting(true);  // this helps a lot to speedup convergence in this class of problems
+    system.SetMaxItersSolverSpeed(200);
+    system.SetMaxItersSolverStab(200);
+    system.SetTolForce(1e-13);
+    auto solver = std::static_pointer_cast<ChSolverMINRES>(system.GetSolver());
+    solver->SetVerbose(false);
+    solver->SetDiagonalPreconditioning(true);
 
-      //Monopile
-      monopileInitNode = std::make_shared<ChNodeFEAxyzD>(p.towerInitPos, p.towerInitDir);
-      mesh->AddNode(monopileInitNode);
+    // Change type of integrator:
+    system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT_LINEARIZED);
 
-      monopile = std::make_shared<ChBodyEasyCylinder>(p.towerRadius,p.towerHeight,p.towerDensity);
-      monopile->SetPos(monopileInitNode->GetPos());
+    mesh = std::make_shared<ChMesh>();
 
-      //Setup location of monopile for construction of mooring lines
-      ChQuaternion<> qSetup = Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X);
+    //Monopile
+    monopileInitNode = std::make_shared<ChNodeFEAxyzD>(p.towerInitPos, p.towerInitDir);
+    mesh->AddNode(monopileInitNode);
 
-      monopile->SetRot(qSetup);
+    monopile = std::make_shared<ChBodyEasyCylinder>(p.towerRadius,p.towerHeight,p.towerDensity);
+    monopile->SetPos(monopileInitNode->GetPos());
 
-      system.Add(monopile);
+    //Setup location of monopile for construction of mooring lines
+    ChQuaternion<> qSetup = Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X);
 
-      //Constraints
+    monopile->SetRot(qSetup);
 
-      //Add Buoyancy force
+    system.Add(monopile);
 
-      //Init Load container
-      auto loadcontainer = std::make_shared<ChLoadContainer>();
-      system.Add(loadcontainer);
+    //Constraints
 
-      buoyancy = std::make_shared<Buoyancy>(p, loadcontainer, monopile, mesh, system);
+    //Add Buoyancy force
 
-      //Fix Monopile in space
-      /*auto constraint_pos = std::make_shared<ChLinkPointFrame>();
-      monopileInitNode->SetFixed(true);
-      constraint_pos->Initialize(monopileInitNode,monopile);
-      system.Add(constraint_pos);
+    //Init Load container
+    auto loadcontainer = std::make_shared<ChLoadContainer>();
+    system.Add(loadcontainer);
 
-      auto constraint_dir = std::make_shared<ChLinkDirFrame>();
-      constraint_dir->Initialize(monopileInitNode,monopile);
-      constraint_dir->SetDirectionInAbsoluteCoords(ChVector<>(0, 0, 1));
-      system.Add(constraint_dir);
-      */
+    buoyancy = std::make_shared<Buoyancy>(p, loadcontainer, monopile, mesh, system);
 
-      //Add Gravity
-      system.Set_G_acc(ChVector<>(0,0,-p.g));
-      //system.Set_G_acc(ChVector<>(0,0,0));
+    //Add Gravity
+    system.Set_G_acc(ChVector<>(0,0,-p.g));
+    //system.Set_G_acc(ChVector<>(0,0,0));
 
-      //Angular increment of Mooring Line on Monopile
-      double thetaInc = 360/p.mooringLineNr;
-      //Angle on Monopile of mooring line
-      double theta = 0;
-      //Construct Mooring Lines
-      for(int i = 0; i < p.mooringLineNr; i++){
+    //Angular increment of Mooring Line on Monopile
+    double thetaInc = 360/p.mooringLineNr;
+    //Angle on Monopile of mooring line
+    double theta = 0;
+    //Construct Mooring Lines
+    for(int i = 0; i < p.mooringLineNr; i++){
         theta = theta + thetaInc;
 
         qDebug() << "Mooring Line Angular position: " << theta << "deg\n";
@@ -77,24 +76,79 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
         MooringLine mLine(system, mesh, p, theta, monopile);
         mooringLines[i] = mLine;
 
-      }
-      //Initial rotation of the monopile
-      //Rotate around x axis and y axis
-      ChQuaternion<> qRotationX = Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_X);
-      ChQuaternion<> qRotationZ= Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_Z);
-      //Translate to initial Position
-      //ChVector<> initPos = ChVector<>(0,0,0);
-      ChVector<> initPos = ChVector<>(20,20,0);
+    }
+    //Initial rotation of the monopile
+    //Rotate around x axis and y axis
+    ChQuaternion<> qRotationX = Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_X);
+    ChQuaternion<> qRotationZ= Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_Z);
+    //Translate to initial Position
+    //ChVector<> initPos = ChVector<>(0,0,0);
+    ChVector<> initPos = ChVector<>(20,20,0);
 
-      //Define initial displacement
-      ChCoordsys<> initCoords =ChCoordsys<>(initPos,qRotationX*qRotationZ);
-      monopile->Move(initCoords);
+    //Define initial displacement
+    ChCoordsys<> initCoords =ChCoordsys<>(initPos,qRotationX*qRotationZ);
+    monopile->Move(initCoords);
 
-      //qDebug() << "monopile initial position:" << monopile->GetPos() << "\n";
-      //qDebug() << "monopile initial rotation:" << monopile->GetRot() << "\n";
-      qDebug() << "Rest Length: " << p.mooringRestLength << "\n";
+    //qDebug() << "monopile initial position:" << monopile->GetPos() << "\n";
+    //qDebug() << "monopile initial rotation:" << monopile->GetRot() << "\n";
+    qDebug() << "Rest Length: " << p.mooringRestLength << "\n";
+
+    system.Add(mesh);
+    system.SetupInitial();
+
 }
 
-void PlatformModel::update(){
-  buoyancy->update();
+void PlatformModel::render(){
+
+    glNewList(GLPLATFORM,GL_COMPILE);
+    {
+        renderMonopile();
+    }
+    glEndList();
+}
+
+void PlatformModel::renderMonopile(){
+    glPointSize(10);
+    glLineWidth(3);
+
+    glBegin(GL_LINES);
+    {
+        glColor4d(0,0,0,1);
+        CVector monopilePos = CVecFromChVec(monopile->GetPos());
+        glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
+
+        CVector topMarkerPos = CVecFromChVec(buoyancy->getMarkerTop()->GetPos());
+        glVertex3d(topMarkerPos.x,topMarkerPos.y,topMarkerPos.z);
+        CVector bottomMarkerPos = CVecFromChVec(buoyancy->getMarkerTop()->GetPos());
+        glVertex3d(bottomMarkerPos.x,bottomMarkerPos.y,bottomMarkerPos.z);
+    }
+    glEnd();
+}
+
+void PlatformModel::update(double endTime){
+
+    double old_step;
+    double left_time;
+    int restore_oldstep = FALSE;
+
+    system.SetStep(dT);
+
+    while (system.GetChTime() < endTime) {
+
+        buoyancy->update();
+
+        restore_oldstep = FALSE;
+        left_time = endTime - system.GetChTime();
+        if (left_time < 1e-12) break;  // - no integration if backward or null frame step.
+        if (left_time < (1.3 * dT))  // - step changed if too little frame step
+        {
+            old_step = dT;
+            dT = left_time;
+            restore_oldstep = TRUE;
+        }
+        if (!system.DoStepDynamics(dT)) break;  // ***  Single integration step,
+
+    }
+
+    if (restore_oldstep) dT = old_step;
 }

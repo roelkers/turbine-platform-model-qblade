@@ -24,11 +24,15 @@ class PlatformModel{
     std::vector<MooringLine> mooringLines;
     QLLTSimulation *qLLTSim;
     chrono::ChSystemNSC system;
+    std::shared_ptr<ChMesh> mesh;
     PlatformParams p;
+    double dT = 0.01;
 
   public:
     PlatformModel(QLLTSimulation *qLLTSim);
-    void update();
+    void update(double endTime);
+    void render();
+    void renderMonopile();
 
 };
 

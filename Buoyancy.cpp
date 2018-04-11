@@ -10,6 +10,7 @@
 #include <chrono/assets/ChTexture.h>
 
 #include <QDebug>
+#include "../GlobalFunctions.h"
 
 #include "Buoyancy.h"
 #include "PlatformParams.h"
@@ -100,6 +101,14 @@ void Buoyancy::update(){
   //Check if the sea level plane is parallel to the tower axis,
   //this is the edge case. then the intersection point will be undefined.
   //Scalar Product:
+  qDebug() << "quaternion data0:" << qmonopile.e0();
+  qDebug() << "quaternion data1:" << qmonopile.e1();
+  qDebug() << "quaternion data2:" << qmonopile.e2();
+  qDebug() << "quaternion data3:" << qmonopile.e3();
+  qDebug() << "towerAxis x: " << towerAxis.x();
+  qDebug() << "towerAxis y: " << towerAxis.y();
+  qDebug() << "towerAxis z: " << towerAxis.z();
+
   if(towerAxis^zUnityVector==0){
     qDebug() << "Edge Case for Buoyancy" << "\n";
     //intersection point is exactly on a line parallel to the z axis below the gravity
@@ -124,6 +133,9 @@ void Buoyancy::update(){
 
   computeBuoyancy(vecE, vecI, intersectionPoint);
 
+  qDebug() << "monopile x: " << monopile->GetPos().x();
+  qDebug() << "monopile y: " << monopile->GetPos().y();
+  qDebug() << "monopile z: " << monopile->GetPos().z();
 }
 
 void Buoyancy::computeBuoyancy(ChVector<> vecE, ChVector<> vecI, ChVector<> intersectionPoint){
