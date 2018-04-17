@@ -1,8 +1,8 @@
 #include "PlatformParams.h"
 
-PlatformParams::PlatformParams(){
+PlatformParams::PlatformParams(double towerHeight){
 
-  towerHeight=100;
+  this->towerHeight=towerHeight;
   towerRadius=5;
   towerDensity=600;
   towerInitPos = ChVector<>(0, 0, 0);

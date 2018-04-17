@@ -18,8 +18,9 @@ using namespace chrono;
 using namespace chrono::fea;
 
 PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
+    :p(qLLTSim->getTowerHeight())
 {
-
+    qDebug() << "tower height: " << p.towerHeight;
     // Change solver settings
     system.SetSolverType(ChSolver::Type::MINRES);
     system.SetSolverWarmStarting(true);  // this helps a lot to speedup convergence in this class of problems
@@ -71,18 +72,18 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     for(int i = 0; i < p.mooringLineNr; i++){
         theta = theta + thetaInc;
 
-        qDebug() << "Mooring Line Angular position: " << theta << "deg\n";
-        qDebug() << "Constructing mooring line " << i << "\n";
-        MooringLine mLine(system, mesh, p, theta, monopile);
-        mooringLines[i] = mLine;
+        //qDebug() << "Mooring Line Angular position: " << theta << "deg\n";
+        //qDebug() << "Constructing mooring line " << i << "\n";
+        //MooringLine mLine(system, mesh, p, theta, monopile);
+        //mooringLines[i] = mLine;
 
     }
     //Initial rotation of the monopile
     //Rotate around x axis and y axis
-    ChQuaternion<> qRotationX = Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_X);
-    ChQuaternion<> qRotationZ= Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_Z);
+    ChQuaternion<> qRotationX = Q_from_AngAxis(10 * CH_C_DEG_TO_RAD, VECT_X);
+    ChQuaternion<> qRotationZ= Q_from_AngAxis(20 * CH_C_DEG_TO_RAD, VECT_Z);
     //Translate to initial Position
-    ChVector<> initPos = ChVector<>(0,0,0);
+    ChVector<> initPos = ChVector<>(0,0,0.5*p.towerHeight);
     //ChVector<> initPos = ChVector<>(20,20,0);
 
     //Define initial displacement
@@ -111,16 +112,28 @@ void PlatformModel::renderMonopile(){
     glPointSize(10);
     glLineWidth(3);
 
-    glBegin(GL_LINES);
+    glBegin(GL_POINTS);
     {
-        glColor4d(0,0,0,1);
+        //blue: monopile
+        glColor4d(0,0,1,1);
         CVector monopilePos = CVecFromChVec(monopile->GetPos());
         glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
-
-        CVector topMarkerPos = CVecFromChVec(buoyancy->getMarkerTop()->GetPos());
+        //green: topMarker
+        glColor4d(0,1,0,1);
+        CVector topMarkerPos = CVecFromChVec(buoyancy->getMarkerTop()->GetAbsCoord().pos);
         glVertex3d(topMarkerPos.x,topMarkerPos.y,topMarkerPos.z);
-        CVector bottomMarkerPos = CVecFromChVec(buoyancy->getMarkerTop()->GetPos());
+        //red: bottomMarker
+        glColor4d(1,0,0,1);
+        CVector bottomMarkerPos = CVecFromChVec(buoyancy->getMarkerBottom()->GetAbsCoord().pos);
         glVertex3d(bottomMarkerPos.x,bottomMarkerPos.y,bottomMarkerPos.z);
+        //red/green: intersection Point
+        glColor4d(1,1,0,1);
+        CVector isPos = CVecFromChVec(buoyancy->getIntersectionPoint());
+        glVertex3d(isPos.x,isPos.y,isPos.z);
+        //blue/green: buoyancy center
+        glColor4d(0,1,1,1);
+        CVector buoyancyCenterPos = CVecFromChVec(buoyancy->getBuoyancyCenter());
+        glVertex3d(buoyancyCenterPos.x,buoyancyCenterPos.y,buoyancyCenterPos.z);
     }
     glEnd();
 }

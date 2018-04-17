@@ -57,6 +57,14 @@ loadContainer(loadContainer)
   ChVector<> vecE = markerBottom->GetAbsCoord().pos;
   ChVector<> vecI = markerTop->GetAbsCoord().pos;
 
+  qDebug() << "topMarker x: " << markerTop->GetAbsCoord().pos.x();
+  qDebug() << "topMarker y: " << markerTop->GetAbsCoord().pos.y();
+  qDebug() << "topMarker z: " << markerTop->GetAbsCoord().pos.z();
+
+  qDebug() << "bottomMarker x: " << markerBottom->GetAbsCoord().pos.x();
+  qDebug() << "bottomMarker y: " << markerBottom->GetAbsCoord().pos.y();
+  qDebug() << "bottomMarker z: " << markerBottom->GetAbsCoord().pos.z();
+
   computeMaximumBuoyancyForce();
 
   //Init Buoyancy force with null vectors
@@ -77,8 +85,10 @@ loadContainer(loadContainer)
 
 void Buoyancy::update(){
 
+  qDebug() << "Updating Markers";
   markerBottom->UpdateState();
   markerTop->UpdateState();
+  qDebug() << "Updated Markers";
 
   ChVector<> seaLevelVector = ChVector<>(0,0,p.seaLevel);
   ChVector<> towerPos = monopile->GetPos();
@@ -95,7 +105,6 @@ void Buoyancy::update(){
   //Get vector in direction of tower axis by rotating vector around quaternion
   ChVector<> towerAxis = qcombined.Rotate(zUnityVector);
 
-  ChVector<> intersectionPoint;
   ChVector<> vecE;
   ChVector<> vecI;
   //Check if the sea level plane is parallel to the tower axis,
@@ -131,14 +140,22 @@ void Buoyancy::update(){
     qDebug() << "r-Konstante:" << rConstant << "\n";
   }
 
-  computeBuoyancy(vecE, vecI, intersectionPoint);
+  computeBuoyancy(vecE, vecI);
 
   qDebug() << "monopile x: " << monopile->GetPos().x();
   qDebug() << "monopile y: " << monopile->GetPos().y();
   qDebug() << "monopile z: " << monopile->GetPos().z();
+
+  qDebug() << "topMarker x: " << markerTop->GetAbsCoord().pos.x();
+  qDebug() << "topMarker y: " << markerTop->GetAbsCoord().pos.y();
+  qDebug() << "topMarker z: " << markerTop->GetAbsCoord().pos.z();
+
+  qDebug() << "bottomMarker x: " << markerBottom->GetAbsCoord().pos.x();
+  qDebug() << "bottomMarker y: " << markerBottom->GetAbsCoord().pos.y();
+  qDebug() << "bottomMarker z: " << markerBottom->GetAbsCoord().pos.z();
 }
 
-void Buoyancy::computeBuoyancy(ChVector<> vecE, ChVector<> vecI, ChVector<> intersectionPoint){
+void Buoyancy::computeBuoyancy(ChVector<> vecE, ChVector<> vecI){
   // Skizze:
   // G: Center of gravity
   // S: intersection point at water surface
