@@ -20,6 +20,7 @@ using namespace chrono::fea;
 PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     :p(qLLTSim->getTowerHeight())
 {
+
     qDebug() << "tower height: " << p.towerHeight;
     // Change solver settings
     system.SetSolverType(ChSolver::Type::MINRES);
@@ -72,10 +73,10 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     for(int i = 0; i < p.mooringLineNr; i++){
         theta = theta + thetaInc;
 
-        //qDebug() << "Mooring Line Angular position: " << theta << "deg\n";
-        //qDebug() << "Constructing mooring line " << i << "\n";
-        //MooringLine mLine(system, mesh, p, theta, monopile);
-        //mooringLines[i] = mLine;
+        qDebug() << "Mooring Line Angular position: " << theta << "deg\n";
+        qDebug() << "Constructing mooring line " << i << "\n";
+        MooringLine mLine(system, mesh, p, theta, monopile);
+        mooringLines.push_back(mLine);
 
     }
     //Initial rotation of the monopile
@@ -104,6 +105,7 @@ void PlatformModel::render(){
     glNewList(GLPLATFORM,GL_COMPILE);
     {
         renderMonopile();
+        renderMooringLines();
     }
     glEndList();
 }
@@ -112,8 +114,8 @@ void PlatformModel::renderMonopile(){
     glPointSize(10);
     glLineWidth(3);
 
+    //Draw viz vertices
     glBegin(GL_POINTS);
-    {
         //blue: monopile
         glColor4d(0,0,1,1);
         CVector monopilePos = CVecFromChVec(monopile->GetPos());
@@ -134,8 +136,23 @@ void PlatformModel::renderMonopile(){
         glColor4d(0,1,1,1);
         CVector buoyancyCenterPos = CVecFromChVec(buoyancy->getBuoyancyCenter());
         glVertex3d(buoyancyCenterPos.x,buoyancyCenterPos.y,buoyancyCenterPos.z);
-    }
     glEnd();
+    //Draw axis of tower
+    glPointSize(0.1);
+    glBegin(GL_LINES);
+        glColor4d(0,0,0,1);
+        glVertex3d(topMarkerPos.x,topMarkerPos.y,topMarkerPos.z);
+        glVertex3d(bottomMarkerPos.x,bottomMarkerPos.y,bottomMarkerPos.z);
+    glEnd();
+}
+
+void PlatformModel::renderMooringLines(){
+   glPointSize(0.1);
+   glLineWidth(1);
+
+   for(auto & mooringLine : mooringLines) {
+       mooringLine.render();
+   }
 }
 
 void PlatformModel::update(double endTime){

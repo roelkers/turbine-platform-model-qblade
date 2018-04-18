@@ -12,10 +12,10 @@ using namespace chrono::fea;
 
 class MooringLine{
 private:
-
+  ChBuilderBeamANCF builder;
 public:
   MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, PlatformParams p, double theta, std::shared_ptr<ChBodyEasyCylinder> monopile);
-
+  void render();
 };
 
 #endif

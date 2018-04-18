@@ -7,6 +7,10 @@
 #include "chrono_fea/ChLinkDirFrame.h"
 #include "chrono_fea/ChElementCableANCF.h"
 
+#include "../GlobalFunctions.h"
+#include "../XLLT/QLLTSimulation.h"
+#include <QtOpenGL>
+
 #include <QDebug>
 
 #include "math.h"
@@ -27,7 +31,6 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   // subdivide 'beams' into sequences of finite elements of beam type, ex.
   // one 'beam' could be made of 5 FEM elements of ChElementBeamANCF class.
   // If new nodes are needed, it will create them for you.
-  ChBuilderBeamANCF builder;
 
   //Starting Position of Mooring Line on the Monopile
   double xStart = p.towerRadius*sin(theta/180*M_PI);
@@ -66,4 +69,15 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   auto constraint_hinge = std::make_shared<ChLinkPointFrame>();
   constraint_hinge->Initialize(builder.GetLastBeamNodes().back(), mtruss);
   system.Add(constraint_hinge);
+}
+
+void MooringLine::render(){
+    //Iterate over nodes to visualize them
+    glBegin(GL_LINE_STRIP);
+    std::vector<std::shared_ptr<ChNodeFEAxyzD>> beamNodes = builder.GetLastBeamNodes();
+    for(auto &node : beamNodes){
+        CVector nodePos = CVecFromChVec(node->GetPos());
+        glVertex3d(nodePos.x,nodePos.y,nodePos.z);
+    }
+    glEnd();
 }
