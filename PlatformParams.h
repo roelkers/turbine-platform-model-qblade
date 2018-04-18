@@ -20,10 +20,10 @@ public:
   double mooringYoungModulus;
   double mooringRaleyghDamping;
   int mooringNrElements;
-  double mooringL;
-  double mooringPosFairleadZ;
+  double mooringAnchorRadiusFromFairlead;
+  double mooringPosFairleadZInBodyCoords;
   double mooringPosBottomZ;
-  double mooringRestLength;
+  double mooringRestLengthRelative;
 
   double seaLevel;
   double rhoWater;

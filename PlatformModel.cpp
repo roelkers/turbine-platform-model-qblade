@@ -91,8 +91,7 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     monopile->Move(initCoords);
 
     //qDebug() << "monopile initial position:" << monopile->GetPos() << "\n";
-    //qDebug() << "monopile initial rotation:" << monopile->GetRot() << "\n";
-    qDebug() << "Rest Length: " << p.mooringRestLength << "\n";
+    //qDebug() << "monopile initial rotation:" << monopile->GetRot() << "\n"
 
     system.Add(mesh);
     system.SetupInitial();

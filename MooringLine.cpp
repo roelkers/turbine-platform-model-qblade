@@ -36,10 +36,10 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   double xStart = p.towerRadius*sin(theta/180*M_PI);
   double yStart = p.towerRadius*cos(theta/180*M_PI);
   //End Position of Mooring Line
-  double xEnd = (p.towerRadius+p.mooringL)*sin(theta/180*M_PI);
-  double yEnd = (p.towerRadius+p.mooringL)*cos(theta/180*M_PI);
+  double xEnd = (p.towerRadius+p.mooringAnchorRadiusFromFairlead)*sin(theta/180*M_PI);
+  double yEnd = (p.towerRadius+p.mooringAnchorRadiusFromFairlead)*cos(theta/180*M_PI);
 
-  ChVector<> mooringFairlead = ChVector<>(xStart, yStart, p.mooringPosFairleadZ);
+  ChVector<> mooringFairlead = ChVector<>(xStart, yStart, p.mooringPosFairleadZInBodyCoords);
   ChVector<> mooringAnchor = ChVector<>(xEnd, yEnd, p.mooringPosBottomZ);
 
   // Now, simply use BuildBeam to create a beam from a point to another:
@@ -50,12 +50,21 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
     mooringAnchor        // the 'B' point in space (end of beam)
   );
 
+  //determine mooring line length
+  double mooringL = sqrt(pow(p.mooringPosBottomZ,2) + pow(p.towerRadius+p.mooringAnchorRadiusFromFairlead,2));
+  qDebug()<< "mooringL: " << mooringL ;
+
+  double sectionLength = mooringL/p.mooringNrElements;
+  double mooringRestLength = sectionLength*p.mooringRestLengthRelative;
+
+  qDebug() << "Rest Length: " << mooringRestLength << "\n";
+
   //Iterate over beam elements to set the rest length (lenth at rest position)
   std::vector<std::shared_ptr<ChElementCableANCF>> beamElements = builder.GetLastBeamElements();
   for(auto &element : beamElements){
-    //GetLog() << "Prev:RestLength: " << element->GetRestLength() << "\n";
-    element->SetRestLength(p.mooringRestLength);
-    //GetLog() << "Now:RestLength: " << element->GetRestLength() << "\n";
+    qDebug() << "Prev:RestLength: " << element->GetRestLength() << "\n";
+    element->SetRestLength(mooringRestLength);
+    qDebug() << "Now:RestLength: " << element->GetRestLength() << "\n";
   }
 
   // For instance, now retrieve the A end and add a constraint to
