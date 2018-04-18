@@ -3,8 +3,6 @@
 
 #include "chrono/core/ChVector.h"
 
-using namespace chrono;
-
 class PlatformParams{
 
 public:
@@ -14,8 +12,8 @@ public:
   double towerHeight;
   double towerRadius;
   double towerDensity;
-  ChVector<> towerInitPos;
-  ChVector<> towerInitDir;
+  chrono::ChVector<> towerInitPos;
+  chrono::ChVector<> towerInitDir;
 
   int mooringLineNr;
   double mooringDiameter;

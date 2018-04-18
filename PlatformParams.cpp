@@ -1,5 +1,7 @@
 #include "PlatformParams.h"
 
+using namespace chrono;
+
 PlatformParams::PlatformParams(double towerHeight){
 
   this->towerHeight=towerHeight;
