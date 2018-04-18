@@ -38,7 +38,7 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     mesh = std::make_shared<ChMesh>();
 
     //Monopile
-    monopileInitNode = std::make_shared<ChNodeFEAxyzD>(p.towerInitPos, p.towerInitDir);
+    monopileInitNode = std::make_shared<ChNodeFEAxyzD>(p.towerSetupPos, p.towerSetupDir);
     mesh->AddNode(monopileInitNode);
 
     monopile = std::make_shared<ChBodyEasyCylinder>(p.towerRadius,p.towerHeight,p.towerDensity);
@@ -81,7 +81,7 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     }
     //Initial rotation of the monopile
     //Rotate around x axis and y axis
-    ChQuaternion<> qRotationX = Q_from_AngAxis(10 * CH_C_DEG_TO_RAD, VECT_X);
+    ChQuaternion<> qRotationX = Q_from_AngAxis(30 * CH_C_DEG_TO_RAD, VECT_X);
     ChQuaternion<> qRotationZ= Q_from_AngAxis(20 * CH_C_DEG_TO_RAD, VECT_Z);
     //Translate to initial Position
     ChVector<> initPos = ChVector<>(0,0,0.5*p.towerHeight);

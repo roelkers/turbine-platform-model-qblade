@@ -7,8 +7,8 @@ PlatformParams::PlatformParams(double towerHeight){
   this->towerHeight=towerHeight;
   towerRadius=5;
   towerDensity=600;
-  towerInitPos = ChVector<>(0, 0, 0);
-  towerInitDir = ChVector<>(0, 0, 1);
+  towerSetupPos = ChVector<>(0, 0, 0);
+  towerSetupDir = ChVector<>(0, 0, 1);
 
   mooringLineNr = 3;
   mooringDiameter = 0.15;

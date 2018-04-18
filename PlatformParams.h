@@ -12,8 +12,8 @@ public:
   double towerHeight;
   double towerRadius;
   double towerDensity;
-  chrono::ChVector<> towerInitPos;
-  chrono::ChVector<> towerInitDir;
+  chrono::ChVector<> towerSetupPos;
+  chrono::ChVector<> towerSetupDir;
 
   int mooringLineNr;
   double mooringDiameter;
