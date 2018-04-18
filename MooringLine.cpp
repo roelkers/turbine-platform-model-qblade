@@ -39,13 +39,16 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   double xEnd = (p.towerRadius+p.mooringL)*sin(theta/180*M_PI);
   double yEnd = (p.towerRadius+p.mooringL)*cos(theta/180*M_PI);
 
+  ChVector<> mooringFairlead = ChVector<>(xStart, yStart, p.mooringPosFairleadZ);
+  ChVector<> mooringAnchor = ChVector<>(xEnd, yEnd, p.mooringPosBottomZ);
+
   // Now, simply use BuildBeam to create a beam from a point to another:
   builder.BuildBeam(mesh,                       // the mesh where to put the created nodes and elements
     sectionCable,            // the ChBeamSectionCable to use for the ChElementBeamANCF elements
     p.mooringNrElements,      // the number of ChElementBeamANCF to create
-    ChVector<>(xStart, yStart, p.mooringPosFairleadZ),     // the 'A' point in space (beginning of beam)
-    ChVector<>(xEnd, yEnd, p.mooringPosBottomZ)
-  );  // the 'B' point in space (end of beam)
+    mooringFairlead,     // the 'A' point in space (beginning of beam)
+    mooringAnchor        // the 'B' point in space (end of beam)
+  );
 
   //Iterate over beam elements to set the rest length (lenth at rest position)
   std::vector<std::shared_ptr<ChElementCableANCF>> beamElements = builder.GetLastBeamElements();
@@ -61,9 +64,10 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   mtruss->SetBodyFixed(true);
 
   //fairleads constraint
-  auto constraint_pos2 = std::make_shared<ChLinkPointFrame>();
-  constraint_pos2->Initialize(builder.GetLastBeamNodes().front(), monopile);
-  system.Add(constraint_pos2);
+  auto constraint_fairlead = std::make_shared<ChLinkPointFrame>();
+  constraint_fairlead->Initialize(builder.GetLastBeamNodes().front(), monopile);
+  constraint_fairlead->SetAttachPositionInBodyCoords(mooringFairlead);
+  system.Add(constraint_fairlead);
 
   //anchor constraint
   auto constraint_hinge = std::make_shared<ChLinkPointFrame>();

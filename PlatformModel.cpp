@@ -85,7 +85,6 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     ChQuaternion<> qRotationZ= Q_from_AngAxis(20 * CH_C_DEG_TO_RAD, VECT_Z);
     //Translate to initial Position
     ChVector<> initPos = ChVector<>(0,0,0.5*p.towerHeight);
-    //ChVector<> initPos = ChVector<>(20,20,0);
 
     //Define initial displacement
     ChCoordsys<> initCoords =ChCoordsys<>(initPos,qRotationX*qRotationZ);

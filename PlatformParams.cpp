@@ -22,6 +22,7 @@ PlatformParams::PlatformParams(double towerHeight){
   //GetLog() << "sectionLength: " << sectionLength << "\n";
   mooringRestLength = sectionLength*0.3;
 
+
   seaLevel = 0;
   rhoWater = 1000;
   g = 9.81;
