@@ -26,11 +26,6 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   sectionCable->SetDiameter(p.mooringDiameter);
   sectionCable->SetYoungModulus(p.mooringYoungModulus);
   sectionCable->SetBeamRaleyghDamping(p.mooringRaleyghDamping);
-  // Shortcut!
-  // This ChBuilderBeamANCF helper object is very useful because it will
-  // subdivide 'beams' into sequences of finite elements of beam type, ex.
-  // one 'beam' could be made of 5 FEM elements of ChElementBeamANCF class.
-  // If new nodes are needed, it will create them for you.
 
   //Starting Position of Mooring Line on the Monopile
   double xStart = p.towerRadius*sin(theta/180*M_PI);
@@ -59,7 +54,7 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
 
   qDebug() << "Rest Length: " << mooringRestLength << "\n";
 
-  //Iterate over beam elements to set the rest length (lenth at rest position)
+  //Iterate over beam elements to set the rest length (length at rest position)
   std::vector<std::shared_ptr<ChElementCableANCF>> beamElements = builder.GetLastBeamElements();
   for(auto &element : beamElements){
     qDebug() << "Prev:RestLength: " << element->GetRestLength() << "\n";
@@ -67,15 +62,17 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
     qDebug() << "Now:RestLength: " << element->GetRestLength() << "\n";
   }
 
-  // For instance, now retrieve the A end and add a constraint to
-  // block the position only of that node:
+  //create truss (fixed body)
   auto mtruss = std::make_shared<ChBody>();
   mtruss->SetBodyFixed(true);
 
+  //mooringFairleadNode = builder.GetLastBeamNodes().front();
   //fairleads constraint
   auto constraint_fairlead = std::make_shared<ChLinkPointFrame>();
   constraint_fairlead->Initialize(builder.GetLastBeamNodes().front(), monopile);
-  constraint_fairlead->SetAttachPositionInBodyCoords(mooringFairlead);
+  //constraint_fairlead->SetAttachPositionInBodyCoords(mooringFairlead);
+  //ChCoordsys<> mooringFairleadCoord = ChCoordsys<>(mooringFairlead);
+  //constraint_fairlead->SetAttachReferenceInAbsoluteCoords(mooringFairleadCoord);
   system.Add(constraint_fairlead);
 
   //anchor constraint

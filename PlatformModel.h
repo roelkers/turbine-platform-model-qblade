@@ -22,6 +22,7 @@ class PlatformModel{
     std::shared_ptr<chrono::ChBodyEasyCylinder> monopile;
     std::shared_ptr<Buoyancy> buoyancy;
     std::vector<MooringLine> mooringLines;
+    std::vector<chrono::ChMarker> monopileFairleadMarkers;
     QLLTSimulation *qLLTSim;
     chrono::ChSystemNSC system;
     std::shared_ptr<chrono::fea::ChMesh> mesh;

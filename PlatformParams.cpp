@@ -18,7 +18,7 @@ PlatformParams::PlatformParams(double towerHeight){
   mooringAnchorRadiusFromFairlead = 100;
   mooringPosFairleadZInBodyCoords = 0;
   mooringPosBottomZ = -100;
-  mooringRestLengthRelative = 10;
+  mooringRestLengthRelative = 0.7;
 
   seaLevel = 0;
   rhoWater = 1000;

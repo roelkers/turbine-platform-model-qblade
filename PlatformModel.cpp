@@ -46,14 +46,9 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 
     //Setup location of monopile for construction of mooring lines
     ChQuaternion<> qSetup = Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X);
-
     monopile->SetRot(qSetup);
 
     system.Add(monopile);
-
-    //Constraints
-
-    //Add Buoyancy force
 
     //Init Load container
     auto loadcontainer = std::make_shared<ChLoadContainer>();
@@ -73,6 +68,22 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     for(int i = 0; i < p.mooringLineNr; i++){
         theta = theta + thetaInc;
 
+        //Create Markers for fairlead on monopile
+        //To initialize the mooring lines after setup
+        //Starting Position of Mooring Line on the Monopile
+        /*
+        double xFairlead = p.towerRadius*sin(theta/180*M_PI);
+        double yFairlead = p.towerRadius*cos(theta/180*M_PI);
+
+
+        ChMarker monopileFairleadMarker = ChMarker();
+        //Set Marker Position relative to local coordinate system
+        ChCoordsys<> fairleadCoordsys = ChCoordsys<>(xFairlead,yFairlead,p.mooringPosFairleadZInBodyCoords);
+        //Set marker parameters
+        monopileFairleadMarker.SetBody(monopile.get());
+        monopileFairleadMarker.Impose_Abs_Coord(fairleadCoordsys);
+        monopileFairleadMarkers.push_back(monopileFairleadMarker);
+        */
         qDebug() << "Mooring Line Angular position: " << theta << "deg\n";
         qDebug() << "Constructing mooring line " << i << "\n";
         MooringLine mLine(system, mesh, p, theta, monopile);
@@ -90,9 +101,12 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     ChCoordsys<> initCoords =ChCoordsys<>(initPos,qRotationX*qRotationZ);
     monopile->Move(initCoords);
 
-    //qDebug() << "monopile initial position:" << monopile->GetPos() << "\n";
-    //qDebug() << "monopile initial rotation:" << monopile->GetRot() << "\n"
+    //Move mooring lines to the new position:
+    //for(int i = 0; i<p.mooringLineNr-1; i++){
+    //    mooringLines.at(i).getFairleadNode()->SetPos(monopileFairleadMarkers.at(i).GetAbsCoord().pos);
+    //}
 
+    //complete setup
     system.Add(mesh);
     system.SetupInitial();
 

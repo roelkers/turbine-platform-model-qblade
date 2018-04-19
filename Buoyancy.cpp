@@ -54,8 +54,8 @@ loadContainer(loadContainer)
   //Set marker parameters
   markerTop->SetBody(monopile.get());
   markerTop->Impose_Abs_Coord(topCoordsys);
-  ChVector<> vecE = markerBottom->GetAbsCoord().pos;
-  ChVector<> vecI = markerTop->GetAbsCoord().pos;
+  //ChVector<> vecE = markerBottom->GetAbsCoord().pos;
+  //ChVector<> vecI = markerTop->GetAbsCoord().pos;
 
   qDebug() << "topMarker x: " << markerTop->GetAbsCoord().pos.x();
   qDebug() << "topMarker y: " << markerTop->GetAbsCoord().pos.y();
