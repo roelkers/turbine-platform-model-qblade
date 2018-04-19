@@ -83,18 +83,16 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     ChCoordsys<> initCoords =ChCoordsys<>(initPos,qRotationX*qRotationZ);
     monopile->Move(initCoords);
 
-    //complete setup
-    system.Add(mesh);
-    system.SetupInitial();
-
-    system.DoStepDynamics(0.01);
+    monopile->UpdateMarkers(0.01);
 
     //Move mooring lines to the new position:
     for(auto & mooringLine : mooringLines) {
         mooringLine.updateFairleadNode();
     }
 
-
+    //complete setup
+    system.Add(mesh);
+    system.SetupInitial();
 
 }
 
