@@ -85,10 +85,8 @@ loadContainer(loadContainer)
 
 void Buoyancy::update(){
 
-  qDebug() << "Updating Markers";
   markerBottom->UpdateState();
   markerTop->UpdateState();
-  qDebug() << "Updated Markers";
 
   ChVector<> seaLevelVector = ChVector<>(0,0,p.seaLevel);
   ChVector<> towerPos = monopile->GetPos();

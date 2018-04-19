@@ -2,9 +2,7 @@
 #include "chrono/physics/ChBodyEasy.h"
 
 #include "chrono/solver/ChSolverMINRES.h"
-#include "chrono_fea/ChBuilderBeam.h"
 #include "chrono_fea/ChMesh.h"
-#include "chrono_fea/ChElementCableANCF.h"
 
 #include "../GlobalFunctions.h"
 #include "../XLLT/QLLTSimulation.h"
@@ -68,27 +66,11 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     for(int i = 0; i < p.mooringLineNr; i++){
         theta = theta + thetaInc;
 
-        //Create Markers for fairlead on monopile
-        //To initialize the mooring lines after setup
-        //Starting Position of Mooring Line on the Monopile
-        /*
-        double xFairlead = p.towerRadius*sin(theta/180*M_PI);
-        double yFairlead = p.towerRadius*cos(theta/180*M_PI);
-
-
-        ChMarker monopileFairleadMarker = ChMarker();
-        //Set Marker Position relative to local coordinate system
-        ChCoordsys<> fairleadCoordsys = ChCoordsys<>(xFairlead,yFairlead,p.mooringPosFairleadZInBodyCoords);
-        //Set marker parameters
-        monopileFairleadMarker.SetBody(monopile.get());
-        monopileFairleadMarker.Impose_Abs_Coord(fairleadCoordsys);
-        monopileFairleadMarkers.push_back(monopileFairleadMarker);
-        */
         qDebug() << "Mooring Line Angular position: " << theta << "deg\n";
         qDebug() << "Constructing mooring line " << i << "\n";
         MooringLine mLine(system, mesh, p, theta, monopile);
-        mooringLines.push_back(mLine);
 
+        mooringLines.push_back(mLine);
     }
     //Initial rotation of the monopile
     //Rotate around x axis and y axis
@@ -101,14 +83,18 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     ChCoordsys<> initCoords =ChCoordsys<>(initPos,qRotationX*qRotationZ);
     monopile->Move(initCoords);
 
-    //Move mooring lines to the new position:
-    //for(int i = 0; i<p.mooringLineNr-1; i++){
-    //    mooringLines.at(i).getFairleadNode()->SetPos(monopileFairleadMarkers.at(i).GetAbsCoord().pos);
-    //}
-
     //complete setup
     system.Add(mesh);
     system.SetupInitial();
+
+    system.DoStepDynamics(0.01);
+
+    //Move mooring lines to the new position:
+    for(auto & mooringLine : mooringLines) {
+        mooringLine.updateFairleadNode();
+    }
+
+
 
 }
 

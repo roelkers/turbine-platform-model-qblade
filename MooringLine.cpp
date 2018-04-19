@@ -66,7 +66,6 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   auto mtruss = std::make_shared<ChBody>();
   mtruss->SetBodyFixed(true);
 
-  //mooringFairleadNode = builder.GetLastBeamNodes().front();
   //fairleads constraint
   auto constraint_fairlead = std::make_shared<ChLinkPointFrame>();
   constraint_fairlead->Initialize(builder.GetLastBeamNodes().front(), monopile);
@@ -79,6 +78,38 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   auto constraint_hinge = std::make_shared<ChLinkPointFrame>();
   constraint_hinge->Initialize(builder.GetLastBeamNodes().back(), mtruss);
   system.Add(constraint_hinge);
+
+  //Create Markers for fairlead on monopile
+  //To initialize the mooring lines after setup
+  ChCoordsys<> fairleadCoordsys = ChCoordsys<>(mooringFairlead);
+  monopileFairleadMarker.SetBody(monopile.get());
+  monopileFairleadMarker.Impose_Abs_Coord(fairleadCoordsys);
+
+  qDebug() << "monopileFairleadMarker x: " << monopileFairleadMarker.GetAbsCoord().pos.x();
+  qDebug() << "monopileFairleadMarker y: " << monopileFairleadMarker.GetAbsCoord().pos.y();
+  qDebug() << "monopileFairleadMarker z: " << monopileFairleadMarker.GetAbsCoord().pos.z();
+}
+
+void MooringLine::updateFairleadNode(){
+    qDebug() << "updating fairlead node";
+    monopileFairleadMarker.UpdateState();
+
+    qDebug() << "monopileFairleadMarker x: " << monopileFairleadMarker.GetAbsCoord().pos.x();
+    qDebug() << "monopileFairleadMarker y: " << monopileFairleadMarker.GetAbsCoord().pos.y();
+    qDebug() << "monopileFairleadMarker z: " << monopileFairleadMarker.GetAbsCoord().pos.z();
+
+    //update node position to where the marker of the monopile has moved during initialization
+    std::shared_ptr<ChNodeFEAxyzD> fairleadNode = builder.GetLastBeamNodes().front();
+
+    qDebug() << "fairleadNode before x: " << fairleadNode->GetPos().x();
+    qDebug() << "fairleadNode before y: " << fairleadNode->GetPos().y();
+    qDebug() << "fairleadNode before z: " << fairleadNode->GetPos().z();
+
+    fairleadNode->SetPos(monopileFairleadMarker.GetAbsCoord().pos);
+
+    qDebug() << "fairleadNode after x: " << fairleadNode->GetPos().x();
+    qDebug() << "fairleadNode after y: " << fairleadNode->GetPos().y();
+    qDebug() << "fairleadNode after z: " << fairleadNode->GetPos().z();
 }
 
 void MooringLine::render(){
