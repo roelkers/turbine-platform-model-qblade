@@ -25,6 +25,8 @@ public:
   double mooringPosBottomZ;
   double mooringRestLengthRelative;
 
+  double ballastMass;
+
   double seaLevel;
   double rhoWater;
   double g;

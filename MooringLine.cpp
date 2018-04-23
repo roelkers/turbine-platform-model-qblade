@@ -57,9 +57,9 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   //Iterate over beam elements to set the rest length (length at rest position)
   std::vector<std::shared_ptr<ChElementCableANCF>> beamElements = builder.GetLastBeamElements();
   for(auto &element : beamElements){
-    qDebug() << "Prev:RestLength: " << element->GetRestLength() << "\n";
+    //qDebug() << "Prev:RestLength: " << element->GetRestLength();
     element->SetRestLength(mooringRestLength);
-    qDebug() << "Now:RestLength: " << element->GetRestLength() << "\n";
+    //qDebug() << "Now:RestLength: " << element->GetRestLength();
   }
 
   //create truss (fixed body)

@@ -20,6 +20,8 @@ PlatformParams::PlatformParams(double towerHeight){
   mooringPosBottomZ = -100;
   mooringRestLengthRelative = 0.7;
 
+  ballastMass = 5e6;
+
   seaLevel = 0;
   rhoWater = 1000;
   g = 9.81;

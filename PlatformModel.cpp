@@ -1,6 +1,7 @@
 #include "chrono/physics/ChSystem.h"
 #include "chrono/physics/ChBodyEasy.h"
 
+#include "chrono_fea/ChLinkPointFrame.h"
 #include "chrono/solver/ChSolverMINRES.h"
 #include "chrono_fea/ChMesh.h"
 
@@ -38,15 +39,28 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     //Monopile
     monopileInitNode = std::make_shared<ChNodeFEAxyzD>(p.towerSetupPos, p.towerSetupDir);
     mesh->AddNode(monopileInitNode);
-
     monopile = std::make_shared<ChBodyEasyCylinder>(p.towerRadius,p.towerHeight,p.towerDensity);
     monopile->SetPos(monopileInitNode->GetPos());
 
-    //Setup location of monopile for construction of mooring lines
+    //Setup location of monopile
     ChQuaternion<> qSetup = Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X);
     monopile->SetRot(qSetup);
-
     system.Add(monopile);
+
+    qDebug() << "monopile mass: " << monopile->GetMass();
+
+    //Create ballast on the bottom of the monopile
+    ballastBody = std::make_shared<ChBody>();
+    ballastBody->SetMass(p.ballastMass);
+    ChVector<> ballastPos = ChVector<>(0,0,-0.5*p.towerHeight);
+    std::shared_ptr<ChNodeFEAxyzD> ballastNode = std::make_shared<ChNodeFEAxyzD>(ballastPos, p.towerSetupDir);
+    mesh->AddNode(ballastNode);
+    ballastBody->SetPos(ballastNode->GetPos());
+
+    //ballast constraint
+    auto constraint_ballast = std::make_shared<ChLinkPointFrame>();
+    constraint_ballast->Initialize(ballastNode, monopile);
+    system.Add(constraint_ballast);
 
     //Init Load container
     auto loadcontainer = std::make_shared<ChLoadContainer>();
@@ -83,16 +97,19 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     ChCoordsys<> initCoords =ChCoordsys<>(initPos,qRotationX*qRotationZ);
     monopile->Move(initCoords);
 
-    monopile->UpdateMarkers(0.01);
+    //complete setup
+    system.Add(mesh);
+    system.SetupInitial();
+
+    system.DoStepDynamics(dT);
+
+    monopile->UpdateMarkers(dT);
 
     //Move mooring lines to the new position:
     for(auto & mooringLine : mooringLines) {
         mooringLine.updateFairleadNode();
     }
 
-    //complete setup
-    system.Add(mesh);
-    system.SetupInitial();
 
 }
 

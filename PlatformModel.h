@@ -17,6 +17,7 @@ class PlatformModel{
   private:
     std::shared_ptr<chrono::fea::ChNodeFEAxyzD> monopileInitNode;
     std::shared_ptr<chrono::ChBodyEasyCylinder> monopile;
+    std::shared_ptr<chrono::ChBody> ballastBody;
     std::shared_ptr<Buoyancy> buoyancy;
     std::vector<MooringLine> mooringLines;
     QLLTSimulation *qLLTSim;
