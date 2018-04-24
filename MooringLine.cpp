@@ -4,7 +4,6 @@
 #include "chrono_fea/ChBuilderBeam.h"
 #include "chrono_fea/ChMesh.h"
 #include "chrono_fea/ChLinkPointFrame.h"
-#include "chrono_fea/ChLinkDirFrame.h"
 #include "chrono_fea/ChElementCableANCF.h"
 
 #include "../GlobalFunctions.h"

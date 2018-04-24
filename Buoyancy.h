@@ -21,13 +21,6 @@ private:
   chrono::ChVector<> intersectionPoint;
   double maximumBuoyancyForce;
 
-  //visualization & testing
-  /*
-  std::shared_ptr<ChBodyEasySphere> buoyancyCenterVizSphere;
-  std::shared_ptr<ChBodyEasySphere> ipCenterVizSphere;
-  std::shared_ptr<ChBodyEasySphere> bottomMarkerVizSphere;
-  std::shared_ptr<ChBodyEasySphere> topMarkerVizSphere;
-  */
 public:
   Buoyancy(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<chrono::ChBodyEasyCylinder> monopile);
   void update();

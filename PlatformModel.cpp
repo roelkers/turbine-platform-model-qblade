@@ -1,7 +1,7 @@
 #include "chrono/physics/ChSystem.h"
 #include "chrono/physics/ChBodyEasy.h"
 
-#include "chrono_fea/ChLinkPointFrame.h"
+#include "chrono/physics/ChLinkMate.h"
 #include "chrono/solver/ChSolverMINRES.h"
 #include "chrono_fea/ChMesh.h"
 
@@ -19,8 +19,10 @@ using namespace chrono::fea;
 PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     :p(qLLTSim->getTowerHeight())
 {
+    Reset();
 
     qDebug() << "tower height: " << p.towerHeight;
+
     // Change solver settings
     system.SetSolverType(ChSolver::Type::MINRES);
     system.SetSolverWarmStarting(true);  // this helps a lot to speedup convergence in this class of problems
@@ -50,18 +52,20 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     qDebug() << "monopile mass: " << monopile->GetMass();
 
     //Create ballast on the bottom of the monopile
+
     std::shared_ptr<chrono::ChBody> ballastBody = std::make_shared<chrono::ChBody>();
     ballastBody->SetMass(p.ballastMass);
-    ChVector<> ballastPos = ChVector<>(0,0,-0.5*p.towerHeight);
+    system.Add(ballastBody);
+    ChVector<> ballastPos = ChVector<>(0,0,0);
     ballastNode = std::make_shared<ChNodeFEAxyzD>(ballastPos, p.towerSetupDir);
     mesh->AddNode(ballastNode);
     ballastBody->SetPos(ballastNode->GetPos());
 
-    //qDebug() << "ballast mass: " << ballastBody->GetMass();
+    qDebug() << "ballast mass: " << ballastBody->GetMass();
 
-    //ballast constraint
-    auto constraint_ballast = std::make_shared<ChLinkPointFrame>();
-    constraint_ballast->Initialize(ballastNode, monopile);
+    //ballast constraint, attach to monopile
+    auto constraint_ballast = std::make_shared<ChLinkMateGeneric>();
+    constraint_ballast->Initialize(ballastBody, monopile, ChFrame<>(ChCoordsys<>(ballastPos)));
     system.Add(constraint_ballast);
 
     //Init Load container
@@ -72,6 +76,7 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 
     //Add Gravity
     system.Set_G_acc(ChVector<>(0,0,-p.g));
+
     //system.Set_G_acc(ChVector<>(0,0,0));
 
     //Angular increment of Mooring Line on Monopile
@@ -85,9 +90,14 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
         qDebug() << "Mooring Line Angular position: " << theta << "deg\n";
         qDebug() << "Constructing mooring line " << i << "\n";
         MooringLine mLine(system, mesh, p, theta, monopile);
-
         mooringLines.push_back(mLine);
+
     }
+
+    //complete setup
+    system.Add(mesh);
+    system.SetupInitial();
+
     //Initial rotation of the monopile
     //Rotate around x axis and y axis
     ChQuaternion<> qRotationX = Q_from_AngAxis(30 * CH_C_DEG_TO_RAD, VECT_X);
@@ -108,9 +118,13 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
         mooringLine.updateFairleadNode();
     }
 
-    //complete setup
-    system.Add(mesh);
-    system.SetupInitial();
+
+}
+
+void PlatformModel::Reset(){
+
+    system.Clear();
+    system.SetChTime(0.0);
 }
 
 void PlatformModel::render(){
@@ -121,6 +135,7 @@ void PlatformModel::render(){
         renderMooringLines();
     }
     glEndList();
+
 }
 
 void PlatformModel::renderMonopile(){
@@ -153,6 +168,7 @@ void PlatformModel::renderMonopile(){
         glColor4d(1,0,1,1);
         CVector ballastPos = CVecFromChVec(ballastNode->GetPos());
         glVertex3d(ballastPos.x, ballastPos.y, ballastPos.z);
+
     glEnd();
     //Draw axis of tower
     glPointSize(0.1);
@@ -174,6 +190,8 @@ void PlatformModel::renderMooringLines(){
 
 void PlatformModel::update(double endTime){
 
+    qDebug() << "updating";
+
     double old_step;
     double left_time;
     int restore_oldstep = FALSE;
@@ -182,7 +200,7 @@ void PlatformModel::update(double endTime){
 
     while (system.GetChTime() < endTime) {
 
-        qDebug() << "updating buoyancy again";
+        //qDebug() << "updating buoyancy again";
         buoyancy->update();
 
         restore_oldstep = FALSE;
