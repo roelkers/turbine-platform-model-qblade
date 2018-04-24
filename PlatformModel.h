@@ -3,7 +3,7 @@
 
 #include "chrono/physics/ChSystem.h"
 #include "chrono/physics/ChBodyEasy.h"
-
+#include "chrono/physics/ChBody.h"
 #include "chrono_fea/ChMesh.h"
 
 #include "../XLLT/QLLTSimulation.h"
@@ -17,12 +17,11 @@ class PlatformModel{
   private:
     std::shared_ptr<chrono::fea::ChNodeFEAxyzD> monopileInitNode;
     std::shared_ptr<chrono::ChBodyEasyCylinder> monopile;
-    std::shared_ptr<chrono::ChBody> ballastBody;
+    std::shared_ptr<chrono::fea::ChNodeFEAxyzD> ballastNode;
     std::shared_ptr<Buoyancy> buoyancy;
     std::vector<MooringLine> mooringLines;
-    QLLTSimulation *qLLTSim;
     chrono::ChSystemNSC system;
-    std::shared_ptr<chrono::fea::ChMesh> mesh;
+    std::shared_ptr<chrono::fea::ChMesh> mesh = std::make_shared<chrono::fea::ChMesh>();
     PlatformParams p;
     double dT = 0.01;
 

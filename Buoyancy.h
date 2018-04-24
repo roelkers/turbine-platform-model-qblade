@@ -5,8 +5,6 @@
 #include <chrono/physics/ChLoadsBody.h>
 #include <chrono/physics/ChLoadContainer.h>
 #include "chrono/physics/ChBodyEasy.h"
-#include "chrono_fea/ChMesh.h"
-#include "chrono/physics/ChSystem.h"
 #include <chrono_fea/ChNodeFEAxyz.h>
 
 #include "PlatformParams.h"
@@ -31,7 +29,7 @@ private:
   std::shared_ptr<ChBodyEasySphere> topMarkerVizSphere;
   */
 public:
-  Buoyancy(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<chrono::ChBodyEasyCylinder> monopile, std::shared_ptr<chrono::fea::ChMesh> mesh, chrono::ChSystem& system);
+  Buoyancy(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<chrono::ChBodyEasyCylinder> monopile);
   void update();
   void computeBuoyancy(chrono::ChVector<> vecE, chrono::ChVector<> vecI);
   double computeMaximumBuoyancyForce();

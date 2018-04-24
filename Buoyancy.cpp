@@ -5,8 +5,6 @@
 #include <chrono/core/ChVector.h>
 #include <chrono/core/ChLog.h>
 #include <chrono/core/ChCoordsys.h>
-#include "chrono_fea/ChMesh.h"
-#include "chrono/physics/ChSystem.h"
 #include <chrono/assets/ChTexture.h>
 
 #include <QDebug>
@@ -18,15 +16,15 @@
 using namespace chrono;
 using namespace chrono::fea;
 
-Buoyancy::Buoyancy(PlatformParams p, std::shared_ptr<ChLoadContainer> loadContainer, std::shared_ptr<ChBodyEasyCylinder> monopile, std::shared_ptr<ChMesh> mesh, ChSystem& system)
+Buoyancy::Buoyancy(PlatformParams p, std::shared_ptr<ChLoadContainer> loadContainer, std::shared_ptr<ChBodyEasyCylinder> monopile)
 
 :p(p),
 monopile(monopile),
 loadContainer(loadContainer)
 {
-  ChVector<> pos = monopile->GetPos();
+  //ChVector<> pos = monopile->GetPos();
 
-  ChVector<> towerPos = monopile->GetPos();
+  //ChVector<> towerPos = monopile->GetPos();
   ChFrameMoving<> frame = monopile->GetFrame_COG_to_abs();
   //Get rotation of frame as a quaternion
   ChQuaternion<> qmonopile = frame.GetRot();
@@ -85,6 +83,7 @@ loadContainer(loadContainer)
 
 void Buoyancy::update(){
 
+  qDebug() << "update markers";
   markerBottom->UpdateState();
   markerTop->UpdateState();
 
@@ -116,7 +115,7 @@ void Buoyancy::update(){
   qDebug() << "towerAxis y: " << towerAxis.y();
   qDebug() << "towerAxis z: " << towerAxis.z();
 
-  if(towerAxis^zUnityVector==0){
+  if((towerAxis^zUnityVector)==0){
     qDebug() << "Edge Case for Buoyancy" << "\n";
     //intersection point is exactly on a line parallel to the z axis below the gravity
     //center. Point E and I are at the radius of the tower
@@ -175,8 +174,8 @@ void Buoyancy::computeBuoyancy(ChVector<> vecE, ChVector<> vecI){
 
   ChVector<> towerPos = monopile->GetPos();
 
-  ChVector<> vecES = intersectionPoint- vecE;
-  ChVector<> vecIS = intersectionPoint- vecE;
+  //ChVector<> vecES = intersectionPoint- vecE;
+  //ChVector<> vecIS = intersectionPoint- vecE;
   ChVector<> vecSE = vecE - intersectionPoint;
   ChVector<> vecSI = vecI - intersectionPoint;
 

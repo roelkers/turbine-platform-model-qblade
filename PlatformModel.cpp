@@ -34,14 +34,14 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     // Change type of integrator:
     system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT_LINEARIZED);
 
-    mesh = std::make_shared<ChMesh>();
-
+    qDebug() << "creating monopile";
     //Monopile
     monopileInitNode = std::make_shared<ChNodeFEAxyzD>(p.towerSetupPos, p.towerSetupDir);
     mesh->AddNode(monopileInitNode);
     monopile = std::make_shared<ChBodyEasyCylinder>(p.towerRadius,p.towerHeight,p.towerDensity);
     monopile->SetPos(monopileInitNode->GetPos());
 
+    qDebug() << "rotate monopile";
     //Setup location of monopile
     ChQuaternion<> qSetup = Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X);
     monopile->SetRot(qSetup);
@@ -50,12 +50,14 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     qDebug() << "monopile mass: " << monopile->GetMass();
 
     //Create ballast on the bottom of the monopile
-    ballastBody = std::make_shared<ChBody>();
+    std::shared_ptr<chrono::ChBody> ballastBody = std::make_shared<chrono::ChBody>();
     ballastBody->SetMass(p.ballastMass);
     ChVector<> ballastPos = ChVector<>(0,0,-0.5*p.towerHeight);
-    std::shared_ptr<ChNodeFEAxyzD> ballastNode = std::make_shared<ChNodeFEAxyzD>(ballastPos, p.towerSetupDir);
+    ballastNode = std::make_shared<ChNodeFEAxyzD>(ballastPos, p.towerSetupDir);
     mesh->AddNode(ballastNode);
     ballastBody->SetPos(ballastNode->GetPos());
+
+    //qDebug() << "ballast mass: " << ballastBody->GetMass();
 
     //ballast constraint
     auto constraint_ballast = std::make_shared<ChLinkPointFrame>();
@@ -66,7 +68,7 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     auto loadcontainer = std::make_shared<ChLoadContainer>();
     system.Add(loadcontainer);
 
-    buoyancy = std::make_shared<Buoyancy>(p, loadcontainer, monopile, mesh, system);
+    buoyancy = std::make_shared<Buoyancy>(p, loadcontainer, monopile);
 
     //Add Gravity
     system.Set_G_acc(ChVector<>(0,0,-p.g));
@@ -97,20 +99,18 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     ChCoordsys<> initCoords =ChCoordsys<>(initPos,qRotationX*qRotationZ);
     monopile->Move(initCoords);
 
-    //complete setup
-    system.Add(mesh);
-    system.SetupInitial();
+    //system.DoStepDynamics(dT);
 
-    system.DoStepDynamics(dT);
-
-    monopile->UpdateMarkers(dT);
+    //monopile->UpdateMarkers(dT);
 
     //Move mooring lines to the new position:
     for(auto & mooringLine : mooringLines) {
         mooringLine.updateFairleadNode();
     }
 
-
+    //complete setup
+    system.Add(mesh);
+    system.SetupInitial();
 }
 
 void PlatformModel::render(){
@@ -149,6 +149,10 @@ void PlatformModel::renderMonopile(){
         glColor4d(0,1,1,1);
         CVector buoyancyCenterPos = CVecFromChVec(buoyancy->getBuoyancyCenter());
         glVertex3d(buoyancyCenterPos.x,buoyancyCenterPos.y,buoyancyCenterPos.z);
+        //red/blue: ballast Node
+        glColor4d(1,0,1,1);
+        CVector ballastPos = CVecFromChVec(ballastNode->GetPos());
+        glVertex3d(ballastPos.x, ballastPos.y, ballastPos.z);
     glEnd();
     //Draw axis of tower
     glPointSize(0.1);
@@ -178,6 +182,7 @@ void PlatformModel::update(double endTime){
 
     while (system.GetChTime() < endTime) {
 
+        qDebug() << "updating buoyancy again";
         buoyancy->update();
 
         restore_oldstep = FALSE;
