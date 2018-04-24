@@ -19,8 +19,8 @@ class PlatformModel{
     chrono::ChSystemNSC system;
     std::shared_ptr<chrono::fea::ChNodeFEAxyzD> monopileInitNode;
     std::shared_ptr<chrono::fea::ChMesh> mesh = std::make_shared<chrono::fea::ChMesh>();
-    std::shared_ptr<chrono::ChBodyEasyCylinder> monopile;
-    std::shared_ptr<chrono::fea::ChNodeFEAxyzD> ballastNode;
+    std::shared_ptr<chrono::ChBody> monopile;
+    std::shared_ptr<chrono::ChBody> ballastBody;
     std::shared_ptr<Buoyancy> buoyancy;
     std::vector<MooringLine> mooringLines;
 

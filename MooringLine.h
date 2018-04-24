@@ -14,7 +14,7 @@ private:
   chrono::fea::ChBuilderBeamANCF builder;
   chrono::ChMarker monopileFairleadMarker;
 public:
-  MooringLine(chrono::ChSystem& system, std::shared_ptr<chrono::fea::ChMesh> mesh, PlatformParams p, double theta, std::shared_ptr<chrono::ChBodyEasyCylinder> monopile);
+  MooringLine(chrono::ChSystem& system, std::shared_ptr<chrono::fea::ChMesh> mesh, PlatformParams p, double theta, std::shared_ptr<chrono::ChBody> monopile);
   void render();
   void updateFairleadNode();
 };

@@ -53,11 +53,11 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 
     //Create ballast on the bottom of the monopile
 
-    std::shared_ptr<chrono::ChBody> ballastBody = std::make_shared<chrono::ChBody>();
+    ballastBody = std::make_shared<chrono::ChBody>();
     ballastBody->SetMass(p.ballastMass);
     system.Add(ballastBody);
     ChVector<> ballastPos = ChVector<>(0,0,0);
-    ballastNode = std::make_shared<ChNodeFEAxyzD>(ballastPos, p.towerSetupDir);
+    std::shared_ptr<ChNodeFEAxyzD> ballastNode = std::make_shared<ChNodeFEAxyzD>(ballastPos, p.towerSetupDir);
     mesh->AddNode(ballastNode);
     ballastBody->SetPos(ballastNode->GetPos());
 
@@ -65,7 +65,11 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 
     //ballast constraint, attach to monopile
     auto constraint_ballast = std::make_shared<ChLinkMateGeneric>();
-    constraint_ballast->Initialize(ballastBody, monopile, ChFrame<>(ChCoordsys<>(ballastPos)));
+    constraint_ballast->Initialize(ballastBody,
+                                   monopile,
+                                   false,
+                                   ChFrame<>(ChCoordsys<>(ballastPos)),
+                                   ChFrame<>(ChCoordsys<>(ballastPos)));
     system.Add(constraint_ballast);
 
     //Init Load container
@@ -166,7 +170,7 @@ void PlatformModel::renderMonopile(){
         glVertex3d(buoyancyCenterPos.x,buoyancyCenterPos.y,buoyancyCenterPos.z);
         //red/blue: ballast Node
         glColor4d(1,0,1,1);
-        CVector ballastPos = CVecFromChVec(ballastNode->GetPos());
+        CVector ballastPos = CVecFromChVec(ballastBody->GetPos());
         glVertex3d(ballastPos.x, ballastPos.y, ballastPos.z);
 
     glEnd();

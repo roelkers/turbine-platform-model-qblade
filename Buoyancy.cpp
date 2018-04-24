@@ -16,7 +16,7 @@
 using namespace chrono;
 using namespace chrono::fea;
 
-Buoyancy::Buoyancy(PlatformParams p, std::shared_ptr<ChLoadContainer> loadContainer, std::shared_ptr<ChBodyEasyCylinder> monopile)
+Buoyancy::Buoyancy(PlatformParams p, std::shared_ptr<ChLoadContainer> loadContainer, std::shared_ptr<ChBody> monopile)
 
 :p(p),
 monopile(monopile),

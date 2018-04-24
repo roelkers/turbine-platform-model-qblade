@@ -12,7 +12,7 @@
 class Buoyancy {
 private:
   PlatformParams p;
-  std::shared_ptr<chrono::ChBodyEasyCylinder> monopile;
+  std::shared_ptr<chrono::ChBody> monopile;
   std::shared_ptr<chrono::ChLoadBodyForce> buoyancyForce;
   std::shared_ptr<chrono::ChLoadContainer> loadContainer;
   std::shared_ptr<chrono::ChMarker> markerBottom;
@@ -22,7 +22,7 @@ private:
   double maximumBuoyancyForce;
 
 public:
-  Buoyancy(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<chrono::ChBodyEasyCylinder> monopile);
+  Buoyancy(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<chrono::ChBody> monopile);
   void update();
   void computeBuoyancy(chrono::ChVector<> vecE, chrono::ChVector<> vecI);
   double computeMaximumBuoyancyForce();
