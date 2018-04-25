@@ -23,7 +23,7 @@ monopile(monopile),
 loadContainer(loadContainer)
 {
   //ChVector<> pos = monopile->GetPos();
-
+  /*
   //ChVector<> towerPos = monopile->GetPos();
   ChFrameMoving<> frame = monopile->GetFrame_COG_to_abs();
   //Get rotation of frame as a quaternion
@@ -33,13 +33,15 @@ loadContainer(loadContainer)
   //Rotate Coordinate system back
   ChQuaternion<> qcorrection = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
 
+
   ChQuaternion<> qcombined = qmonopile* qcorrection;
   //Get vector in direction of tower axis by rotating vector around quaternion
   ChVector<> towerAxis = qcombined.Rotate(zUnityVector);
+  */
 
   markerBottom = std::make_shared<ChMarker>();
   //Set Marker Position relative to local coordinate system
-  ChCoordsys<> bottomCoordsys = ChCoordsys<>(-0.5*p.towerHeight*towerAxis);
+  ChCoordsys<> bottomCoordsys = ChCoordsys<>(monopile->TransformPointLocalToParent(ChVector<>(0,-0.5*p.towerHeight,0)));
   //Set marker parameters
   markerBottom->SetBody(monopile.get());
   markerBottom->Impose_Abs_Coord(bottomCoordsys);
@@ -48,7 +50,7 @@ loadContainer(loadContainer)
 
   markerTop = std::make_shared<ChMarker>();
   //Set Marker Position relative to local coordinate system
-  ChCoordsys<> topCoordsys = ChCoordsys<>(0.5*p.towerHeight*towerAxis);
+  ChCoordsys<> topCoordsys = ChCoordsys<>(monopile->TransformPointLocalToParent(ChVector<>(0,0.5*p.towerHeight,0)));
   //Set marker parameters
   markerTop->SetBody(monopile.get());
   markerTop->Impose_Abs_Coord(topCoordsys);

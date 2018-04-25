@@ -51,12 +51,24 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 
     qDebug() << "monopile mass: " << monopile->GetMass();
 
+    //Initial rotation of the monopile
+    //Rotate around x axis and y axis
+    ChQuaternion<> qRotationX = Q_from_AngAxis(10 * CH_C_DEG_TO_RAD, VECT_X);
+    ChQuaternion<> qRotationZ= Q_from_AngAxis(10 * CH_C_DEG_TO_RAD, VECT_Z);
+    //Translate to initial Position
+    ChVector<> initPos = ChVector<>(0,0,0.5*p.towerHeight);
+
+    //Define initial displacement
+    ChCoordsys<> initCoords =ChCoordsys<>(initPos,qRotationX*qRotationZ);
+    monopile->Move(initCoords);
+
     //Create ballast on the bottom of the monopile
 
     ballastBody = std::make_shared<chrono::ChBody>();
     ballastBody->SetMass(p.ballastMass);
     system.Add(ballastBody);
-    ChVector<> ballastPos = ChVector<>(0,0,0);
+    ChVector<> ballastPos = monopile->TransformPointLocalToParent(ChVector<>(0,0,-0.5*p.towerHeight)); //local frame to transform
+
     std::shared_ptr<ChNodeFEAxyzD> ballastNode = std::make_shared<ChNodeFEAxyzD>(ballastPos, p.towerSetupDir);
     mesh->AddNode(ballastNode);
     ballastBody->SetPos(ballastNode->GetPos());
@@ -94,17 +106,6 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
         mooringLines.push_back(mLine);
 
     }
-
-    //Initial rotation of the monopile
-    //Rotate around x axis and y axis
-    ChQuaternion<> qRotationX = Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_X);
-    ChQuaternion<> qRotationZ= Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_Z);
-    //Translate to initial Position
-    ChVector<> initPos = ChVector<>(0,0,0.5*p.towerHeight);
-
-    //Define initial displacement
-    ChCoordsys<> initCoords =ChCoordsys<>(initPos,qRotationX*qRotationZ);
-    monopile->Move(initCoords);
 
     //system.DoStepDynamics(dT);
 
