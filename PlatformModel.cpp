@@ -19,7 +19,7 @@ using namespace chrono::fea;
 PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     :p(qLLTSim->getTowerHeight())
 {
-    Reset();
+    //Reset();
 
     qDebug() << "tower height: " << p.towerHeight;
 
@@ -64,13 +64,10 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     qDebug() << "ballast mass: " << ballastBody->GetMass();
 
     //ballast constraint, attach to monopile
-    auto constraint_ballast = std::make_shared<ChLinkMateGeneric>();
-    constraint_ballast->Initialize(ballastBody,
-                                   monopile,
-                                   false,
-                                   ChFrame<>(ChCoordsys<>(ballastPos)),
-                                   ChFrame<>(ChCoordsys<>(ballastPos)));
+    auto constraint_ballast = std::make_shared<ChLinkMateFix>();
+    constraint_ballast->Initialize(ballastBody, monopile);
     system.Add(constraint_ballast);
+    //qDebug()<< "degree of constraint: " << constraint_ballast.GetDOC();
 
     //Init Load container
     auto loadcontainer = std::make_shared<ChLoadContainer>();
@@ -98,14 +95,10 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 
     }
 
-    //complete setup
-    system.Add(mesh);
-    system.SetupInitial();
-
     //Initial rotation of the monopile
     //Rotate around x axis and y axis
-    ChQuaternion<> qRotationX = Q_from_AngAxis(30 * CH_C_DEG_TO_RAD, VECT_X);
-    ChQuaternion<> qRotationZ= Q_from_AngAxis(20 * CH_C_DEG_TO_RAD, VECT_Z);
+    ChQuaternion<> qRotationX = Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_X);
+    ChQuaternion<> qRotationZ= Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_Z);
     //Translate to initial Position
     ChVector<> initPos = ChVector<>(0,0,0.5*p.towerHeight);
 
@@ -122,6 +115,9 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
         mooringLine.updateFairleadNode();
     }
 
+    //complete setup
+    system.Add(mesh);
+    system.SetupInitial();
 
 }
 
