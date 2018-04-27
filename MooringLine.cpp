@@ -71,6 +71,10 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   //fairleads constraint
   auto constraint_fairlead = std::make_shared<ChLinkPointFrame>();
   constraint_fairlead->Initialize(builder.GetLastBeamNodes().front(), monopile);
+
+  const ChVector<> pos = builder.GetLastBeamNodes().front()->GetPos();
+  constraint_fairlead->SetAttachPositionInAbsoluteCoords(pos);
+
   //constraint_fairlead->SetAttachPositionInBodyCoords(mooringFairlead);
   //ChCoordsys<> mooringFairleadCoord = ChCoordsys<>(mooringFairlead);
   //constraint_fairlead->SetAttachReferenceInAbsoluteCoords(mooringFairleadCoord);
