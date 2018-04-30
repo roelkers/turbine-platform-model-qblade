@@ -208,6 +208,7 @@ void Buoyancy::computeBuoyancy(ChVector<> vecE, ChVector<> vecI){
       //construct buoyancy volume from S to I
       buoyancyCenter = intersectionPoint + 0.5*vecSI;
       ChVector<> submergedVector = vecSI*2;
+      qDebug() << "submergedVector" << submergedVector.Length();
       force = computeBuoyancyForce(submergedVector.Length());
     }
     else if(vecI.z() > p.seaLevel){
@@ -215,6 +216,7 @@ void Buoyancy::computeBuoyancy(ChVector<> vecE, ChVector<> vecI){
       //construct buoyancy volume from S to E
       buoyancyCenter = intersectionPoint + 0.5*vecSE;
       ChVector<> submergedVector = vecSE*2;
+      qDebug() << "submergedVector" << submergedVector.Length();
       force = computeBuoyancyForce(submergedVector.Length());
     }
     else qDebug() << "both E and I below sea level.This MUST not happen.\n";

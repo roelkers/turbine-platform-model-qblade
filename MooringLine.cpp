@@ -19,11 +19,21 @@
 using namespace chrono;
 using namespace chrono::fea;
 
-MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, PlatformParams p, double theta, std::shared_ptr<ChBody> monopile){
+MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, PlatformParams p, double theta, std::shared_ptr<ChBody> monopile)
+:p(p)
+{
+  double mooringL = sqrt(pow(p.mooringPosBottomZ+p.mooringPosFairleadZInBodyCoords,2) + pow(p.towerRadius+p.mooringAnchorRadiusFromFairlead,2));
 
   std::shared_ptr<ChBeamSectionCable> sectionCable = std::make_shared<ChBeamSectionCable>();
   sectionCable->SetDiameter(p.mooringDiameter);
-  sectionCable->SetYoungModulus(p.mooringYoungModulus);
+
+  double mooringArea = M_PI*pow(p.mooringDiameter,2)/4;
+
+  sectionCable->SetArea(mooringArea);
+
+  double eModMooring = p.mooringStiffness*mooringL/mooringArea;
+
+  sectionCable->SetYoungModulus(eModMooring);
   sectionCable->SetBeamRaleyghDamping(p.mooringRaleyghDamping);
 
   //Starting Position of Mooring Line on the Monopile
@@ -48,22 +58,10 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
     mooringAnchor        // the 'B' point in space (end of beam)
   );
 
-  //determine mooring line length
-  double mooringL = sqrt(pow(p.mooringPosBottomZ,2) + pow(p.towerRadius+p.mooringAnchorRadiusFromFairlead,2));
-  qDebug()<< "mooringL: " << mooringL ;
-
+  /*
   double sectionLength = mooringL/p.mooringNrElements;
   double mooringRestLength = sectionLength*p.mooringRestLengthRelative;
-
-  qDebug() << "Rest Length: " << mooringRestLength << "\n";
-
-  //Iterate over beam elements to set the rest length (length at rest position)
-  std::vector<std::shared_ptr<ChElementCableANCF>> beamElements = builder.GetLastBeamElements();
-  for(auto &element : beamElements){
-    //qDebug() << "Prev:RestLength: " << element->GetRestLength();
-    element->SetRestLength(mooringRestLength);
-    //qDebug() << "Now:RestLength: " << element->GetRestLength();
-  }
+  */
 
   //create truss (fixed body)
   auto mtruss = std::make_shared<ChBody>();
@@ -97,33 +95,38 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   qDebug() << "monopileFairleadMarker z: " << monopileFairleadMarker.GetAbsCoord().pos.z();
 }
 
-void MooringLine::SetRestLengthAndPosition(){
+void MooringLine::setRestLengthAndPosition(){
 
+    double mooringL = sqrt(pow(p.mooringPosBottomZ-p.mooringPosFairleadZInBodyCoords,2) + pow(p.towerRadius+p.mooringAnchorRadiusFromFairlead,2));
+    qDebug()<< "mooringL: " << mooringL ;
+
+    double deltal = p.mooringPretension/p.mooringStiffness;
+    double frac = (mooringL-deltal)/mooringL;
+
+    //Iterate over beam elements to set the rest length and rest position
+    std::vector<std::shared_ptr<ChElementCableANCF>> beamElements = builder.GetLastBeamElements();
+    for(auto &element : beamElements){
+
+        //qDebug() << "initial length"<<element->GetRestLength();
+
+        double length = element->GetRestLength();
+        element->SetRestLength(length*frac);
+        CVector pos = CVecFromChVec(element->GetNodeA()->GetX0());
+        CVector pos0 = CVecFromChVec(element->GetNodeB()->GetX0());
+
+        CVector lvec = CVector(pos-pos0);
+        lvec.Normalize();
+        lvec *= length*frac;
+
+        pos = pos0+lvec;
+        ChVector<> chvec(pos.x,pos.y,pos.z);
+        element->GetNodeB()->SetX0(chvec);
+
+        //m_Cables.at(i)->Elements.at(j)->m_Nodes.at(1)->SetX0(chvec);
+
+        //qDebug() << "new rest length"<<CVector(pos-pos0).VAbs() <<frac;
+    }
 }
-
-/*
-void MooringLine::updateFairleadNode(){
-    qDebug() << "updating fairlead node";
-    monopileFairleadMarker.UpdateState();
-
-    qDebug() << "monopileFairleadMarker x: " << monopileFairleadMarker.GetAbsCoord().pos.x();
-    qDebug() << "monopileFairleadMarker y: " << monopileFairleadMarker.GetAbsCoord().pos.y();
-    qDebug() << "monopileFairleadMarker z: " << monopileFairleadMarker.GetAbsCoord().pos.z();
-
-    //update node position to where the marker of the monopile has moved during initialization
-    std::shared_ptr<ChNodeFEAxyzD> fairleadNode = builder.GetLastBeamNodes().front();
-
-    qDebug() << "fairleadNode before x: " << fairleadNode->GetPos().x();
-    qDebug() << "fairleadNode before y: " << fairleadNode->GetPos().y();
-    qDebug() << "fairleadNode before z: " << fairleadNode->GetPos().z();
-
-    fairleadNode->SetPos(monopileFairleadMarker.GetAbsCoord().pos);
-
-    qDebug() << "fairleadNode after x: " << fairleadNode->GetPos().x();
-    qDebug() << "fairleadNode after y: " << fairleadNode->GetPos().y();
-    qDebug() << "fairleadNode after z: " << fairleadNode->GetPos().z();
-}
-*/
 
 void MooringLine::render(){
     //Iterate over nodes to visualize them

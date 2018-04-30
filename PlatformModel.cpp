@@ -113,22 +113,18 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 
     }
 
-    //system.DoStepDynamics(dT);
-
-    //monopile->UpdateMarkers(dT);
-
-    //Move mooring lines to the new position:
-    /*
-    for(auto & mooringLine : mooringLines) {
-        mooringLine.updateFairleadNode();
-    }
-    */
-
     //complete setup
     system.Add(mesh);
     system.SetupInitial();
     system.Update();
     system.Setup();
+
+    //Set Rest position and rest length of mooring lines
+
+    for(auto & mooringLine : mooringLines) {
+        mooringLine.setRestLengthAndPosition();
+    }
+
 }
 
 void PlatformModel::render(){

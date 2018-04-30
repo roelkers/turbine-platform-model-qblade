@@ -11,13 +11,13 @@
 
 class MooringLine{
 private:
+  PlatformParams p ;
   chrono::fea::ChBuilderBeamANCF builder;
   chrono::ChMarker monopileFairleadMarker;
 public:
   MooringLine(chrono::ChSystem& system, std::shared_ptr<chrono::fea::ChMesh> mesh, PlatformParams p, double theta, std::shared_ptr<chrono::ChBody> monopile);
   void render();
-  void updateFairleadNode();
-  void SetRestLengthAndPosition();
+  void setRestLengthAndPosition();
 };
 
 #endif

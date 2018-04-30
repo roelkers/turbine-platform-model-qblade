@@ -17,13 +17,13 @@ public:
 
   int mooringLineNr;
   double mooringDiameter;
-  double mooringYoungModulus;
+  double mooringStiffness;
+  double mooringPretension;
   double mooringRaleyghDamping;
   int mooringNrElements;
   double mooringAnchorRadiusFromFairlead;
   double mooringPosFairleadZInBodyCoords;
   double mooringPosBottomZ;
-  double mooringRestLengthRelative;
 
   double ballastMass;
 
