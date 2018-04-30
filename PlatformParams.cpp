@@ -5,7 +5,7 @@ using namespace chrono;
 PlatformParams::PlatformParams(double towerHeight){
 
   this->towerHeight=towerHeight;
-  towerRadius=5;
+  towerRadius=50;
   towerDensity=400;
   towerSetupPos = ChVector<>(0, 0, 0);
   towerSetupDir = ChVector<>(0, 0, 1);
@@ -18,9 +18,9 @@ PlatformParams::PlatformParams(double towerHeight){
   mooringAnchorRadiusFromFairlead = 100;
   mooringPosFairleadZInBodyCoords = 0.5*towerHeight;
   mooringPosBottomZ = -100;
-  mooringRestLengthRelative = 0.3;
+  mooringRestLengthRelative = 0.01;
 
-  ballastMass = 0.5e6;
+  ballastMass = 0.0005e6;
 
   seaLevel = 0;
   rhoWater = 1000;

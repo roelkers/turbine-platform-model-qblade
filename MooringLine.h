@@ -17,6 +17,7 @@ public:
   MooringLine(chrono::ChSystem& system, std::shared_ptr<chrono::fea::ChMesh> mesh, PlatformParams p, double theta, std::shared_ptr<chrono::ChBody> monopile);
   void render();
   void updateFairleadNode();
+  void SetRestLengthAndPosition();
 };
 
 #endif

@@ -1,6 +1,7 @@
 #include "chrono/physics/ChSystem.h"
 #include "chrono/physics/ChBodyEasy.h"
 
+#include "chrono_fea/ChLinkPointFrame.h"
 #include "chrono/physics/ChLinkMate.h"
 #include "chrono/solver/ChSolverMINRES.h"
 #include "chrono_fea/ChMesh.h"
@@ -63,8 +64,8 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     monopile->Move(initCoords);
 
     //Create ballast on the bottom of the monopile
-    ballastBody = std::make_shared<chrono::ChBody>();
-    ballastBody->SetMass(p.ballastMass);
+    ballastBody = std::make_shared<chrono::ChBodyEasyBox>(5,5,10,1);
+    //ballastBody->SetMass(p.ballastMass);
     system.Add(ballastBody);
     //Move to position in local frame, on the bottom end
     ChVector<> ballastPos = monopile->TransformPointLocalToParent(ChVector<>(0,-0.5*p.towerHeight,0)); //local frame to transform
@@ -74,9 +75,17 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     qDebug() << "ballast mass: " << ballastBody->GetMass();
 
     //ballast constraint, attach to monopile
+
     auto constraint_ballast = std::make_shared<ChLinkMateFix>();
     constraint_ballast->Initialize(ballastBody, monopile);
     system.Add(constraint_ballast);
+
+    /*
+    auto constraint_ballast = std::make_shared<ChLinkMateGeneric>();
+    constraint_ballast->Initialize(ballastBody, monopile, false, ballastBody->GetFrame_COG_to_abs (), monopile->GetFrame_COG_to_abs());
+    system.Add(constraint_ballast);
+    constraint_ballast->SetConstrainedCoords( true, true, true, true, true, true);
+    */
 
     //Init Load container
     auto loadcontainer = std::make_shared<ChLoadContainer>();
@@ -120,12 +129,6 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     system.SetupInitial();
     system.Update();
     system.Setup();
-}
-
-void PlatformModel::Reset(){
-
-    system.Clear();
-    system.SetChTime(0.0);
 }
 
 void PlatformModel::render(){

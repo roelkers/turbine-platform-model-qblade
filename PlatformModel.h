@@ -32,7 +32,7 @@ class PlatformModel{
     void render();
     void renderMonopile();
     void renderMooringLines();
-    void Reset();
+
 };
 
 #endif
