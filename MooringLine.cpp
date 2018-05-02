@@ -44,11 +44,11 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   double yEnd = (p.towerRadius+p.mooringAnchorRadiusFromFairlead)*cos(theta/180*M_PI);
 
   //double length_test = sqrt(pow((xEnd-xStart),2) + pow((yEnd-yStart),2) + pow((p.mooringPosBottomZ-p.mooringPosFairleadZInBodyCoords),2));
-  double distance_test = sqrt(pow(xStart,2)+pow(yStart,2));
+  //double distance_test = sqrt(pow(xStart,2)+pow(yStart,2));
 
   qDebug() << "mooringL :" << mooringL;
   //qDebug() << "length mooring check:" << length_test;
-  qDebug() << "distance start to csystem origin:" << distance_test;
+  //qDebug() << "distance start to csystem origin:" << distance_test;
 
   //Coordinates of Fairlead in local frame of monopile, which is 90° turned around x axis
   //ChVector<> mooringFairlead = ChVector<>(xStart, yStart, p.mooringPosFairleadZInBodyCoords);

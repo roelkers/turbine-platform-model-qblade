@@ -67,6 +67,8 @@ loadContainer(loadContainer)
 
   computeMaximumBuoyancyForce();
 
+  qDebug() << "maximum buoyancy force: " << maximumBuoyancyForce;
+
   //Init Buoyancy force with null vectors
   buoyancyForce = std::make_shared<ChLoadBodyForce> (
     monopile, //body
@@ -193,7 +195,9 @@ void Buoyancy::computeBuoyancy(ChVector<> vecE, ChVector<> vecI){
     //tower completely submerged, buoyancy center is same as gravity center
     qDebug() << "completely submerged\n";
     buoyancyCenter = towerPos;
-    force = maximumBuoyancyForce;
+    //force = maximumBuoyancyForce;
+    force = computeBuoyancyForce(p.towerHeight);
+    qDebug() << "buoyancyForce completely submerged:" << force << "\n";
     }
     else{
     // in this case the tower is "flying", and we should not apply any buoyancy force
