@@ -1,6 +1,7 @@
 #ifndef PLATFORMMODEL_H
 #define PLATFORMMODEL_H
 
+#include "chrono/physics/ChLinkMate.h"
 #include "chrono/physics/ChSystem.h"
 #include "chrono/physics/ChBodyEasy.h"
 #include "chrono/physics/ChBody.h"
@@ -23,8 +24,8 @@ class PlatformModel{
     std::shared_ptr<chrono::ChBody> ballastBody;
     std::shared_ptr<Buoyancy> buoyancy;
     std::vector<MooringLine> mooringLines;
-
-    double dT = 0.01;
+    std::shared_ptr<chrono::ChLinkMateFix> constraint_ballast;
+    double dT = 0.001;
 
   public:
     PlatformModel(QLLTSimulation *qLLTSim);

@@ -25,7 +25,7 @@ public:
   Buoyancy(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<chrono::ChBody> monopile);
   void update();
   void computeBuoyancy(chrono::ChVector<> vecE, chrono::ChVector<> vecI);
-  double computeMaximumBuoyancyForce();
+  //double computeMaximumBuoyancyForce();
   double computeBuoyancyForce(double submergedLength);
 
   std::shared_ptr<chrono::ChMarker> getMarkerTop(){return markerTop;}

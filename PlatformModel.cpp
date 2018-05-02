@@ -1,6 +1,8 @@
 #include "chrono/physics/ChSystem.h"
 #include "chrono/physics/ChBodyEasy.h"
 
+#include "chrono_mkl/ChSolverMKL.h"
+
 #include "chrono_fea/ChLinkPointFrame.h"
 #include "chrono/physics/ChLinkMate.h"
 #include "chrono/solver/ChSolverMINRES.h"
@@ -25,6 +27,7 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     qDebug() << "tower height: " << p.towerHeight;
 
     // Change solver settings
+    /*
     system.SetSolverType(ChSolver::Type::MINRES);
     system.SetSolverWarmStarting(true);  // this helps a lot to speedup convergence in this class of problems
     system.SetMaxItersSolverSpeed(200);
@@ -33,6 +36,14 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     auto solver = std::static_pointer_cast<ChSolverMINRES>(system.GetSolver());
     solver->SetVerbose(false);
     solver->SetDiagonalPreconditioning(true);
+    */
+    auto mkl_solver_speed = std::make_shared<ChSolverMKL<>>();
+
+    system.SetSolver(mkl_solver_speed);
+
+    mkl_solver_speed->ForceSparsityPatternUpdate(true);
+    mkl_solver_speed->SetSparsityPatternLock(false);
+    mkl_solver_speed->SetVerbose(false);
 
     // Change type of integrator:
     system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT_LINEARIZED);
@@ -64,19 +75,20 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     monopile->Move(initCoords);
 
     //Create ballast on the bottom of the monopile
-    ballastBody = std::make_shared<chrono::ChBodyEasyBox>(5,5,10,20);
-    //ballastBody->SetMass(p.ballastMass);
+    ballastBody = std::make_shared<ChBody>();
+    ballastBody->SetMass(p.ballastMass);
     system.Add(ballastBody);
     //Move to position in local frame, on the bottom end
     ChVector<> ballastPos = monopile->TransformPointLocalToParent(ChVector<>(0,-0.5*p.towerHeight,0)); //local frame to transform
     std::shared_ptr<ChNodeFEAxyzD> ballastNode = std::make_shared<ChNodeFEAxyzD>(ballastPos, p.towerSetupDir);
     mesh->AddNode(ballastNode);
     ballastBody->SetPos(ballastNode->GetPos());
+    ballastBody->SetRot(qSetup);
     qDebug() << "ballast mass: " << ballastBody->GetMass();
 
     //ballast constraint, attach to monopile
 
-    auto constraint_ballast = std::make_shared<ChLinkMateFix>();
+    constraint_ballast = std::make_shared<ChLinkMateFix>();
     constraint_ballast->Initialize(ballastBody, monopile);
     system.Add(constraint_ballast);
 

@@ -65,7 +65,7 @@ loadContainer(loadContainer)
   qDebug() << "bottomMarker y: " << markerBottom->GetAbsCoord().pos.y();
   qDebug() << "bottomMarker z: " << markerBottom->GetAbsCoord().pos.z();
 
-  computeMaximumBuoyancyForce();
+  //computeMaximumBuoyancyForce();
 
   qDebug() << "maximum buoyancy force: " << maximumBuoyancyForce;
 
@@ -232,13 +232,13 @@ void Buoyancy::computeBuoyancy(ChVector<> vecE, ChVector<> vecI){
 
   buoyancyForce->SetForce(ChVector<>(0,0,force),false);
 }
-
+/*
 double Buoyancy::computeMaximumBuoyancyForce(){
         //tower completely submerged, return volume of complete water cylinder
     double submergedVolumeMonopile =  M_PI*pow(p.towerRadius,2)*p.towerHeight;
     return submergedVolumeMonopile*p.rhoWater*p.g;
 }
-
+*/
 double Buoyancy::computeBuoyancyForce(double submergedLength){
     double submergedVolumeMonopile = M_PI*pow(p.towerRadius,2)*submergedLength;
     return submergedVolumeMonopile*p.rhoWater*p.g;
