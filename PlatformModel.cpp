@@ -64,7 +64,7 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     monopile->Move(initCoords);
 
     //Create ballast on the bottom of the monopile
-    ballastBody = std::make_shared<chrono::ChBodyEasyBox>(5,5,10,1);
+    ballastBody = std::make_shared<chrono::ChBodyEasyBox>(5,5,10,20);
     //ballastBody->SetMass(p.ballastMass);
     system.Add(ballastBody);
     //Move to position in local frame, on the bottom end
