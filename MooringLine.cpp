@@ -52,9 +52,12 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
 
   //Coordinates of Fairlead in local frame of monopile, which is 90° turned around x axis
   //ChVector<> mooringFairlead = ChVector<>(xStart, yStart, p.mooringPosFairleadZInBodyCoords);
-  ChVector<> mooringFairlead = monopile->TransformPointLocalToParent(ChVector<>(xStart, -p.mooringPosFairleadZInBodyCoords, yStart));
+  ChVector<> mooringFairlead = monopile->TransformPointLocalToParent(ChVector<>(xStart, p.mooringPosFairleadZInBodyCoords, yStart));
   //Coordinates of anchor in parent coordinates, y with negative sign because of rotation of monopile?
   //ChVector<> mooringAnchor = ChVector<>(xEnd, yEnd, p.mooringPosBottomZ);
+
+  qDebug() << "created mooring fairlead";
+
   ChVector<> mooringAnchor = monopile->TransformPointLocalToParent(ChVector<>(xEnd, p.mooringPosBottomZ, yEnd));
 
   // Now, simply use BuildBeam to create a beam from a point to another:
@@ -90,6 +93,9 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   auto constraint_hinge = std::make_shared<ChLinkPointFrame>();
   constraint_hinge->Initialize(builder.GetLastBeamNodes().back(), mtruss);
   system.Add(constraint_hinge);
+
+  qDebug() << "created mooring line." ;
+
   /*
   //Create Markers for fairlead on monopile
   //To initialize the mooring lines after setup
@@ -129,8 +135,6 @@ void MooringLine::setRestLengthAndPosition(){
         pos = pos0+lvec;
         ChVector<> chvec(pos.x,pos.y,pos.z);
         element->GetNodeB()->SetX0(chvec);
-
-        //m_Cables.at(i)->Elements.at(j)->m_Nodes.at(1)->SetX0(chvec);
 
         //qDebug() << "new rest length"<<CVector(pos-pos0).VAbs() <<frac;
     }

@@ -26,6 +26,7 @@ public:
   double mooringPosBottomZ;
 
   double ballastMass;
+  double nacelleMass;
 
   double seaLevel;
   double rhoWater;

@@ -68,13 +68,16 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     ChQuaternion<> qRotationX = Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_X);
     ChQuaternion<> qRotationZ= Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_Z);
     //Translate to initial Position
-    ChVector<> initPos = ChVector<>(0,0,0.5*p.towerHeight);
+    double restPosition = calculateRestPositionOfPlatform();
+    qDebug() << "restPosition: " << restPosition;
+    ChVector<> initPos = ChVector<>(0,0,restPosition);
 
     //Define initial displacement
     ChCoordsys<> initCoords =ChCoordsys<>(initPos,qRotationX*qRotationZ);
     monopile->Move(initCoords);
 
     //Create ballast on the bottom of the monopile
+
     ballastBody = std::make_shared<ChBody>();
     ballastBody->SetMass(p.ballastMass);
     system.Add(ballastBody);
@@ -85,19 +88,27 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     ballastBody->SetPos(ballastNode->GetPos());
     ballastBody->SetRot(qSetup);
     qDebug() << "ballast mass: " << ballastBody->GetMass();
-
     //ballast constraint, attach to monopile
-
-    constraint_ballast = std::make_shared<ChLinkMateFix>();
+    std::shared_ptr<ChLinkMateFix> constraint_ballast = std::make_shared<ChLinkMateFix>();
     constraint_ballast->Initialize(ballastBody, monopile);
     system.Add(constraint_ballast);
 
-    /*
-    auto constraint_ballast = std::make_shared<ChLinkMateGeneric>();
-    constraint_ballast->Initialize(ballastBody, monopile, false, ballastBody->GetFrame_COG_to_abs (), monopile->GetFrame_COG_to_abs());
-    system.Add(constraint_ballast);
-    constraint_ballast->SetConstrainedCoords( true, true, true, true, true, true);
-    */
+    //Create nacelle mass on the top of the monopile
+
+    nacelleBody = std::make_shared<ChBody>();
+    nacelleBody->SetMass(p.nacelleMass);
+    system.Add(nacelleBody);
+    //Move to position in local frame, on the top end
+    ChVector<> nacellePos = monopile->TransformPointLocalToParent(ChVector<>(0,0.5*p.towerHeight,0)); //local frame to transform
+    std::shared_ptr<ChNodeFEAxyzD> nacelleNode = std::make_shared<ChNodeFEAxyzD>(nacellePos, p.towerSetupDir);
+    mesh->AddNode(nacelleNode);
+    nacelleBody->SetPos(nacelleNode->GetPos());
+    nacelleBody->SetRot(qSetup);
+    qDebug() << "nacelle mass: " << nacelleBody->GetMass();
+    //nacelle constraint, attach to monopile
+    std::shared_ptr<ChLinkMateFix> constraint_nacelle = std::make_shared<ChLinkMateFix>();
+    constraint_nacelle->Initialize(nacelleBody, monopile);
+    system.Add(constraint_nacelle);
 
     //Init Load container
     auto loadcontainer = std::make_shared<ChLoadContainer>();
@@ -139,6 +150,15 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 
 }
 
+double PlatformModel::calculateRestPositionOfPlatform(){
+    double massTotal = monopile->GetMass()+p.nacelleMass+p.ballastMass;
+    double areaMonopile = pow(p.towerRadius,2)*M_PI;
+
+    double displacedLength = massTotal/(areaMonopile*p.rhoWater);
+    return p.seaLevel+0.5*p.towerHeight-displacedLength;
+}
+
+
 void PlatformModel::render(){
 
     glNewList(GLPLATFORM,GL_COMPILE);
@@ -176,10 +196,14 @@ void PlatformModel::renderMonopile(){
         glColor4d(0,1,1,1);
         CVector buoyancyCenterPos = CVecFromChVec(buoyancy->getBuoyancyCenter());
         glVertex3d(buoyancyCenterPos.x,buoyancyCenterPos.y,buoyancyCenterPos.z);
-        //red/blue: ballast Node
+        //red/blue: ballast Body
         glColor4d(1,0,1,1);
         CVector ballastPos = CVecFromChVec(ballastBody->GetPos());
         glVertex3d(ballastPos.x, ballastPos.y, ballastPos.z);
+        //light red/green: nacelle Body
+        glColor4d(0.5,1,0,1);
+        CVector nacellePos = CVecFromChVec(nacelleBody->GetPos());
+        glVertex3d(nacellePos.x, nacellePos.y, nacellePos.z);
 
     glEnd();
     //Draw axis of tower
