@@ -243,3 +243,4 @@ double Buoyancy::computeBuoyancyForce(double submergedLength){
     double submergedVolumeMonopile = M_PI*pow(p.towerRadius,2)*submergedLength;
     return submergedVolumeMonopile*p.rhoWater*p.g;
 }
+

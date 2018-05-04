@@ -72,10 +72,6 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     qDebug() << "restPosition: " << restPosition;
     ChVector<> initPos = ChVector<>(0,0,restPosition);
 
-    double gravityCenterZ = calculateGravityCenter();
-    qDebug() << "gravityCenter: " << gravityCenterZ;
-
-
     //Define initial displacement
     ChCoordsys<> initCoords =ChCoordsys<>(initPos,qRotationX*qRotationZ);
     monopile->Move(initCoords);
@@ -135,8 +131,8 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 
         qDebug() << "Mooring Line Angular position: " << theta << "deg\n";
         qDebug() << "Constructing mooring line " << i << "\n";
-        MooringLine mLine(system, mesh, p, theta, monopile);
-        mooringLines.push_back(mLine);
+        //MooringLine mLine(system, mesh, p, theta, monopile);
+        //mooringLines.push_back(mLine);
 
     }
 
@@ -149,7 +145,7 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     //Set Rest position and rest length of mooring lines
 
     for(auto & mooringLine : mooringLines) {
-        mooringLine.setRestLengthAndPosition();
+        //mooringLine.setRestLengthAndPosition();
     }
 
 }
@@ -164,21 +160,12 @@ double PlatformModel::calculateRestPositionOfPlatform(){
     return p.seaLevel+0.5*p.towerHeight-displacedLength;
 }
 
-double PlatformModel::calculateGravityCenter(){
-    double massTotal = monopile->GetMass()+p.nacelleMass+p.ballastMass;
-    double areaMonopile = pow(p.towerRadius,2)*M_PI;
-
-    double xs = (0.5*p.towerDensity*areaMonopile*pow(p.towerHeight,2)+p.towerHeight*p.nacelleMass)/massTotal;
-    return xs;
-}
-
-
 void PlatformModel::render(){
 
     glNewList(GLPLATFORM,GL_COMPILE);
     {
         renderMonopile();
-        renderMooringLines();
+        //renderMooringLines();
     }
     glEndList();
 
