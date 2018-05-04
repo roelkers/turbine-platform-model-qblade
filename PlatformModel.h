@@ -31,6 +31,7 @@ class PlatformModel{
   public:
     PlatformModel(QLLTSimulation *qLLTSim);
     double calculateRestPositionOfPlatform();
+    double calculateGravityCenter();
     void update(double endTime);
     void render();
     void renderMonopile();

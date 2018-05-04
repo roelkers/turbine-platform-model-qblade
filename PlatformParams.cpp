@@ -44,7 +44,7 @@ PlatformParams::PlatformParams(double towerHeight){
   mooringPosBottomZ = -300;
 
   nacelleMass = 2.385e5;
-  ballastMass = 7.71e6;
+  ballastMass = 7.71e5;
 
   seaLevel = 0; //sea level [m] in z-direction from origin
   rhoWater = 1000;

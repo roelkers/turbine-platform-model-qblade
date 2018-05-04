@@ -72,6 +72,10 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     qDebug() << "restPosition: " << restPosition;
     ChVector<> initPos = ChVector<>(0,0,restPosition);
 
+    double gravityCenterZ = calculateGravityCenter();
+    qDebug() << "gravityCenter: " << gravityCenterZ;
+
+
     //Define initial displacement
     ChCoordsys<> initCoords =ChCoordsys<>(initPos,qRotationX*qRotationZ);
     monopile->Move(initCoords);
@@ -151,11 +155,21 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 }
 
 double PlatformModel::calculateRestPositionOfPlatform(){
+    //To set the monopile at the rest position the gravity force and buoyancy force have to be equal at that point
     double massTotal = monopile->GetMass()+p.nacelleMass+p.ballastMass;
     double areaMonopile = pow(p.towerRadius,2)*M_PI;
 
+    //we get the length by evaluating the force balance
     double displacedLength = massTotal/(areaMonopile*p.rhoWater);
     return p.seaLevel+0.5*p.towerHeight-displacedLength;
+}
+
+double PlatformModel::calculateGravityCenter(){
+    double massTotal = monopile->GetMass()+p.nacelleMass+p.ballastMass;
+    double areaMonopile = pow(p.towerRadius,2)*M_PI;
+
+    double xs = (0.5*p.towerDensity*areaMonopile*pow(p.towerHeight,2)+p.towerHeight*p.nacelleMass)/massTotal;
+    return xs;
 }
 
 

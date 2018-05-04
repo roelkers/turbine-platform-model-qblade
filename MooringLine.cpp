@@ -94,8 +94,6 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   constraint_hinge->Initialize(builder.GetLastBeamNodes().back(), mtruss);
   system.Add(constraint_hinge);
 
-  qDebug() << "created mooring line." ;
-
   /*
   //Create Markers for fairlead on monopile
   //To initialize the mooring lines after setup
