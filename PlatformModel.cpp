@@ -63,17 +63,20 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 
     qDebug() << "monopile mass: " << monopile->GetMass();
 
-    //Initial rotation of the monopile
-    //Rotate around x axis and y axis
-    ChQuaternion<> qRotationX = Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_X);
-    ChQuaternion<> qRotationZ= Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_Z);
-    //Translate to initial Position
+    //translate to rest position, here monopile is static
     double restPosition = calculateRestPositionOfPlatform();
     qDebug() << "restPosition: " << restPosition;
-    ChVector<> initPos = ChVector<>(0,0,restPosition);
+    ChVector<> restPosVec = ChVector<>(0,0,restPosition);
+
+    //Initial rotation of the monopile
+    //Rotate around x axis and y axis
+    ChQuaternion<> qRotationX = Q_from_AngAxis(1 * CH_C_DEG_TO_RAD, VECT_X);
+    ChQuaternion<> qRotationZ= Q_from_AngAxis(3 * CH_C_DEG_TO_RAD, VECT_Z);
+    //Translate to initial Position
+    ChVector<> initPosVec = ChVector<>(0,0,0);
 
     //Define initial displacement
-    ChCoordsys<> initCoords =ChCoordsys<>(initPos,qRotationX*qRotationZ);
+    ChCoordsys<> initCoords =ChCoordsys<>(restPosVec+initPosVec,qRotationX*qRotationZ);
     monopile->Move(initCoords);
 
     //Create ballast on the bottom of the monopile
@@ -131,8 +134,8 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 
         qDebug() << "Mooring Line Angular position: " << theta << "deg\n";
         qDebug() << "Constructing mooring line " << i << "\n";
-        //MooringLine mLine(system, mesh, p, theta, monopile);
-        //mooringLines.push_back(mLine);
+        MooringLine mLine(system, mesh, p, theta, monopile);
+        mooringLines.push_back(mLine);
 
     }
 
@@ -145,7 +148,7 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     //Set Rest position and rest length of mooring lines
 
     for(auto & mooringLine : mooringLines) {
-        //mooringLine.setRestLengthAndPosition();
+        mooringLine.setRestLengthAndPosition();
     }
 
 }
@@ -172,7 +175,7 @@ void PlatformModel::render(){
     glNewList(GLPLATFORM,GL_COMPILE);
     {
         renderMonopile();
-        //renderMooringLines();
+        renderMooringLines();
     }
     glEndList();
 
