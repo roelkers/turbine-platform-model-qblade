@@ -34,6 +34,7 @@ class PlatformModel{
     void update(double endTime);
     void render();
     void renderMonopile();
+    void renderCoordinateSystems();
     void renderMooringLines();
 
 };

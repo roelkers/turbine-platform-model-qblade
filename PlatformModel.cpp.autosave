@@ -235,7 +235,6 @@ void PlatformModel::renderMonopile(){
 
 void PlatformModel::renderCoordinateSystems(){
 
-
 }
 
 void PlatformModel::renderMooringLines(){
