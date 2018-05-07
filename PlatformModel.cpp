@@ -157,6 +157,13 @@ double PlatformModel::calculateRestPositionOfPlatform(){
 
     //we get the length by evaluating the force balance
     double displacedLength = massTotal/(areaMonopile*p.rhoWater);
+
+    double force_gravity = massTotal*p.g;
+    double force_buoyancy = displacedLength*areaMonopile*p.rhoWater*p.g;
+
+    qDebug() << "force_gravity: " << force_gravity;
+    qDebug() << "force_buoyancy: " << force_buoyancy;
+
     return p.seaLevel+0.5*p.towerHeight-displacedLength;
 }
 

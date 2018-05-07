@@ -211,7 +211,8 @@ void Buoyancy::computeBuoyancy(ChVector<> vecE, ChVector<> vecI){
       qDebug() << "partly submerged, E above sea level\n";
       //construct buoyancy volume from S to I
       buoyancyCenter = intersectionPoint + 0.5*vecSI;
-      ChVector<> submergedVector = vecSI*2;
+      //ChVector<> submergedVector = vecSI*2;
+      ChVector<> submergedVector = vecSI;
       qDebug() << "submergedVector" << submergedVector.Length();
       force = computeBuoyancyForce(submergedVector.Length());
     }
@@ -219,7 +220,8 @@ void Buoyancy::computeBuoyancy(ChVector<> vecE, ChVector<> vecI){
       qDebug() << "partly submerged, I above sea level\n";
       //construct buoyancy volume from S to E
       buoyancyCenter = intersectionPoint + 0.5*vecSE;
-      ChVector<> submergedVector = vecSE*2;
+      //ChVector<> submergedVector = vecSE*2;
+      ChVector<> submergedVector = vecSE;
       qDebug() << "submergedVector" << submergedVector.Length();
       force = computeBuoyancyForce(submergedVector.Length());
     }
