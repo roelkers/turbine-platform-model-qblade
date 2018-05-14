@@ -36,7 +36,7 @@ PlatformParams::PlatformParams(double towerHeight){
   mooringLineNr = 3;
   mooringDiameter = 0.15;
   mooringStiffness = 8471133.49;
-  mooringPretension = 2*827652;
+  mooringPretension = 200*827652;
   mooringRaleyghDamping = 0.000;
   mooringNrElements = 10;
   mooringAnchorRadiusFromFairlead = 600;

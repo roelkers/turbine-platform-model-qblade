@@ -43,21 +43,20 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   double xEnd = (p.towerRadius+p.mooringAnchorRadiusFromFairlead)*sin(theta/180*M_PI);
   double yEnd = (p.towerRadius+p.mooringAnchorRadiusFromFairlead)*cos(theta/180*M_PI);
 
-  //double length_test = sqrt(pow((xEnd-xStart),2) + pow((yEnd-yStart),2) + pow((p.mooringPosBottomZ-p.mooringPosFairleadZInBodyCoords),2));
+  double length_test = sqrt(pow((xEnd-xStart),2) + pow((yEnd-yStart),2) + pow((p.mooringPosBottomZ-p.mooringPosFairleadZInBodyCoords),2));
   //double distance_test = sqrt(pow(xStart,2)+pow(yStart,2));
 
-  qDebug() << "mooringL :" << mooringL;
-  //qDebug() << "length mooring check:" << length_test;
+  qDebug() << "mooringLengthSetup :" << mooringL;
+  qDebug() << "length mooring check:" << length_test;
   //qDebug() << "distance start to csystem origin:" << distance_test;
 
   //Coordinates of Fairlead in local frame of monopile, which is 90° turned around x axis
   //ChVector<> mooringFairlead = ChVector<>(xStart, yStart, p.mooringPosFairleadZInBodyCoords);
-  ChVector<> mooringFairlead = monopile->TransformPointLocalToParent(ChVector<>(xStart, p.mooringPosFairleadZInBodyCoords, -yStart));
-
+  mooringFairlead = monopile->TransformPointLocalToParent(ChVector<>(xStart, p.mooringPosFairleadZInBodyCoords, -yStart));
 
   qDebug() << "created mooring fairlead";
   //Coordinates of anchor in parent coordinates, y with negative sign because of rotation of monopile?
-  ChVector<> mooringAnchor = ChVector<>(xEnd, yEnd, p.mooringPosBottomZ);
+  mooringAnchor = ChVector<>(xEnd, yEnd, p.mooringPosBottomZ);
   //ChVector<> mooringAnchor = monopile->TransformPointLocalToParent(ChVector<>(xEnd, p.mooringPosBottomZ, yEnd));
 
   // Now, simply use BuildBeam to create a beam from a point to another:
@@ -109,11 +108,22 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
 
 void MooringLine::setRestLengthAndPosition(){
 
-    double mooringL = sqrt(pow(p.mooringPosBottomZ-p.mooringPosFairleadZInBodyCoords,2) + pow(p.mooringAnchorRadiusFromFairlead,2));
-    qDebug()<< "mooringL: " << mooringL ;
+    double mooringLengthSetup = sqrt(pow(p.mooringPosBottomZ-p.mooringPosFairleadZInBodyCoords,2) + pow(p.mooringAnchorRadiusFromFairlead,2));
+    qDebug()<< "mooringLengthSetup: " << mooringLengthSetup ;
 
+    //Calculate actual length after initialization, this is necessary because the mooring lines
+    //are not in the setup position (at the coordinate origin) anymore, so we need to account for that
+    ChVector<> mooringActual = mooringAnchor - mooringFairlead;
+
+    double mooringLengthInit = mooringActual.Length();
+    qDebug()<< "mooringLengthInit: " << mooringLengthInit ;
+
+    //thats the delta l for the setup position
     double deltal = p.mooringPretension/p.mooringStiffness;
-    double frac = (mooringL-deltal)/mooringL;
+    double frac = (mooringLengthSetup-deltal)/mooringLengthSetup;
+
+    //factor for accounting initial position length
+    double factorInit = mooringLengthSetup/mooringLengthInit;
 
     //Iterate over beam elements to set the rest length and rest position
     std::vector<std::shared_ptr<ChElementCableANCF>> beamElements = builder.GetLastBeamElements();
@@ -122,13 +132,13 @@ void MooringLine::setRestLengthAndPosition(){
         //qDebug() << "initial length"<<element->GetRestLength();
 
         double length = element->GetRestLength();
-        element->SetRestLength(length*frac);
+        element->SetRestLength(length*frac*factorInit);
         CVector pos = CVecFromChVec(element->GetNodeA()->GetX0());
         CVector pos0 = CVecFromChVec(element->GetNodeB()->GetX0());
 
         CVector lvec = CVector(pos-pos0);
         lvec.Normalize();
-        lvec *= length*frac;
+        lvec *= length*frac*factorInit;
 
         pos = pos0+lvec;
         ChVector<> chvec(pos.x,pos.y,pos.z);
@@ -156,10 +166,9 @@ void MooringLine::render(){
         //red: x-axis
         glColor4d(0,1,0,1);
         glVertex3d(fairleadPosCVec.x,fairleadPosCVec.y,fairleadPosCVec.z);
-        //glVertex3d(1,0,0);
         CVector dVectorEnd = CVecFromChVec(fairleadPos+p.dVectorFactor*fairleadD);
-        //glVertex3d(1000,0,0);
         glVertex3d(dVectorEnd.x,dVectorEnd.y,dVectorEnd.z);
+        /*
         qDebug() << "fairleadPos x:" << fairleadPosCVec.x;
         qDebug() << "fairleadPos y:" << fairleadPosCVec.y;
         qDebug() << "fairleadPos z:" << fairleadPosCVec.z;
@@ -167,5 +176,6 @@ void MooringLine::render(){
         qDebug() << "dVectorEnd x:" << dVectorEnd.x;
         qDebug() << "dVectorEnd y:" << dVectorEnd.y;
         qDebug() << "dVectorEnd z:" << dVectorEnd.z;
+        */
     glEnd();
 }
