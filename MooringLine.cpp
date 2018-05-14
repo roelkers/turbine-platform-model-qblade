@@ -52,13 +52,13 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
 
   //Coordinates of Fairlead in local frame of monopile, which is 90° turned around x axis
   //ChVector<> mooringFairlead = ChVector<>(xStart, yStart, p.mooringPosFairleadZInBodyCoords);
-  ChVector<> mooringFairlead = monopile->TransformPointLocalToParent(ChVector<>(xStart, p.mooringPosFairleadZInBodyCoords, yStart));
-  //Coordinates of anchor in parent coordinates, y with negative sign because of rotation of monopile?
-  //ChVector<> mooringAnchor = ChVector<>(xEnd, yEnd, p.mooringPosBottomZ);
+  ChVector<> mooringFairlead = monopile->TransformPointLocalToParent(ChVector<>(xStart, p.mooringPosFairleadZInBodyCoords, -yStart));
+
 
   qDebug() << "created mooring fairlead";
-
-  ChVector<> mooringAnchor = monopile->TransformPointLocalToParent(ChVector<>(xEnd, p.mooringPosBottomZ, yEnd));
+  //Coordinates of anchor in parent coordinates, y with negative sign because of rotation of monopile?
+  ChVector<> mooringAnchor = ChVector<>(xEnd, yEnd, p.mooringPosBottomZ);
+  //ChVector<> mooringAnchor = monopile->TransformPointLocalToParent(ChVector<>(xEnd, p.mooringPosBottomZ, yEnd));
 
   // Now, simply use BuildBeam to create a beam from a point to another:
   builder.BuildBeam(mesh,                       // the mesh where to put the created nodes and elements
