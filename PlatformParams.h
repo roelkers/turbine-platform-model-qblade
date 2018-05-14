@@ -31,6 +31,9 @@ public:
   double seaLevel;
   double rhoWater;
   double g;
+
+  //visualisation params
+  double cSystemFactor;
 };
 
 #endif

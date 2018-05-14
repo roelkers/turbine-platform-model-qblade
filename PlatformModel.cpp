@@ -181,7 +181,6 @@ void PlatformModel::render(){
     glNewList(GLPLATFORM,GL_COMPILE);
     {
         renderMonopile();
-        renderCoordinateSystems();
         renderMooringLines();
     }
     glEndList();
@@ -222,26 +221,38 @@ void PlatformModel::renderMonopile(){
         glColor4d(0.5,1,0,1);
         CVector nacellePos = CVecFromChVec(nacelleBody->GetPos());
         glVertex3d(nacellePos.x, nacellePos.y, nacellePos.z);
-
     glEnd();
-    //Draw axis of tower
+
     glPointSize(0.1);
     glBegin(GL_LINES);
+        //Draw axis of tower
         glColor4d(0,0,0,1);
         glVertex3d(topMarkerPos.x,topMarkerPos.y,topMarkerPos.z);
         glVertex3d(bottomMarkerPos.x,bottomMarkerPos.y,bottomMarkerPos.z);
+        //Draw Coordinate system of monopile
+        ChCoordsys<> monopileCoord = monopile->GetCoord();
+        //red: x-axis
+        glColor4d(1,0,0,1);
+        glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
+        CVector xAxisEnd = CVecFromChVec(monopile->GetPos()+p.cSystemFactor*monopileCoord.rot.GetXaxis());
+        glVertex3d(xAxisEnd.x,xAxisEnd.y,xAxisEnd.z);
+        //green: y-axis
+        glColor4d(0,1,0,1);
+        glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
+        CVector yAxisEnd = CVecFromChVec(monopile->GetPos()+p.cSystemFactor*monopileCoord.rot.GetYaxis());
+        glVertex3d(yAxisEnd.x,yAxisEnd.y,yAxisEnd.z);
+        //blue: z-axis
+        glColor4d(0,0,1,1);
+        glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
+        CVector zAxisEnd = CVecFromChVec(monopile->GetPos()+p.cSystemFactor*monopileCoord.rot.GetZaxis());
+        glVertex3d(zAxisEnd.x,zAxisEnd.y,zAxisEnd.z);
     glEnd();
-}
-
-void PlatformModel::renderCoordinateSystems(){
-
-
 }
 
 void PlatformModel::renderMooringLines(){
    glPointSize(0.1);
    glLineWidth(1);
-
+   glColor4d(0,0,0,1);
    for(auto & mooringLine : mooringLines) {
        mooringLine.render();
    }

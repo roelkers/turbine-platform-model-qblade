@@ -49,4 +49,6 @@ PlatformParams::PlatformParams(double towerHeight){
   seaLevel = 0; //sea level [m] in z-direction from origin
   rhoWater = 1000;
   g = 9.81;
+
+  cSystemFactor = 10;
 }
