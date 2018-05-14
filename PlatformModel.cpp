@@ -252,7 +252,6 @@ void PlatformModel::renderMonopile(){
 void PlatformModel::renderMooringLines(){
    glPointSize(0.1);
    glLineWidth(1);
-   glColor4d(0,0,0,1);
    for(auto & mooringLine : mooringLines) {
        mooringLine.render();
    }

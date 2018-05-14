@@ -50,5 +50,6 @@ PlatformParams::PlatformParams(double towerHeight){
   rhoWater = 1000;
   g = 9.81;
 
-  cSystemFactor = 10;
+  cSystemFactor = 50;
+  dVectorFactor = 200;
 }

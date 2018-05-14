@@ -141,10 +141,31 @@ void MooringLine::setRestLengthAndPosition(){
 void MooringLine::render(){
     //Iterate over nodes to visualize them
     glBegin(GL_LINE_STRIP);
+    glColor4d(0,0,0,1);
     std::vector<std::shared_ptr<ChNodeFEAxyzD>> beamNodes = builder.GetLastBeamNodes();
     for(auto &node : beamNodes){
         CVector nodePos = CVecFromChVec(node->GetPos());
         glVertex3d(nodePos.x,nodePos.y,nodePos.z);
     }
+    glEnd();
+    //Render Coordinate system of fairlead
+    glBegin(GL_LINES);
+        ChVector<> fairleadPos = builder.GetLastBeamNodes().front()->GetPos();
+        ChVector<> fairleadD = builder.GetLastBeamNodes().front()->GetD();
+        CVector fairleadPosCVec = CVecFromChVec(fairleadPos);
+        //red: x-axis
+        glColor4d(0,1,0,1);
+        glVertex3d(fairleadPosCVec.x,fairleadPosCVec.y,fairleadPosCVec.z);
+        //glVertex3d(1,0,0);
+        CVector dVectorEnd = CVecFromChVec(fairleadPos+p.dVectorFactor*fairleadD);
+        //glVertex3d(1000,0,0);
+        glVertex3d(dVectorEnd.x,dVectorEnd.y,dVectorEnd.z);
+        qDebug() << "fairleadPos x:" << fairleadPosCVec.x;
+        qDebug() << "fairleadPos y:" << fairleadPosCVec.y;
+        qDebug() << "fairleadPos z:" << fairleadPosCVec.z;
+
+        qDebug() << "dVectorEnd x:" << dVectorEnd.x;
+        qDebug() << "dVectorEnd y:" << dVectorEnd.y;
+        qDebug() << "dVectorEnd z:" << dVectorEnd.z;
     glEnd();
 }

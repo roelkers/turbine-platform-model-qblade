@@ -34,6 +34,7 @@ public:
 
   //visualisation params
   double cSystemFactor;
+  double dVectorFactor;
 };
 
 #endif
