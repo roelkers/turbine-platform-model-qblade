@@ -2,6 +2,7 @@
 #define PLATFORMPARAMS_H
 
 #include "chrono/core/ChVector.h"
+#include "chrono/core/ChQuaternion.h"
 
 class PlatformParams{
 
@@ -14,6 +15,11 @@ public:
   double towerDensity;
   chrono::ChVector<> towerSetupPos;
   chrono::ChVector<> towerSetupDir;
+
+  chrono::ChQuaternion<> qRotationX;
+  chrono::ChQuaternion<> qRotationY;
+  chrono::ChQuaternion<> qRotationZ;
+  chrono::ChVector<> initPosVec;
 
   int mooringLineNr;
   double mooringDiameter;

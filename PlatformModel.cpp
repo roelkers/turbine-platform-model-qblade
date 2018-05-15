@@ -74,15 +74,8 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     qDebug() << "restPosition: " << restPosition;
     ChVector<> restPosVec = ChVector<>(0,0,restPosition);
 
-    //Initial rotation of the monopile
-    //Rotate around x axis and y axis
-    ChQuaternion<> qRotationX = Q_from_AngAxis(1 * CH_C_DEG_TO_RAD, VECT_X);
-    ChQuaternion<> qRotationZ= Q_from_AngAxis(2 * CH_C_DEG_TO_RAD, VECT_Z);
-    //Translate to initial Position
-    ChVector<> initPosVec = ChVector<>(0,0,-100);
-
     //Define initial displacement
-    ChCoordsys<> initCoords =ChCoordsys<>(restPosVec+initPosVec,qRotationX*qRotationZ);
+    ChCoordsys<> initCoords =ChCoordsys<>(p.initPosVec,p.qRotationX*p.qRotationY*p.qRotationZ);
     monopile->Move(initCoords);
 
     //Create ballast on the bottom of the monopile
