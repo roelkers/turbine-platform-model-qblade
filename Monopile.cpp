@@ -1,14 +1,20 @@
 #include "Monopile.h"
 
+#include "chrono/physics/ChSystem.h"
+#include "chrono/physics/ChBodyEasy.h"
+
 #include "chrono/physics/ChMarker.h"
 #include "chrono/physics/ChSystem.h"
 #include "chrono/physics/ChBodyEasy.h"
 #include "chrono/physics/ChBody.h"
 #include "chrono_fea/ChMesh.h"
+#include "chrono/physics/ChLinkMate.h"
 
 #include "../GlobalFunctions.h"
 #include "../XLLT/QLLTSimulation.h"
 #include <QtOpenGL>
+
+#include <QDebug>
 
 #include "PlatformParams.h"
 

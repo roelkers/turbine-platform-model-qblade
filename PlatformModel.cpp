@@ -3,8 +3,6 @@
 
 #include "chrono_mkl/ChSolverMKL.h"
 
-#include "chrono_fea/ChLinkPointFrame.h"
-#include "chrono/physics/ChLinkMate.h"
 #include "chrono/solver/ChSolverMINRES.h"
 #include "chrono_fea/ChMesh.h"
 
