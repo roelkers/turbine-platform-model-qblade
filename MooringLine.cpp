@@ -15,11 +15,12 @@
 #include "math.h"
 #include "PlatformParams.h"
 #include "MooringLine.h"
+#include "Monopile.h"
 
 using namespace chrono;
 using namespace chrono::fea;
 
-MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, PlatformParams p, double theta, std::shared_ptr<ChBody> monopile)
+MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, PlatformParams p, double theta, std::shared_ptr<Monopile> monopile)
 :p(p)
 {
   double mooringL = sqrt(pow(p.mooringPosBottomZ-p.mooringPosFairleadZInBodyCoords,2) + pow(p.mooringAnchorRadiusFromFairlead,2));
@@ -52,7 +53,7 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
 
   //Coordinates of Fairlead in local frame of monopile, which is 90° turned around x axis
   //ChVector<> mooringFairlead = ChVector<>(xStart, yStart, p.mooringPosFairleadZInBodyCoords);
-  mooringFairlead = monopile->TransformPointLocalToParent(ChVector<>(xStart, p.mooringPosFairleadZInBodyCoords, -yStart));
+  mooringFairlead = monopile->getCylinder()->TransformPointLocalToParent(ChVector<>(xStart, p.mooringPosFairleadZInBodyCoords, -yStart));
 
   qDebug() << "created mooring fairlead";
   //Coordinates of anchor in parent coordinates, y with negative sign because of rotation of monopile?
@@ -78,7 +79,7 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
 
   //fairleads constraint
   auto constraint_fairlead = std::make_shared<ChLinkPointFrame>();
-  constraint_fairlead->Initialize(builder.GetLastBeamNodes().front(), monopile);
+  constraint_fairlead->Initialize(builder.GetLastBeamNodes().front(), monopile->getCylinder());
 
   const ChVector<> pos = builder.GetLastBeamNodes().front()->GetPos();
   constraint_fairlead->SetAttachPositionInAbsoluteCoords(pos);
@@ -93,17 +94,6 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   constraint_hinge->Initialize(builder.GetLastBeamNodes().back(), mtruss);
   system.Add(constraint_hinge);
 
-  /*
-  //Create Markers for fairlead on monopile
-  //To initialize the mooring lines after setup
-  ChCoordsys<> fairleadCoordsys = ChCoordsys<>(mooringFairlead);
-  monopileFairleadMarker.SetBody(monopile.get());
-  monopileFairleadMarker.Impose_Abs_Coord(fairleadCoordsys);
-
-  qDebug() << "monopileFairleadMarker x: " << monopileFairleadMarker.GetAbsCoord().pos.x();
-  qDebug() << "monopileFairleadMarker y: " << monopileFairleadMarker.GetAbsCoord().pos.y();
-  qDebug() << "monopileFairleadMarker z: " << monopileFairleadMarker.GetAbsCoord().pos.z();
-  */
 }
 
 void MooringLine::setRestLengthAndPosition(){

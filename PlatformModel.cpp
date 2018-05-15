@@ -14,7 +14,9 @@
 
 #include "PlatformModel.h"
 #include "PlatformParams.h"
+#include "Monopile.h"
 #include "Buoyancy.h"
+
 
 using namespace chrono;
 using namespace chrono::fea;
@@ -22,21 +24,9 @@ using namespace chrono::fea;
 PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     :p(qLLTSim->getTowerHeight())
 {
-    //Reset();
 
     qDebug() << "tower height: " << p.towerHeight;
 
-    // Change solver settings
-    /*
-    system.SetSolverType(ChSolver::Type::MINRES);
-    system.SetSolverWarmStarting(true);  // this helps a lot to speedup convergence in this class of problems
-    system.SetMaxItersSolverSpeed(200);
-    system.SetMaxItersSolverStab(200);
-    system.SetTolForce(1e-13);
-    auto solver = std::static_pointer_cast<ChSolverMINRES>(system.GetSolver());
-    solver->SetVerbose(false);
-    solver->SetDiagonalPreconditioning(true);
-    */
     auto mkl_solver_speed = std::make_shared<ChSolverMKL<>>();
 
     system.SetSolver(mkl_solver_speed);
@@ -54,63 +44,17 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     // Change type of integrator:
     system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT_LINEARIZED);
 
-    qDebug() << "creating monopile";
-    //Monopile
-    monopileInitNode = std::make_shared<ChNodeFEAxyzD>(p.towerSetupPos, p.towerSetupDir);
-    mesh->AddNode(monopileInitNode);
-    monopile = std::make_shared<ChBodyEasyCylinder>(p.towerRadius,p.towerHeight,p.towerDensity);
-    monopile->SetPos(monopileInitNode->GetPos());
+    //Create monopile
+    monopile = std::make_shared<Monopile>(system, mesh, p);
 
-    qDebug() << "rotate monopile";
-    //Setup location of monopile
-    ChQuaternion<> qSetup = Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X);
-    monopile->SetRot(qSetup);
-    system.Add(monopile);
-
-    qDebug() << "monopile mass: " << monopile->GetMass();
-
-    //translate to rest position, here monopile is static
+    //translate to rest position, here cylinder is static
     double restPosition = calculateRestPositionOfPlatform();
     qDebug() << "restPosition: " << restPosition;
     ChVector<> restPosVec = ChVector<>(0,0,restPosition);
 
     //Define initial displacement
     ChCoordsys<> initCoords =ChCoordsys<>(p.initPosVec,p.qRotationX*p.qRotationY*p.qRotationZ);
-    monopile->Move(initCoords);
-
-    //Create ballast on the bottom of the monopile
-
-    ballastBody = std::make_shared<ChBody>();
-    ballastBody->SetMass(p.ballastMass);
-    system.Add(ballastBody);
-    //Move to position in local frame, on the bottom end
-    ChVector<> ballastPos = monopile->TransformPointLocalToParent(ChVector<>(0,-0.5*p.towerHeight,0)); //local frame to transform
-    std::shared_ptr<ChNodeFEAxyzD> ballastNode = std::make_shared<ChNodeFEAxyzD>(ballastPos, p.towerSetupDir);
-    mesh->AddNode(ballastNode);
-    ballastBody->SetPos(ballastNode->GetPos());
-    ballastBody->SetRot(qSetup);
-    qDebug() << "ballast mass: " << ballastBody->GetMass();
-    //ballast constraint, attach to monopile
-    std::shared_ptr<ChLinkMateFix> constraint_ballast = std::make_shared<ChLinkMateFix>();
-    constraint_ballast->Initialize(ballastBody, monopile);
-    system.Add(constraint_ballast);
-
-    //Create nacelle mass on the top of the monopile
-
-    nacelleBody = std::make_shared<ChBody>();
-    nacelleBody->SetMass(p.nacelleMass);
-    system.Add(nacelleBody);
-    //Move to position in local frame, on the top end
-    ChVector<> nacellePos = monopile->TransformPointLocalToParent(ChVector<>(0,0.5*p.towerHeight,0)); //local frame to transform
-    std::shared_ptr<ChNodeFEAxyzD> nacelleNode = std::make_shared<ChNodeFEAxyzD>(nacellePos, p.towerSetupDir);
-    mesh->AddNode(nacelleNode);
-    nacelleBody->SetPos(nacelleNode->GetPos());
-    nacelleBody->SetRot(qSetup);
-    qDebug() << "nacelle mass: " << nacelleBody->GetMass();
-    //nacelle constraint, attach to monopile
-    std::shared_ptr<ChLinkMateFix> constraint_nacelle = std::make_shared<ChLinkMateFix>();
-    constraint_nacelle->Initialize(nacelleBody, monopile);
-    system.Add(constraint_nacelle);
+    monopile->getCylinder()->Move(initCoords);
 
     //Init Load container
     auto loadcontainer = std::make_shared<ChLoadContainer>();
@@ -154,7 +98,7 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 
 double PlatformModel::calculateRestPositionOfPlatform(){
     //To set the monopile at the rest position the gravity force and buoyancy force have to be equal at that point
-    double massTotal = monopile->GetMass()+p.nacelleMass+p.ballastMass;
+    double massTotal = monopile->getCylinder()->GetMass()+p.nacelleMass+p.ballastMass;
     double areaMonopile = pow(p.towerRadius,2)*M_PI;
 
     //we get the length by evaluating the force balance
@@ -169,86 +113,18 @@ double PlatformModel::calculateRestPositionOfPlatform(){
     return p.seaLevel+0.5*p.towerHeight-displacedLength;
 }
 
-double PlatformModel::calculateGravityCenter(){
-    double massTotal = monopile->GetMass()+p.nacelleMass+p.ballastMass;
-    double areaMonopile = pow(p.towerRadius,2)*M_PI;
-
-    double xs = (0.5*p.towerDensity*areaMonopile*pow(p.towerHeight,2)+p.towerHeight*p.nacelleMass)/massTotal;
-    ChVector monopilePos = monopile->GetPos();
-}
-
 void PlatformModel::render(){
 
     glNewList(GLPLATFORM,GL_COMPILE);
     {
-        renderMonopile();
+        monopile->render();
+        buoyancy->render();
         renderMooringLines();
     }
     glEndList();
 
 }
 
-void PlatformModel::renderMonopile(){
-    glPointSize(10);
-    glLineWidth(3);
-
-    //Draw viz vertices
-    glBegin(GL_POINTS);
-        //blue: monopile
-        glColor4d(0,0,1,1);
-        CVector monopilePos = CVecFromChVec(monopile->GetPos());
-        glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
-        //green: topMarker
-        glColor4d(0,1,0,1);
-        CVector topMarkerPos = CVecFromChVec(buoyancy->getMarkerTop()->GetAbsCoord().pos);
-        glVertex3d(topMarkerPos.x,topMarkerPos.y,topMarkerPos.z);
-        //red: bottomMarker
-        glColor4d(1,0,0,1);
-        CVector bottomMarkerPos = CVecFromChVec(buoyancy->getMarkerBottom()->GetAbsCoord().pos);
-        glVertex3d(bottomMarkerPos.x,bottomMarkerPos.y,bottomMarkerPos.z);
-        //red/green: intersection Point
-        glColor4d(1,1,0,1);
-        CVector isPos = CVecFromChVec(buoyancy->getIntersectionPoint());
-        glVertex3d(isPos.x,isPos.y,isPos.z);
-        //blue/green: buoyancy center
-        glColor4d(0,1,1,1);
-        CVector buoyancyCenterPos = CVecFromChVec(buoyancy->getBuoyancyCenter());
-        glVertex3d(buoyancyCenterPos.x,buoyancyCenterPos.y,buoyancyCenterPos.z);
-        //red/blue: ballast Body
-        glColor4d(1,0,1,1);
-        CVector ballastPos = CVecFromChVec(ballastBody->GetPos());
-        glVertex3d(ballastPos.x, ballastPos.y, ballastPos.z);
-        //light red/green: nacelle Body
-        glColor4d(0.5,1,0,1);
-        CVector nacellePos = CVecFromChVec(nacelleBody->GetPos());
-        glVertex3d(nacellePos.x, nacellePos.y, nacellePos.z);
-    glEnd();
-
-    glPointSize(0.1);
-    glBegin(GL_LINES);
-        //Draw axis of tower
-        glColor4d(0,0,0,1);
-        glVertex3d(topMarkerPos.x,topMarkerPos.y,topMarkerPos.z);
-        glVertex3d(bottomMarkerPos.x,bottomMarkerPos.y,bottomMarkerPos.z);
-        //Draw Coordinate system of monopile
-        ChCoordsys<> monopileCoord = monopile->GetCoord();
-        //red: x-axis
-        glColor4d(1,0,0,1);
-        glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
-        CVector xAxisEnd = CVecFromChVec(monopile->GetPos()+p.cSystemFactor*monopileCoord.rot.GetXaxis());
-        glVertex3d(xAxisEnd.x,xAxisEnd.y,xAxisEnd.z);
-        //green: y-axis
-        glColor4d(0,1,0,1);
-        glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
-        CVector yAxisEnd = CVecFromChVec(monopile->GetPos()+p.cSystemFactor*monopileCoord.rot.GetYaxis());
-        glVertex3d(yAxisEnd.x,yAxisEnd.y,yAxisEnd.z);
-        //blue: z-axis
-        glColor4d(0,0,1,1);
-        glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
-        CVector zAxisEnd = CVecFromChVec(monopile->GetPos()+p.cSystemFactor*monopileCoord.rot.GetZaxis());
-        glVertex3d(zAxisEnd.x,zAxisEnd.y,zAxisEnd.z);
-    glEnd();
-}
 
 void PlatformModel::renderMooringLines(){
    glPointSize(0.1);

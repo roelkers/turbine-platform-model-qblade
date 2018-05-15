@@ -8,6 +8,7 @@
 #include "chrono_fea/ChMesh.h"
 
 #include "PlatformParams.h"
+#include "Monopile.h"
 
 class MooringLine{
 private:
@@ -15,9 +16,8 @@ private:
   chrono::fea::ChBuilderBeamANCF builder;
   chrono::ChVector<> mooringFairlead;
   chrono::ChVector<> mooringAnchor;
-  //chrono::ChMarker monopileFairleadMarker;
 public:
-  MooringLine(chrono::ChSystem& system, std::shared_ptr<chrono::fea::ChMesh> mesh, PlatformParams p, double theta, std::shared_ptr<chrono::ChBody> monopile);
+  MooringLine(chrono::ChSystem& system, std::shared_ptr<chrono::fea::ChMesh> mesh, PlatformParams p, double theta, std::shared_ptr<Monopile> monopile);
   void render();
   void setRestLengthAndPosition();
 };

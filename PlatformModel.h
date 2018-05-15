@@ -1,7 +1,6 @@
 #ifndef PLATFORMMODEL_H
 #define PLATFORMMODEL_H
 
-#include "chrono/physics/ChLinkMate.h"
 #include "chrono/physics/ChSystem.h"
 #include "chrono/physics/ChBodyEasy.h"
 #include "chrono/physics/ChBody.h"
@@ -9,6 +8,7 @@
 
 #include "../XLLT/QLLTSimulation.h"
 
+#include "Monopile.h"
 #include "MooringLine.h"
 #include "Buoyancy.h"
 #include "PlatformParams.h"
@@ -20,13 +20,10 @@ class PlatformModel{
     chrono::ChSystemNSC system;
     std::shared_ptr<chrono::fea::ChNodeFEAxyzD> monopileInitNode;
     std::shared_ptr<chrono::fea::ChMesh> mesh = std::make_shared<chrono::fea::ChMesh>();
-    std::shared_ptr<chrono::ChBody> monopile;
-    std::shared_ptr<chrono::ChBody> nacelleBody;
-    std::shared_ptr<chrono::ChBody> ballastBody;
+    std::shared_ptr<Monopile> monopile;
     std::shared_ptr<Buoyancy> buoyancy;
     std::vector<MooringLine> mooringLines;
 
-    chrono::ChVector<> gravityCenter;
     double dT = 0.005;
 
   public:

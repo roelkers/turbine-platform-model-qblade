@@ -9,65 +9,34 @@
 
 #include <QDebug>
 #include "../GlobalFunctions.h"
+#include "../XLLT/QLLTSimulation.h"
+#include <QtOpenGL>
 
 #include "Buoyancy.h"
 #include "PlatformParams.h"
+#include "Monopile.h"
 
 using namespace chrono;
 using namespace chrono::fea;
 
-Buoyancy::Buoyancy(PlatformParams p, std::shared_ptr<ChLoadContainer> loadContainer, std::shared_ptr<ChBody> monopile)
+Buoyancy::Buoyancy(PlatformParams p, std::shared_ptr<ChLoadContainer> loadContainer, std::shared_ptr<Monopile> monopile)
 
 :p(p),
 monopile(monopile),
 loadContainer(loadContainer)
 {
-  //ChVector<> pos = monopile->GetPos();
-  /*
-  //ChVector<> towerPos = monopile->GetPos();
-  ChFrameMoving<> frame = monopile->GetFrame_COG_to_abs();
-  //Get rotation of frame as a quaternion
-  ChQuaternion<> qmonopile = frame.GetRot();
-  //Get unity vector in z direction
-  ChVector<> zUnityVector = ChVector<>(0,0,1);
-  //Rotate Coordinate system back
-  ChQuaternion<> qcorrection = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
 
+  qDebug() << "topMarker x: " << monopile->getMarkerTop()->GetAbsCoord().pos.x();
+  qDebug() << "topMarker y: " << monopile->getMarkerTop()->GetAbsCoord().pos.y();
+  qDebug() << "topMarker z: " << monopile->getMarkerTop()->GetAbsCoord().pos.z();
 
-  ChQuaternion<> qcombined = qmonopile* qcorrection;
-  //Get vector in direction of tower axis by rotating vector around quaternion
-  ChVector<> towerAxis = qcombined.Rotate(zUnityVector);
-  */
-
-  markerBottom = std::make_shared<ChMarker>();
-  //Set Marker Position relative to local coordinate system
-  ChCoordsys<> bottomCoordsys = ChCoordsys<>(monopile->TransformPointLocalToParent(ChVector<>(0,-0.5*p.towerHeight,0)));
-  //Set marker parameters
-  markerBottom->SetBody(monopile.get());
-  markerBottom->Impose_Abs_Coord(bottomCoordsys);
-
-  //markerBottom->SetPos(ChVector<>(0,0,-0.5*p.towerHeight));
-
-  markerTop = std::make_shared<ChMarker>();
-  //Set Marker Position relative to local coordinate system
-  ChCoordsys<> topCoordsys = ChCoordsys<>(monopile->TransformPointLocalToParent(ChVector<>(0,0.5*p.towerHeight,0)));
-  //Set marker parameters
-  markerTop->SetBody(monopile.get());
-  markerTop->Impose_Abs_Coord(topCoordsys);
-  //ChVector<> vecE = markerBottom->GetAbsCoord().pos;
-  //ChVector<> vecI = markerTop->GetAbsCoord().pos;
-
-  qDebug() << "topMarker x: " << markerTop->GetAbsCoord().pos.x();
-  qDebug() << "topMarker y: " << markerTop->GetAbsCoord().pos.y();
-  qDebug() << "topMarker z: " << markerTop->GetAbsCoord().pos.z();
-
-  qDebug() << "bottomMarker x: " << markerBottom->GetAbsCoord().pos.x();
-  qDebug() << "bottomMarker y: " << markerBottom->GetAbsCoord().pos.y();
-  qDebug() << "bottomMarker z: " << markerBottom->GetAbsCoord().pos.z();
+  qDebug() << "bottomMarker x: " << monopile->getMarkerBottom()->GetAbsCoord().pos.x();
+  qDebug() << "bottomMarker y: " << monopile->getMarkerBottom()->GetAbsCoord().pos.y();
+  qDebug() << "bottomMarker z: " << monopile->getMarkerBottom()->GetAbsCoord().pos.z();
 
   //Init Buoyancy force with null vectors
   buoyancyForce = std::make_shared<ChLoadBodyForce> (
-    monopile, //body
+    monopile->getCylinder(), //body
     ChVector<>(0,0,0), //force in positive z direction
     false, //local_force
     ChVector<>(0,0,0), //local Gravity Center
@@ -83,13 +52,11 @@ loadContainer(loadContainer)
 
 void Buoyancy::update(){
 
-  qDebug() << "update markers";
-  markerBottom->UpdateState();
-  markerTop->UpdateState();
+  monopile->updateMarkers();
 
   ChVector<> seaLevelVector = ChVector<>(0,0,p.seaLevel);
-  ChVector<> towerPos = monopile->GetPos();
-  ChFrameMoving<> frame = monopile->GetFrame_COG_to_abs();
+  ChVector<> towerPos = monopile->getCylinder()->GetPos();
+  ChFrameMoving<> frame = monopile->getCylinder()->GetFrame_COG_to_abs();
   //Get rotation of frame as a quaternion
   ChQuaternion<> qmonopile = frame.GetRot();
   //Rotate Coordinate system back
@@ -131,25 +98,25 @@ void Buoyancy::update(){
     //Intersection point using straight line equation
     intersectionPoint = towerPos + towerAxis*rConstant;
     //Get Position of the Top and bottom via the body markers
-    vecE = markerBottom->GetAbsCoord().pos;
-    vecI = markerTop->GetAbsCoord().pos;
+    vecE = monopile->getMarkerBottom()->GetAbsCoord().pos;
+    vecI = monopile->getMarkerTop()->GetAbsCoord().pos;
 
     qDebug() << "r-Konstante:" << rConstant << "\n";
   }
 
   computeBuoyancy(vecE, vecI);
 
-  qDebug() << "monopile x: " << monopile->GetPos().x();
-  qDebug() << "monopile y: " << monopile->GetPos().y();
-  qDebug() << "monopile z: " << monopile->GetPos().z();
+  qDebug() << "monopile x: " << towerPos.x();
+  qDebug() << "monopile y: " << towerPos.y();
+  qDebug() << "monopile z: " << towerPos.z();
 
-  qDebug() << "topMarker x: " << markerTop->GetAbsCoord().pos.x();
-  qDebug() << "topMarker y: " << markerTop->GetAbsCoord().pos.y();
-  qDebug() << "topMarker z: " << markerTop->GetAbsCoord().pos.z();
+  qDebug() << "topMarker x: " << monopile->getMarkerTop()->GetAbsCoord().pos.x();
+  qDebug() << "topMarker y: " << monopile->getMarkerTop()->GetAbsCoord().pos.y();
+  qDebug() << "topMarker z: " << monopile->getMarkerTop()->GetAbsCoord().pos.z();
 
-  qDebug() << "bottomMarker x: " << markerBottom->GetAbsCoord().pos.x();
-  qDebug() << "bottomMarker y: " << markerBottom->GetAbsCoord().pos.y();
-  qDebug() << "bottomMarker z: " << markerBottom->GetAbsCoord().pos.z();
+  qDebug() << "bottomMarker x: " << monopile->getMarkerBottom()->GetAbsCoord().pos.x();
+  qDebug() << "bottomMarker y: " << monopile->getMarkerBottom()->GetAbsCoord().pos.y();
+  qDebug() << "bottomMarker z: " << monopile->getMarkerBottom()->GetAbsCoord().pos.z();
 }
 
 void Buoyancy::computeBuoyancy(ChVector<> vecE, ChVector<> vecI){
@@ -172,7 +139,7 @@ void Buoyancy::computeBuoyancy(ChVector<> vecE, ChVector<> vecI){
   //            |
   //------------E-------------
 
-  ChVector<> towerPos = monopile->GetPos();
+  ChVector<> towerPos = monopile->getCylinder()->GetPos();
 
   //ChVector<> vecES = intersectionPoint- vecE;
   //ChVector<> vecIS = intersectionPoint- vecE;
@@ -236,3 +203,19 @@ double Buoyancy::computeBuoyancyForce(double submergedLength){
     return submergedVolumeMonopile*p.rhoWater*p.g;
 }
 
+void Buoyancy::render(){
+    glPointSize(10);
+    glLineWidth(3);
+
+    //Draw viz vertices
+    glBegin(GL_POINTS);
+        //red/green: intersection Point
+        glColor4d(1,1,0,1);
+        CVector isPos = CVecFromChVec(intersectionPoint);
+        glVertex3d(isPos.x,isPos.y,isPos.z);
+        //blue/green: buoyancy center
+        glColor4d(0,1,1,1);
+        CVector buoyancyCenterPos = CVecFromChVec(buoyancyCenter);
+        glVertex3d(buoyancyCenterPos.x,buoyancyCenterPos.y,buoyancyCenterPos.z);
+    glEnd();
+}
