@@ -175,6 +175,7 @@ double PlatformModel::calculateGravityCenter(){
 
     double xs = (0.5*p.towerDensity*areaMonopile*pow(p.towerHeight,2)+p.towerHeight*p.nacelleMass)/massTotal;
     ChVector monopilePos = monopile->GetPos();
+    gravityCenter = monopilePos + gravityCenter
 }
 
 void PlatformModel::render(){

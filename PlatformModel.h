@@ -26,17 +26,18 @@ class PlatformModel{
     std::shared_ptr<Buoyancy> buoyancy;
     std::vector<MooringLine> mooringLines;
 
+    chrono::ChVector<> gravityCenter;
     double dT = 0.005;
 
   public:
     PlatformModel(QLLTSimulation *qLLTSim);
     double calculateRestPositionOfPlatform();
+    double calculateGravityCenter();
     void update(double endTime);
     void render();
     void renderMonopile();
     void renderCoordinateSystems();
     void renderMooringLines();
-
 };
 
 #endif
