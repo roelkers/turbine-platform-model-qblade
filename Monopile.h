@@ -26,12 +26,12 @@ private:
     chrono::ChVector<> gravityCenter;
 
 public:
-    Monopile(chrono::ChSystem& system, std::shared_ptr<chrono::fea::ChMesh> mesh, PlatformParams p);
+    Monopile(chrono::ChSystem& system, PlatformParams p);
 
     void render();
     void updateMarkers();
     double calculateGravityCenter();
-    void addNacelleAndBallast(chrono::ChSystem &system, std::shared_ptr<chrono::fea::ChMesh> mesh);
+    void addNacelleAndBallast(chrono::ChSystem &system);
 
     std::shared_ptr<chrono::ChMarker> getMarkerTop(){return markerTop;}
     std::shared_ptr<chrono::ChMarker> getMarkerBottom(){return markerBottom;}

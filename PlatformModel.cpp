@@ -42,7 +42,7 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT_LINEARIZED);
 
     //Create monopile
-    monopile = std::make_shared<Monopile>(system, mesh, p);
+    monopile = std::make_shared<Monopile>(system, p);
 
     //translate to rest position, here cylinder is static
     double restPosition = calculateRestPositionOfPlatform();
@@ -54,7 +54,7 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     monopile->getCylinder()->Move(initCoords);
 
     //Now that the cylinder is in the init position we can add the nacelle and ballast masses
-    monopile->addNacelleAndBallast(system, mesh);
+    monopile->addNacelleAndBallast(system);
 
     //Init Load container
     auto loadcontainer = std::make_shared<ChLoadContainer>();

@@ -21,7 +21,7 @@
 using namespace chrono;
 using namespace chrono::fea;
 
-Monopile::Monopile(ChSystem &system, std::shared_ptr<ChMesh> mesh, PlatformParams p)
+Monopile::Monopile(ChSystem &system, PlatformParams p)
 :p(p)
 {
 
@@ -73,7 +73,7 @@ Monopile::Monopile(ChSystem &system, std::shared_ptr<ChMesh> mesh, PlatformParam
 
 }
 
-void Monopile::addNacelleAndBallast(ChSystem &system, std::shared_ptr<ChMesh> mesh){
+void Monopile::addNacelleAndBallast(ChSystem &system){
 
     //Create ballast on the bottom of the cylinder
     ballast = std::make_shared<ChBody>();
@@ -81,9 +81,7 @@ void Monopile::addNacelleAndBallast(ChSystem &system, std::shared_ptr<ChMesh> me
     system.Add(ballast);
     //Move to position in local frame, on the bottom end
     ChVector<> ballastPos = cylinder->TransformPointLocalToParent(ChVector<>(0,-0.5*p.towerHeight,0)); //local frame to transform
-    std::shared_ptr<ChNodeFEAxyzD> ballastNode = std::make_shared<ChNodeFEAxyzD>(ballastPos, p.towerSetupDir);
-    mesh->AddNode(ballastNode);
-    ballast->SetPos(ballastNode->GetPos());
+    ballast->SetPos(ballastPos);
     //ballast->SetRot(qSetup);
     qDebug() << "ballast mass: " << ballast->GetMass();
     //ballast constraint, attach to cylinder
@@ -98,9 +96,7 @@ void Monopile::addNacelleAndBallast(ChSystem &system, std::shared_ptr<ChMesh> me
     system.Add(nacelle);
     //Move to position in local frame, on the top end
     ChVector<> nacellePos = cylinder->TransformPointLocalToParent(ChVector<>(0,0.5*p.towerHeight,0)); //local frame to transform
-    std::shared_ptr<ChNodeFEAxyzD> nacelleNode = std::make_shared<ChNodeFEAxyzD>(nacellePos, p.towerSetupDir);
-    mesh->AddNode(nacelleNode);
-    nacelle->SetPos(nacelleNode->GetPos());
+    nacelle->SetPos(nacellePos);
     //nacelle->SetRot(qSetup);
     qDebug() << "nacelle mass: " << nacelle->GetMass();
     //nacelle constraint, attach to monopile
