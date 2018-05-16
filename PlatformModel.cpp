@@ -119,19 +119,13 @@ void PlatformModel::render(){
     {
         monopile->render();
         buoyancy->render();
-        renderMooringLines();
+
+        for(auto & mooringLine : mooringLines) {
+            mooringLine.render();
+        }
     }
     glEndList();
 
-}
-
-
-void PlatformModel::renderMooringLines(){
-   glPointSize(0.1);
-   glLineWidth(1);
-   for(auto & mooringLine : mooringLines) {
-       mooringLine.render();
-   }
 }
 
 void PlatformModel::update(double endTime){

@@ -139,6 +139,9 @@ void MooringLine::setRestLengthAndPosition(){
 }
 
 void MooringLine::render(){
+    glPointSize(0.1);
+    glLineWidth(1);
+
     //Iterate over nodes to visualize them
     glBegin(GL_LINE_STRIP);
     glColor4d(0,0,0,1);

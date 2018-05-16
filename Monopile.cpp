@@ -54,6 +54,7 @@ Monopile::Monopile(ChSystem &system, PlatformParams p)
 //    //Get vector in direction of tower axis by rotating vector around quaternion
 //    ChVector<> towerAxis = qcombined.Rotate(zUnityVector);
 
+    //Add markers on top and bottom of cylinder for the calculation of buoyancy
 
     markerBottom = std::make_shared<ChMarker>();
     //Set Marker Position relative to local coordinate system
@@ -62,14 +63,19 @@ Monopile::Monopile(ChSystem &system, PlatformParams p)
     markerBottom->SetBody(cylinder.get());
     markerBottom->Impose_Abs_Coord(bottomCoordsys);
 
-    //markerBottom->SetPos(ChVector<>(0,0,-0.5*p.towerHeight));
-
     markerTop = std::make_shared<ChMarker>();
     //Set Marker Position relative to local coordinate system
     ChCoordsys<> topCoordsys = ChCoordsys<>(cylinder->TransformPointLocalToParent(ChVector<>(0,0.5*p.towerHeight,0)));
     //Set marker parameters
     markerTop->SetBody(cylinder.get());
     markerTop->Impose_Abs_Coord(topCoordsys);
+
+    markerGravityCenter = std::make_shared<ChMarker>();
+    //Set Marker Position relative to local coordinate system
+    ChCoordsys<> gravCenterCoordsys = ChCoordsys<>(ChVector<>(0,0,-0.5*p.towerHeight)+calculateGravityCenterFromBottom());
+    //Set marker parameters
+    markerGravityCenter->SetBody(cylinder.get());
+    markerGravityCenter->Impose_Abs_Coord(gravCenterCoordsys);
 
 }
 
@@ -111,6 +117,7 @@ void Monopile::updateMarkers(){
     qDebug() << "update markers";
     markerBottom->UpdateState();
     markerTop->UpdateState();
+    markerGravityCenter->UpdateState();
 }
 
 void Monopile::render(){
@@ -139,6 +146,10 @@ void Monopile::render(){
         glColor4d(0.5,1,0,1);
         CVector nacellePos = CVecFromChVec(nacelle->GetPos());
         glVertex3d(nacellePos.x, nacellePos.y, nacellePos.z); 
+        //light red/blue: gravity center
+        glColor4d(0,0.5,1,1);
+        CVector gravityCenterPos = CVecFromChVec(markerGravityCenter->GetAbsCoord().pos);
+        glVertex3d(gravityCenterPos.x,gravityCenterPos.y,gravityCenterPos.z);
     glEnd();
 
     glPointSize(0.1);
@@ -167,11 +178,17 @@ void Monopile::render(){
     glEnd();
 }
 
-double Monopile::calculateGravityCenter(){
+ChVector<> Monopile::calculateGravityCenterFromBottom(){
     double massTotal = cylinder->GetMass()+p.nacelleMass+p.ballastMass;
     double areaMonopile = pow(p.towerRadius,2)*M_PI;
 
     double xs = (0.5*p.towerDensity*areaMonopile*pow(p.towerHeight,2)+p.towerHeight*p.nacelleMass)/massTotal;
-    return xs;
+    qDebug() << "xs : " << xs;
+    ChVector<> gravityCenter = markerBottom->GetAbsCoord().pos ;//+ ChVector<>(0,xs,0);
+    qDebug() << "gravityCenter x: " << gravityCenter.x();
+    qDebug() << "gravityCenter y: " << gravityCenter.y();
+    qDebug() << "gravityCenter z: " << gravityCenter.z();
+
+    return ChVector<>(0,0,xs);
 }
 

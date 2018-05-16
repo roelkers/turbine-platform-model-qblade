@@ -22,15 +22,14 @@ private:
 
     std::shared_ptr<chrono::ChMarker> markerBottom;
     std::shared_ptr<chrono::ChMarker> markerTop;
-
-    chrono::ChVector<> gravityCenter;
+    std::shared_ptr<chrono::ChMarker> markerGravityCenter;
 
 public:
     Monopile(chrono::ChSystem& system, PlatformParams p);
 
     void render();
     void updateMarkers();
-    double calculateGravityCenter();
+    chrono::ChVector<> calculateGravityCenterFromBottom();
     void addNacelleAndBallast(chrono::ChSystem &system);
 
     std::shared_ptr<chrono::ChMarker> getMarkerTop(){return markerTop;}
