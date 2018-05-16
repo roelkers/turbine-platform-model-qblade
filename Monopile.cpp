@@ -1,4 +1,3 @@
-#include "Monopile.h"
 
 #include "chrono/physics/ChSystem.h"
 #include "chrono/physics/ChBodyEasy.h"
@@ -17,16 +16,18 @@
 #include <QDebug>
 
 #include "PlatformParams.h"
+#include "Monopile.h"
 
 using namespace chrono;
 using namespace chrono::fea;
 
-Monopile::Monopile(chrono::ChSystem &system, std::shared_ptr<chrono::fea::ChMesh> mesh, PlatformParams p)
+Monopile::Monopile(ChSystem &system, std::shared_ptr<ChMesh> mesh, PlatformParams p)
 :p(p)
 {
 
     qDebug() << "creating cylinder";
-    //cylinder
+    cylinder = std::make_shared<ChBodyEasyCylinder>(p.towerRadius,p.towerHeight,p.towerDensity);
+    //set cylinder to setup position
     cylinder->SetPos(p.towerSetupPos);
 
     qDebug() << "rotate cylinder";
@@ -37,56 +38,22 @@ Monopile::Monopile(chrono::ChSystem &system, std::shared_ptr<chrono::fea::ChMesh
 
     qDebug() << "cylinder mass: " << cylinder->GetMass();
 
-    //Create ballast on the bottom of the cylinder
+//    //ChVector<> pos = cylinder->GetPos();
 
-    ballast = std::make_shared<ChBody>();
-    ballast->SetMass(p.ballastMass);
-    system.Add(ballast);
-    //Move to position in local frame, on the bottom end
-    ChVector<> ballastPos = cylinder->TransformPointLocalToParent(ChVector<>(0,-0.5*p.towerHeight,0)); //local frame to transform
-    std::shared_ptr<ChNodeFEAxyzD> ballastNode = std::make_shared<ChNodeFEAxyzD>(ballastPos, p.towerSetupDir);
-    mesh->AddNode(ballastNode);
-    ballast->SetPos(ballastNode->GetPos());
-    ballast->SetRot(qSetup);
-    qDebug() << "ballast mass: " << ballast->GetMass();
-    //ballast constraint, attach to cylinder
-    std::shared_ptr<ChLinkMateFix> constraint_ballast = std::make_shared<ChLinkMateFix>();
-    constraint_ballast->Initialize(ballast, cylinder);
-    system.Add(constraint_ballast);
-
-    //Create nacelle mass on the top of the monopile
-
-    nacelle = std::make_shared<ChBody>();
-    nacelle->SetMass(p.nacelleMass);
-    system.Add(nacelle);
-    //Move to position in local frame, on the top end
-    ChVector<> nacellePos = cylinder->TransformPointLocalToParent(ChVector<>(0,0.5*p.towerHeight,0)); //local frame to transform
-    std::shared_ptr<ChNodeFEAxyzD> nacelleNode = std::make_shared<ChNodeFEAxyzD>(nacellePos, p.towerSetupDir);
-    mesh->AddNode(nacelleNode);
-    nacelle->SetPos(nacelleNode->GetPos());
-    nacelle->SetRot(qSetup);
-    qDebug() << "nacelle mass: " << nacelle->GetMass();
-    //nacelle constraint, attach to monopile
-    std::shared_ptr<ChLinkMateFix> constraint_nacelle = std::make_shared<ChLinkMateFix>();
-    constraint_nacelle->Initialize(nacelle, cylinder);
-    system.Add(constraint_nacelle);
-
-    //ChVector<> pos = cylinder->GetPos();
-    /*
-    //ChVector<> towerPos = cylinder->GetPos();
-    ChFrameMoving<> frame = cylinder->GetFrame_COG_to_abs();
-    //Get rotation of frame as a quaternion
-    ChQuaternion<> qcylinder = frame.GetRot();
-    //Get unity vector in z direction
-    ChVector<> zUnityVector = ChVector<>(0,0,1);
-    //Rotate Coordinate system back
-    ChQuaternion<> qcorrection = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
+//    //ChVector<> towerPos = cylinder->GetPos();
+//    ChFrameMoving<> frame = cylinder->GetFrame_COG_to_abs();
+//    //Get rotation of frame as a quaternion
+//    ChQuaternion<> qcylinder = frame.GetRot();
+//    //Get unity vector in z direction
+//    ChVector<> zUnityVector = ChVector<>(0,0,1);
+//    //Rotate Coordinate system back
+//    ChQuaternion<> qcorrection = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
 
 
-    ChQuaternion<> qcombined = qcylinder* qcorrection;
-    //Get vector in direction of tower axis by rotating vector around quaternion
-    ChVector<> towerAxis = qcombined.Rotate(zUnityVector);
-    */
+//    ChQuaternion<> qcombined = qcylinder* qcorrection;
+//    //Get vector in direction of tower axis by rotating vector around quaternion
+//    ChVector<> towerAxis = qcombined.Rotate(zUnityVector);
+
 
     markerBottom = std::make_shared<ChMarker>();
     //Set Marker Position relative to local coordinate system
@@ -103,6 +70,43 @@ Monopile::Monopile(chrono::ChSystem &system, std::shared_ptr<chrono::fea::ChMesh
     //Set marker parameters
     markerTop->SetBody(cylinder.get());
     markerTop->Impose_Abs_Coord(topCoordsys);
+
+}
+
+void Monopile::addNacelleAndBallast(ChSystem &system, std::shared_ptr<ChMesh> mesh){
+
+    //Create ballast on the bottom of the cylinder
+    ballast = std::make_shared<ChBody>();
+    ballast->SetMass(p.ballastMass);
+    system.Add(ballast);
+    //Move to position in local frame, on the bottom end
+    ChVector<> ballastPos = cylinder->TransformPointLocalToParent(ChVector<>(0,-0.5*p.towerHeight,0)); //local frame to transform
+    std::shared_ptr<ChNodeFEAxyzD> ballastNode = std::make_shared<ChNodeFEAxyzD>(ballastPos, p.towerSetupDir);
+    mesh->AddNode(ballastNode);
+    ballast->SetPos(ballastNode->GetPos());
+    //ballast->SetRot(qSetup);
+    qDebug() << "ballast mass: " << ballast->GetMass();
+    //ballast constraint, attach to cylinder
+    std::shared_ptr<ChLinkMateFix> constraint_ballast = std::make_shared<ChLinkMateFix>();
+    constraint_ballast->Initialize(ballast, cylinder);
+    system.Add(constraint_ballast);
+
+    //Create nacelle mass on the top of the monopile
+
+    nacelle = std::make_shared<ChBody>();
+    nacelle->SetMass(p.nacelleMass);
+    system.Add(nacelle);
+    //Move to position in local frame, on the top end
+    ChVector<> nacellePos = cylinder->TransformPointLocalToParent(ChVector<>(0,0.5*p.towerHeight,0)); //local frame to transform
+    std::shared_ptr<ChNodeFEAxyzD> nacelleNode = std::make_shared<ChNodeFEAxyzD>(nacellePos, p.towerSetupDir);
+    mesh->AddNode(nacelleNode);
+    nacelle->SetPos(nacelleNode->GetPos());
+    //nacelle->SetRot(qSetup);
+    qDebug() << "nacelle mass: " << nacelle->GetMass();
+    //nacelle constraint, attach to monopile
+    std::shared_ptr<ChLinkMateFix> constraint_nacelle = std::make_shared<ChLinkMateFix>();
+    constraint_nacelle->Initialize(nacelle, cylinder);
+    system.Add(constraint_nacelle);
 
 }
 
@@ -129,7 +133,7 @@ void Monopile::render(){
         glVertex3d(topMarkerPos.x,topMarkerPos.y,topMarkerPos.z);
         //red: bottomMarker
         glColor4d(1,0,0,1);
-        CVector bottomMarkerPos = CVecFromChVec(markerTop->GetAbsCoord().pos);
+        CVector bottomMarkerPos = CVecFromChVec(markerBottom->GetAbsCoord().pos);
         glVertex3d(bottomMarkerPos.x,bottomMarkerPos.y,bottomMarkerPos.z);
         //red/blue: ballast Body
         glColor4d(1,0,1,1);
@@ -138,7 +142,7 @@ void Monopile::render(){
         //light red/green: nacelle Body
         glColor4d(0.5,1,0,1);
         CVector nacellePos = CVecFromChVec(nacelle->GetPos());
-        glVertex3d(nacellePos.x, nacellePos.y, nacellePos.z);
+        glVertex3d(nacellePos.x, nacellePos.y, nacellePos.z); 
     glEnd();
 
     glPointSize(0.1);
@@ -174,3 +178,4 @@ double Monopile::calculateGravityCenter(){
     double xs = (0.5*p.towerDensity*areaMonopile*pow(p.towerHeight,2)+p.towerHeight*p.nacelleMass)/massTotal;
     return xs;
 }
+

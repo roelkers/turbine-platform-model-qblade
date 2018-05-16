@@ -15,7 +15,6 @@
 #include "Monopile.h"
 #include "Buoyancy.h"
 
-
 using namespace chrono;
 using namespace chrono::fea;
 
@@ -53,6 +52,9 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     //Define initial displacement
     ChCoordsys<> initCoords =ChCoordsys<>(p.initPosVec,p.qRotationX*p.qRotationY*p.qRotationZ);
     monopile->getCylinder()->Move(initCoords);
+
+    //Now that the cylinder is in the init position we can add the nacelle and ballast masses
+    monopile->addNacelleAndBallast(system, mesh);
 
     //Init Load container
     auto loadcontainer = std::make_shared<ChLoadContainer>();
