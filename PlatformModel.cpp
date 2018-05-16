@@ -89,7 +89,6 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     system.Setup();
 
     //Set Rest position and rest length of mooring lines
-
     for(auto & mooringLine : mooringLines) {
         mooringLine.setRestLengthAndPosition();
     }

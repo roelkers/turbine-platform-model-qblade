@@ -95,7 +95,7 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   system.Add(constraint_hinge);
 
 }
-
+/*
 void MooringLine::setRestLengthAndPosition(){
 
     double mooringLengthSetup = sqrt(pow(p.mooringPosBottomZ-p.mooringPosFairleadZInBodyCoords,2) + pow(p.mooringAnchorRadiusFromFairlead,2));
@@ -137,6 +137,57 @@ void MooringLine::setRestLengthAndPosition(){
         //qDebug() << "new rest length"<<CVector(pos-pos0).VAbs() <<frac;
     }
 }
+*/
+
+double MooringLine::GetTensionForceAt(double pos){
+    if (pos > 1) pos = 1.0;
+    if (pos < 0) pos = 0.0;
+
+    double strain, currentLength;
+    std::shared_ptr<ChBeamSectionCable> sec;
+
+    for (int i=0;i<Elements.size();i++){
+        if (Elements.at(i)->normalizedLengthA <= pos && pos <= Elements.at(i)->normalizedLengthB){
+            currentLength = CVector(Elements.at(i)->m_Nodes[0]->Origin-Elements.at(i)->m_Nodes[1]->Origin).VAbs();
+            strain = (currentLength-initialLength)/initialLength;
+            sec =  Elements.at(i)->GetSection();
+        }
+    }
+    return strain*sec->E*sec->Area;
+}
+
+void MooringLine::setRestLengthAndPosition(){
+
+    double mooringLengthSetup = sqrt(pow(p.mooringPosBottomZ-p.mooringPosFairleadZInBodyCoords,2) + pow(p.mooringAnchorRadiusFromFairlead,2));
+    qDebug()<< "mooringLengthSetup: " << mooringLengthSetup ;
+
+    double deltal = p.mooringPretension/p.mooringStiffness;
+    double frac = (mooringLengthSetup-deltal)/mooringLengthSetup;
+
+    double lengthOfElement = mooringLengthSetup/p.mooringNrElements;
+
+    //Iterate over beam elements to set the rest length and rest position
+    std::vector<std::shared_ptr<ChElementCableANCF>> beamElements = builder.GetLastBeamElements();
+    for(auto &element : beamElements){
+
+        //qDebug() << "initial length"<<element->GetRestLength();
+
+        element->SetRestLength(lengthOfElement*frac);
+        CVector pos = CVecFromChVec(element->GetNodeA()->GetX0());
+        CVector pos0 = CVecFromChVec(element->GetNodeB()->GetX0());
+
+        CVector lvec = CVector(pos-pos0);
+        lvec.Normalize();
+        lvec *= lengthOfElement*frac;
+
+        pos = pos0+lvec;
+        ChVector<> chvec(pos.x,pos.y,pos.z);
+        element->GetNodeB()->SetX0(chvec);
+
+        //qDebug() << "new rest length"<<CVector(pos-pos0).VAbs() <<frac;
+    }
+}
+
 
 void MooringLine::render(){
     glPointSize(0.1);

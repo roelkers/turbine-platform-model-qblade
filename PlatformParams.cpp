@@ -11,8 +11,8 @@ PlatformParams::PlatformParams(double towerHeight){
   towerSetupDir = ChVector<>(0, 0, 1);
 
   //Initial rotation of the monopile
-  qRotationX = Q_from_AngAxis(10 * CH_C_DEG_TO_RAD, VECT_X);
-  qRotationY= Q_from_AngAxis(10 * CH_C_DEG_TO_RAD, VECT_Y);
+  qRotationX = Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_X);
+  qRotationY= Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_Y);
   qRotationZ= Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_Z);
   //Translate to initial Position
   initPosVec = ChVector<>(0,0,-100);
@@ -21,8 +21,8 @@ PlatformParams::PlatformParams(double towerHeight){
   mooringDiameter = 0.15;
   mooringStiffness = 8471133.49;
   mooringPretension = 3*827652;
-  mooringRaleyghDamping = 0.000;
-  mooringNrElements = 15;
+  mooringRaleyghDamping = 0.1000;
+  mooringNrElements = 1;
   mooringAnchorRadiusFromFairlead = 600;
   mooringPosFairleadZInBodyCoords = -15;
   mooringPosBottomZ = -300;

@@ -20,6 +20,7 @@ public:
   MooringLine(chrono::ChSystem& system, std::shared_ptr<chrono::fea::ChMesh> mesh, PlatformParams p, double theta, std::shared_ptr<Monopile> monopile);
   void render();
   void setRestLengthAndPosition();
+  double getTensionForceAt(double pos);
 };
 
 #endif

@@ -49,7 +49,6 @@ Monopile::Monopile(ChSystem &system, PlatformParams p)
 //    //Rotate Coordinate system back
 //    ChQuaternion<> qcorrection = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
 
-
 //    ChQuaternion<> qcombined = qcylinder* qcorrection;
 //    //Get vector in direction of tower axis by rotating vector around quaternion
 //    ChVector<> towerAxis = qcombined.Rotate(zUnityVector);
