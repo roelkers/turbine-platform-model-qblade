@@ -75,7 +75,6 @@ Monopile::Monopile(ChSystem &system, PlatformParams p)
     //Set marker parameters
     markerGravityCenter->SetBody(cylinder.get());
     markerGravityCenter->Impose_Abs_Coord(gravCenterCoordsys);
-
 }
 
 void Monopile::addNacelleAndBallast(ChSystem &system){
@@ -108,7 +107,6 @@ void Monopile::addNacelleAndBallast(ChSystem &system){
     std::shared_ptr<ChLinkMateFix> constraint_nacelle = std::make_shared<ChLinkMateFix>();
     constraint_nacelle->Initialize(nacelle, cylinder);
     system.Add(constraint_nacelle);
-
 }
 
 void Monopile::updateMarkers(){

@@ -23,7 +23,9 @@ using namespace chrono::fea;
 MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, PlatformParams p, double theta, std::shared_ptr<Monopile> monopile)
 :p(p)
 {
-  double mooringL = sqrt(pow(p.mooringPosBottomZ-p.mooringPosFairleadZInBodyCoords,2) + pow(p.mooringAnchorRadiusFromFairlead,2));
+  mooringLengthSetup = sqrt(pow(p.mooringPosBottomZ-p.mooringPosFairleadZInBodyCoords,2) + pow(p.mooringAnchorRadiusFromFairlead,2));
+
+  initialLengthOfElement = mooringLengthSetup/p.mooringNrElements;
 
   std::shared_ptr<ChBeamSectionCable> sectionCable = std::make_shared<ChBeamSectionCable>();
   sectionCable->SetDiameter(p.mooringDiameter);
@@ -32,7 +34,7 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
 
   sectionCable->SetArea(mooringArea);
 
-  double eModMooring = p.mooringStiffness*mooringL/mooringArea;
+  double eModMooring = p.mooringStiffness*mooringLengthSetup/mooringArea;
 
   sectionCable->SetYoungModulus(eModMooring);
   sectionCable->SetBeamRaleyghDamping(p.mooringRaleyghDamping);
@@ -44,11 +46,11 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   double xEnd = (p.towerRadius+p.mooringAnchorRadiusFromFairlead)*sin(theta/180*M_PI);
   double yEnd = (p.towerRadius+p.mooringAnchorRadiusFromFairlead)*cos(theta/180*M_PI);
 
-  double length_test = sqrt(pow((xEnd-xStart),2) + pow((yEnd-yStart),2) + pow((p.mooringPosBottomZ-p.mooringPosFairleadZInBodyCoords),2));
+  //double length_test = sqrt(pow((xEnd-xStart),2) + pow((yEnd-yStart),2) + pow((p.mooringPosBottomZ-p.mooringPosFairleadZInBodyCoords),2));
   //double distance_test = sqrt(pow(xStart,2)+pow(yStart,2));
 
-  qDebug() << "mooringLengthSetup :" << mooringL;
-  qDebug() << "length mooring check:" << length_test;
+  qDebug() << "mooringLengthSetup :" << mooringLengthSetup;
+  //qDebug() << "length mooring check:" << length_test;
   //qDebug() << "distance start to csystem origin:" << distance_test;
 
   //Coordinates of Fairlead in local frame of monopile, which is 90° turned around x axis
@@ -78,21 +80,21 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   mtruss->SetBodyFixed(true);
 
   //fairleads constraint
-  auto constraint_fairlead = std::make_shared<ChLinkPointFrame>();
-  constraint_fairlead->Initialize(builder.GetLastBeamNodes().front(), monopile->getCylinder());
+  constraintFairlead = std::make_shared<ChLinkPointFrame>();
+  constraintFairlead->Initialize(builder.GetLastBeamNodes().front(), monopile->getCylinder());
 
   const ChVector<> pos = builder.GetLastBeamNodes().front()->GetPos();
-  constraint_fairlead->SetAttachPositionInAbsoluteCoords(pos);
+  constraintFairlead->SetAttachPositionInAbsoluteCoords(pos);
 
   //constraint_fairlead->SetAttachPositionInBodyCoords(mooringFairlead);
   //ChCoordsys<> mooringFairleadCoord = ChCoordsys<>(mooringFairlead);
   //constraint_fairlead->SetAttachReferenceInAbsoluteCoords(mooringFairleadCoord);
-  system.Add(constraint_fairlead);
+  system.Add(constraintFairlead);
 
   //anchor constraint
-  auto constraint_hinge = std::make_shared<ChLinkPointFrame>();
-  constraint_hinge->Initialize(builder.GetLastBeamNodes().back(), mtruss);
-  system.Add(constraint_hinge);
+  constraintAnchor = std::make_shared<ChLinkPointFrame>();
+  constraintAnchor->Initialize(builder.GetLastBeamNodes().back(), mtruss);
+  system.Add(constraintAnchor);
 
 }
 /*
@@ -138,7 +140,7 @@ void MooringLine::setRestLengthAndPosition(){
     }
 }
 */
-
+/*
 double MooringLine::GetTensionForceAt(double pos){
     if (pos > 1) pos = 1.0;
     if (pos < 0) pos = 0.0;
@@ -155,7 +157,7 @@ double MooringLine::GetTensionForceAt(double pos){
     }
     return strain*sec->E*sec->Area;
 }
-
+*/
 void MooringLine::setRestLengthAndPosition(){
 
     double mooringLengthSetup = sqrt(pow(p.mooringPosBottomZ-p.mooringPosFairleadZInBodyCoords,2) + pow(p.mooringAnchorRadiusFromFairlead,2));
@@ -164,21 +166,19 @@ void MooringLine::setRestLengthAndPosition(){
     double deltal = p.mooringPretension/p.mooringStiffness;
     double frac = (mooringLengthSetup-deltal)/mooringLengthSetup;
 
-    double lengthOfElement = mooringLengthSetup/p.mooringNrElements;
-
     //Iterate over beam elements to set the rest length and rest position
     std::vector<std::shared_ptr<ChElementCableANCF>> beamElements = builder.GetLastBeamElements();
     for(auto &element : beamElements){
 
         //qDebug() << "initial length"<<element->GetRestLength();
 
-        element->SetRestLength(lengthOfElement*frac);
+        element->SetRestLength(initialLengthOfElement*frac);
         CVector pos = CVecFromChVec(element->GetNodeA()->GetX0());
         CVector pos0 = CVecFromChVec(element->GetNodeB()->GetX0());
 
         CVector lvec = CVector(pos-pos0);
         lvec.Normalize();
-        lvec *= lengthOfElement*frac;
+        lvec *= initialLengthOfElement*frac;
 
         pos = pos0+lvec;
         ChVector<> chvec(pos.x,pos.y,pos.z);
