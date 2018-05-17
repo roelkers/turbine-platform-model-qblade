@@ -35,7 +35,6 @@ public:
     std::shared_ptr<chrono::ChMarker> getMarkerTop(){return markerTop;}
     std::shared_ptr<chrono::ChMarker> getMarkerBottom(){return markerBottom;}
     std::shared_ptr<chrono::ChBody> getCylinder(){return cylinder;}
-
 };
 
 #endif // MONOPILE_H

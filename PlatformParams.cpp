@@ -22,11 +22,12 @@ PlatformParams::PlatformParams(double towerHeight){
   mooringStiffness = 8471133.49;
   mooringPretension = 3*827652;
   mooringRaleyghDamping = 0.1000;
-  mooringNrElements = 1;
+  mooringNrElements = 15;
   mooringAnchorRadiusFromFairlead = 600;
   mooringPosFairleadZInBodyCoords = -15;
   mooringPosBottomZ = -300;
 
+  fairleadMass = 0.5;
   nacelleMass = 2.385e5;
   ballastMass = 7.71e5;
 
@@ -36,5 +37,5 @@ PlatformParams::PlatformParams(double towerHeight){
 
   //visualisation params
   cSystemFactor = 50;
-  dVectorFactor = 200;
+  dVectorFactor = 50;
 }

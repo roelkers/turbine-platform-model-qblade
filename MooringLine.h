@@ -7,6 +7,7 @@
 #include "chrono/physics/ChSystem.h"
 #include "chrono/physics/ChBodyEasy.h"
 #include "chrono_fea/ChMesh.h"
+#include "chrono/physics/ChLinkMate.h"
 
 #include "PlatformParams.h"
 #include "Monopile.h"
@@ -18,8 +19,10 @@ private:
   chrono::ChVector<> mooringFairlead;
   chrono::ChVector<> mooringAnchor;
 
-  std::shared_ptr<chrono::fea::ChLinkPointFrame> constraintFairlead;
+  std::shared_ptr<chrono::ChBody> fairleadBody;
+  std::shared_ptr<chrono::fea::ChLinkPointFrame> constraintMooring;
   std::shared_ptr<chrono::fea::ChLinkPointFrame> constraintAnchor;
+  std::shared_ptr<chrono::ChLinkMateFix> constraintFairlead;
 
   double initialLengthOfElement;
   double mooringLengthSetup;

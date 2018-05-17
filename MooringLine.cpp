@@ -5,6 +5,7 @@
 #include "chrono_fea/ChMesh.h"
 #include "chrono_fea/ChLinkPointFrame.h"
 #include "chrono_fea/ChElementCableANCF.h"
+#include "chrono/physics/ChLinkMate.h"
 
 #include "../GlobalFunctions.h"
 #include "../XLLT/QLLTSimulation.h"
@@ -79,17 +80,31 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   auto mtruss = std::make_shared<ChBody>();
   mtruss->SetBodyFixed(true);
 
-  //fairleads constraint
-  constraintFairlead = std::make_shared<ChLinkPointFrame>();
-  constraintFairlead->Initialize(builder.GetLastBeamNodes().front(), monopile->getCylinder());
-
+  //TRY here: mooringFairlead vector instead
   const ChVector<> pos = builder.GetLastBeamNodes().front()->GetPos();
-  constraintFairlead->SetAttachPositionInAbsoluteCoords(pos);
+
+  //Create fairlead body
+  fairleadBody = std::make_shared<ChBody>();
+  fairleadBody->SetMass(p.fairleadMass);
+  system.Add(fairleadBody);
+  fairleadBody->SetPos(pos);
+  qDebug() << "fairlead mass: " << fairleadBody->GetMass();
+
+  //constraint fairlead to monopile
+  constraintFairlead = std::make_shared<ChLinkMateFix>();
+  constraintFairlead->Initialize(fairleadBody, monopile->getCylinder());
+  system.Add(constraintFairlead);
+
+  //constraint mooring to fairlead
+  constraintMooring = std::make_shared<ChLinkPointFrame>();
+  constraintMooring->Initialize(builder.GetLastBeamNodes().front(), fairleadBody);
+
+  constraintMooring->SetAttachPositionInAbsoluteCoords(pos);
 
   //constraint_fairlead->SetAttachPositionInBodyCoords(mooringFairlead);
   //ChCoordsys<> mooringFairleadCoord = ChCoordsys<>(mooringFairlead);
   //constraint_fairlead->SetAttachReferenceInAbsoluteCoords(mooringFairleadCoord);
-  system.Add(constraintFairlead);
+  system.Add(constraintMooring);
 
   //anchor constraint
   constraintAnchor = std::make_shared<ChLinkPointFrame>();
@@ -188,7 +203,6 @@ void MooringLine::setRestLengthAndPosition(){
     }
 }
 
-
 void MooringLine::render(){
     glPointSize(0.1);
     glLineWidth(1);
@@ -202,12 +216,13 @@ void MooringLine::render(){
         glVertex3d(nodePos.x,nodePos.y,nodePos.z);
     }
     glEnd();
-    //Render Coordinate system of fairlead
+    glLineWidth(1.5);
     glBegin(GL_LINES);
+        //Render Coordinate system of fairlead
         ChVector<> fairleadPos = builder.GetLastBeamNodes().front()->GetPos();
         ChVector<> fairleadD = builder.GetLastBeamNodes().front()->GetD();
         CVector fairleadPosCVec = CVecFromChVec(fairleadPos);
-        //red: x-axis
+        //green: directional vector
         glColor4d(0,1,0,1);
         glVertex3d(fairleadPosCVec.x,fairleadPosCVec.y,fairleadPosCVec.z);
         CVector dVectorEnd = CVecFromChVec(fairleadPos+p.dVectorFactor*fairleadD);
@@ -221,5 +236,22 @@ void MooringLine::render(){
         qDebug() << "dVectorEnd y:" << dVectorEnd.y;
         qDebug() << "dVectorEnd z:" << dVectorEnd.z;
         */
+        //Render react forces inside the link of fairlead
+
+        ChVector<> reactForceFairlead = constraintFairlead->Get_react_force();
+        //red: react force
+        glColor4d(1,0,0,1);
+        glVertex3d(fairleadPosCVec.x,fairleadPosCVec.y,fairleadPosCVec.z);
+        CVector reactionForceVectorEnd = CVecFromChVec(fairleadPos+reactForceFairlead);
+        glVertex3d(reactionForceVectorEnd.x,reactionForceVectorEnd.y,reactionForceVectorEnd.z);
+
+        //Render react forces inside the link of mooring
+        ChVector<> reactForceMooring = constraintMooring->Get_react_force();
+        //blue: react force inside mooring
+        glColor4d(0,0,1,1);
+        glVertex3d(fairleadPosCVec.x,fairleadPosCVec.y,fairleadPosCVec.z);
+        reactionForceVectorEnd = CVecFromChVec(fairleadPos-reactForceMooring);
+        glVertex3d(reactionForceVectorEnd.x,reactionForceVectorEnd.y,reactionForceVectorEnd.z);
+
     glEnd();
 }

@@ -31,6 +31,7 @@ public:
   double mooringPosFairleadZInBodyCoords;
   double mooringPosBottomZ;
 
+  double fairleadMass;
   double ballastMass;
   double nacelleMass;
 
