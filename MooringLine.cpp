@@ -31,11 +31,11 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   std::shared_ptr<ChBeamSectionCable> sectionCable = std::make_shared<ChBeamSectionCable>();
   sectionCable->SetDiameter(p.mooringDiameter);
 
-  double mooringArea = M_PI*pow(p.mooringDiameter,2)/4;
+  mooringArea = M_PI*pow(p.mooringDiameter,2)/4;
 
   sectionCable->SetArea(mooringArea);
 
-  double eModMooring = p.mooringStiffness*mooringLengthSetup/mooringArea;
+  eModMooring = p.mooringStiffness*mooringLengthSetup/mooringArea;
 
   sectionCable->SetYoungModulus(eModMooring);
   sectionCable->SetBeamRaleyghDamping(p.mooringRaleyghDamping);
@@ -126,7 +126,7 @@ void MooringLine::setRestLengthAndPosition(){
     qDebug()<< "mooringLengthInit: " << mooringLengthInit ;
 
     //thats the delta l for the setup position
-    double deltal = p.mooringPretension/p.mooringStiffness;
+    double deltal = p.mooringPreTensionForce/p.mooringStiffness;
     double frac = (mooringLengthSetup-deltal)/mooringLengthSetup;
 
     //factor for accounting initial position length
@@ -173,12 +173,13 @@ double MooringLine::GetTensionForceAt(double pos){
     return strain*sec->E*sec->Area;
 }
 */
+
 void MooringLine::setRestLengthAndPosition(){
 
     double mooringLengthSetup = sqrt(pow(p.mooringPosBottomZ-p.mooringPosFairleadZInBodyCoords,2) + pow(p.mooringAnchorRadiusFromFairlead,2));
     qDebug()<< "mooringLengthSetup: " << mooringLengthSetup ;
 
-    double deltal = p.mooringPretension/p.mooringStiffness;
+    double deltal = p.mooringPreTensionForce/p.mooringStiffness;
     double frac = (mooringLengthSetup-deltal)/mooringLengthSetup;
 
     //Iterate over beam elements to set the rest length and rest position
@@ -239,6 +240,10 @@ void MooringLine::render(){
         //Render react forces inside the link of fairlead
 
         ChVector<> reactForceFairlead = constraintFairlead->Get_react_force();
+        qDebug() << "reactForceFairlead: " << reactForceFairlead.Length();
+        double tension = reactForceFairlead.Length()/mooringArea;
+        qDebug() << "mooringTension: " << tension;
+
         reactForceFairlead.Normalize();
         //red: react force
         glColor4d(1,0,0,1);

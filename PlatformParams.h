@@ -24,7 +24,7 @@ public:
   int mooringLineNr;
   double mooringDiameter;
   double mooringStiffness;
-  double mooringPretension;
+  double mooringPreTensionForce;
   double mooringRaleyghDamping;
   int mooringNrElements;
   double mooringAnchorRadiusFromFairlead;

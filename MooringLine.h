@@ -24,6 +24,8 @@ private:
   std::shared_ptr<chrono::fea::ChLinkPointFrame> constraintAnchor;
   std::shared_ptr<chrono::ChLinkMateFix> constraintFairlead;
 
+  double eModMooring;
+  double mooringArea;
   double initialLengthOfElement;
   double mooringLengthSetup;
 
