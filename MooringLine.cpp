@@ -24,9 +24,7 @@ using namespace chrono::fea;
 MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, PlatformParams p, double theta, std::shared_ptr<Monopile> monopile)
 :p(p)
 {
-  mooringLengthSetup = sqrt(pow(p.mooringPosBottomZ-p.mooringPosFairleadZInBodyCoords,2) + pow(p.mooringAnchorRadiusFromFairlead,2));
-
-  initialLengthOfElement = mooringLengthSetup/p.mooringNrElements;
+  double mooringLengthSetup = sqrt(pow(p.mooringPosBottomZ-p.mooringPosFairleadZInBodyCoords,2) + pow(p.mooringAnchorRadiusFromFairlead,2));
 
   std::shared_ptr<ChBeamSectionCable> sectionCable = std::make_shared<ChBeamSectionCable>();
   sectionCable->SetDiameter(p.mooringDiameter);
@@ -179,8 +177,14 @@ void MooringLine::setRestLengthAndPosition(){
     double mooringLengthSetup = sqrt(pow(p.mooringPosBottomZ-p.mooringPosFairleadZInBodyCoords,2) + pow(p.mooringAnchorRadiusFromFairlead,2));
     qDebug()<< "mooringLengthSetup: " << mooringLengthSetup ;
 
+    double setupLengthOfElement = mooringLengthSetup/p.mooringNrElements;
+
     double deltal = p.mooringPreTensionForce/p.mooringStiffness;
     double frac = (mooringLengthSetup-deltal)/mooringLengthSetup;
+
+    qDebug() << "setup length:" << setupLengthOfElement;
+    qDebug() << "frac : " << frac;
+    qDebug() << "res:" << setupLengthOfElement*frac;
 
     //Iterate over beam elements to set the rest length and rest position
     std::vector<std::shared_ptr<ChElementCableANCF>> beamElements = builder.GetLastBeamElements();
@@ -188,13 +192,13 @@ void MooringLine::setRestLengthAndPosition(){
 
         //qDebug() << "initial length"<<element->GetRestLength();
 
-        element->SetRestLength(initialLengthOfElement*frac);
+        element->SetRestLength(setupLengthOfElement*frac);
         CVector pos = CVecFromChVec(element->GetNodeA()->GetX0());
         CVector pos0 = CVecFromChVec(element->GetNodeB()->GetX0());
 
         CVector lvec = CVector(pos-pos0);
         lvec.Normalize();
-        lvec *= initialLengthOfElement*frac;
+        lvec *= setupLengthOfElement*frac;
 
         pos = pos0+lvec;
         ChVector<> chvec(pos.x,pos.y,pos.z);

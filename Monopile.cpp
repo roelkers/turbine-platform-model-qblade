@@ -30,13 +30,13 @@ Monopile::Monopile(ChSystem &system, PlatformParams p)
     //set cylinder to setup position
     cylinder->SetPos(p.towerSetupPos);
 
-    qDebug() << "rotate cylinder";
+    //qDebug() << "rotate cylinder";
     //Setup location of cylinder
     ChQuaternion<> qSetup = Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X);
     cylinder->SetRot(qSetup);
     system.Add(cylinder);
 
-    qDebug() << "cylinder mass: " << cylinder->GetMass();
+    //qDebug() << "cylinder mass: " << cylinder->GetMass();
 
 //    //ChVector<> pos = cylinder->GetPos();
 
@@ -87,7 +87,7 @@ void Monopile::addNacelleAndBallast(ChSystem &system){
     ChVector<> ballastPos = cylinder->TransformPointLocalToParent(ChVector<>(0,-0.5*p.towerHeight,0)); //local frame to transform
     ballast->SetPos(ballastPos);
     //ballast->SetRot(qSetup);
-    qDebug() << "ballast mass: " << ballast->GetMass();
+    //qDebug() << "ballast mass: " << ballast->GetMass();
     //ballast constraint, attach to cylinder
     std::shared_ptr<ChLinkMateFix> constraint_ballast = std::make_shared<ChLinkMateFix>();
     constraint_ballast->Initialize(ballast, cylinder);
@@ -102,7 +102,7 @@ void Monopile::addNacelleAndBallast(ChSystem &system){
     ChVector<> nacellePos = cylinder->TransformPointLocalToParent(ChVector<>(0,0.5*p.towerHeight,0)); //local frame to transform
     nacelle->SetPos(nacellePos);
     //nacelle->SetRot(qSetup);
-    qDebug() << "nacelle mass: " << nacelle->GetMass();
+    //qDebug() << "nacelle mass: " << nacelle->GetMass();
     //nacelle constraint, attach to monopile
     std::shared_ptr<ChLinkMateFix> constraint_nacelle = std::make_shared<ChLinkMateFix>();
     constraint_nacelle->Initialize(nacelle, cylinder);
@@ -111,7 +111,7 @@ void Monopile::addNacelleAndBallast(ChSystem &system){
 
 void Monopile::updateMarkers(){
 
-    qDebug() << "update markers";
+    //qDebug() << "update markers";
     markerBottom->UpdateState();
     markerTop->UpdateState();
     markerGravityCenter->UpdateState();
@@ -182,10 +182,11 @@ ChVector<> Monopile::calculateGravityCenterFromBottom(){
     double xs = (0.5*p.towerDensity*areaMonopile*pow(p.towerHeight,2)+p.towerHeight*p.nacelleMass)/massTotal;
     qDebug() << "xs : " << xs;
     ChVector<> gravityCenter = markerBottom->GetAbsCoord().pos ;//+ ChVector<>(0,xs,0);
+    /*
     qDebug() << "gravityCenter x: " << gravityCenter.x();
     qDebug() << "gravityCenter y: " << gravityCenter.y();
     qDebug() << "gravityCenter z: " << gravityCenter.z();
-
+    */
     return ChVector<>(0,0,xs);
 }
 

@@ -22,7 +22,7 @@ PlatformParams::PlatformParams(double towerHeight){
   mooringStiffness = 8471133.49;
   mooringPreTensionForce = 827652;
   mooringRaleyghDamping = 0.0000;
-  mooringNrElements = 50;
+  mooringNrElements = 3;
   mooringAnchorRadiusFromFairlead = 600;
   mooringPosFairleadZInBodyCoords = -15;
   mooringPosBottomZ = -300;
