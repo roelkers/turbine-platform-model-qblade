@@ -8,7 +8,7 @@ class PlatformParams{
 
 public:
 
-  PlatformParams(double towerHeight);
+  PlatformParams();
 
   double towerHeight;
   double towerRadius;

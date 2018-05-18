@@ -19,10 +19,7 @@ using namespace chrono;
 using namespace chrono::fea;
 
 PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
-    :p(qLLTSim->getTowerHeight())
 {
-
-    qDebug() << "tower height: " << p.towerHeight;
 
     auto mkl_solver_speed = std::make_shared<ChSolverMKL<>>();
 

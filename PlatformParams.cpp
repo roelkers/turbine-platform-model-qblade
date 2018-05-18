@@ -2,7 +2,7 @@
 
 using namespace chrono;
 
-PlatformParams::PlatformParams(double towerHeight){
+PlatformParams::PlatformParams(){
 
   this->towerHeight=135;
   towerRadius=5;
@@ -37,5 +37,5 @@ PlatformParams::PlatformParams(double towerHeight){
 
   //visualisation params
   cSystemFactor = 50;
-  dVectorFactor = 50;
+  dVectorFactor = 10;
 }

@@ -200,6 +200,9 @@ void MooringLine::setRestLengthAndPosition(){
         lvec.Normalize();
         lvec *= setupLengthOfElement*frac;
 
+        //element->GetNodeA()->SetD(-ChVecFromCVec(lvec));
+        //element->GetNodeB()->SetD(ChVecFromCVec(lvec));
+
         pos = pos0+lvec;
         ChVector<> chvec(pos.x,pos.y,pos.z);
         element->GetNodeB()->SetX0(chvec);
@@ -218,29 +221,42 @@ void MooringLine::render(){
     std::vector<std::shared_ptr<ChNodeFEAxyzD>> beamNodes = builder.GetLastBeamNodes();
     for(auto &node : beamNodes){
         CVector nodePos = CVecFromChVec(node->GetPos());
-        glVertex3d(nodePos.x,nodePos.y,nodePos.z);
+        //glVertex3d(nodePos.x,nodePos.y,nodePos.z);
     }
     glEnd();
     glLineWidth(1.5);
     glBegin(GL_LINES);
         //Render Coordinate system of fairlead
+
         ChVector<> fairleadPos = builder.GetLastBeamNodes().front()->GetPos();
         ChVector<> fairleadD = builder.GetLastBeamNodes().front()->GetD();
         CVector fairleadPosCVec = CVecFromChVec(fairleadPos);
         //green: directional vector
         glColor4d(0,1,0,1);
+        /*
         glVertex3d(fairleadPosCVec.x,fairleadPosCVec.y,fairleadPosCVec.z);
         CVector dVectorEnd = CVecFromChVec(fairleadPos+p.dVectorFactor*fairleadD);
         glVertex3d(dVectorEnd.x,dVectorEnd.y,dVectorEnd.z);
-        /*
-        qDebug() << "fairleadPos x:" << fairleadPosCVec.x;
-        qDebug() << "fairleadPos y:" << fairleadPosCVec.y;
-        qDebug() << "fairleadPos z:" << fairleadPosCVec.z;
-
-        qDebug() << "dVectorEnd x:" << dVectorEnd.x;
-        qDebug() << "dVectorEnd y:" << dVectorEnd.y;
-        qDebug() << "dVectorEnd z:" << dVectorEnd.z;
         */
+
+        for(auto &node : beamNodes){
+
+            ChVector<> nodePos = node->GetPos();
+            ChVector<> nodeD = node->GetD();
+            CVector nodePosCVec = CVecFromChVec(nodePos);
+            //green: directional vector
+            glColor4d(0,1,0,1);
+            glVertex3d(nodePosCVec.x,nodePosCVec.y,nodePosCVec.z);
+            CVector dVectorEnd = CVecFromChVec(nodePos+p.dVectorFactor*nodeD);
+            glVertex3d(dVectorEnd.x,dVectorEnd.y,dVectorEnd.z);
+            /*
+            qDebug() << "nodeD x:" << nodeD.x();
+            qDebug() << "nodeD y:" << nodeD.y();
+            qDebug() << "nodeD z:" << nodeD.z();
+            */
+            qDebug() << "nodeD Length x:" << nodeD.Length();
+        }
+
         //Render react forces inside the link of fairlead
 
         ChVector<> reactForceFairlead = constraintFairlead->Get_react_force();
