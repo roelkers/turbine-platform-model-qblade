@@ -17,7 +17,7 @@ PlatformParams::PlatformParams(){
   //Translate to initial Position
   initPosVec = ChVector<>(0,0,0);
 
-  mooringLineNr = 3;
+  mooringLineNr = 2;
   mooringDiameter = 0.15;
   mooringStiffness = 8471133.49;
   mooringPreTensionForce = 827652;

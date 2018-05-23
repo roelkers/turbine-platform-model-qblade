@@ -65,7 +65,10 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     //system.Set_G_acc(ChVector<>(0,0,0));
 
     //Angular increment of Mooring Line on Monopile
-    double thetaInc = 360/p.mooringLineNr;
+    double thetaInc;
+    if(p.mooringLineNr>0){
+        thetaInc = 360/p.mooringLineNr;
+    }
     //Angle on Monopile of mooring line
     double theta = 0;
     //Construct Mooring Lines
