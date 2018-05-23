@@ -21,8 +21,8 @@ PlatformParams::PlatformParams(){
   mooringDiameter = 0.15;
   mooringStiffness = 8471133.49;
   mooringPreTensionForce = 827652;
-  mooringRaleyghDamping = 0.0000;
-  mooringNrElements = 3;
+  mooringRaleyghDamping = 0.1000;
+  mooringNrElements = 30;
   mooringAnchorRadiusFromFairlead = 600;
   mooringPosFairleadZInBodyCoords = -15;
   mooringPosBottomZ = -300;

@@ -79,7 +79,6 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
         qDebug() << "Constructing mooring line " << i << "\n";
         MooringLine mLine(system, mesh, p, theta, monopile);
         mooringLines.push_back(mLine);
-
     }
 
     //complete setup
