@@ -13,6 +13,7 @@
 
 class Monopile
 {
+
 private:
     PlatformParams p;
 
@@ -36,6 +37,7 @@ public:
     std::shared_ptr<chrono::ChMarker> getMarkerBottom(){return markerBottom;}
     std::shared_ptr<chrono::ChBody> getCylinder(){return cylinder;}
     std::shared_ptr<chrono::ChBody> getBallast(){return ballast;}
+
 };
 
 #endif // MONOPILE_H

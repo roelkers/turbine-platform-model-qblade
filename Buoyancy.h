@@ -8,7 +8,8 @@
 #include "chrono_fea/ChNodeFEAxyz.h"
 
 #include "PlatformParams.h"
-#include "Monopile.h"
+
+class Monopile;
 
 class Buoyancy {
 private:

@@ -10,7 +10,8 @@
 #include "chrono/physics/ChLinkMate.h"
 
 #include "PlatformParams.h"
-#include "Monopile.h"
+
+class Monopile;
 
 class MooringLine{
 private:

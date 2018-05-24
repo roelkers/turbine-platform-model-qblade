@@ -237,8 +237,6 @@ void MooringLine::render(){
         glVertex3d(fairleadPosCVec.x,fairleadPosCVec.y,fairleadPosCVec.z);
         CVector dVectorEnd = CVecFromChVec(fairleadPos+p.dVectorFactor*fairleadD);
         glVertex3d(dVectorEnd.x,dVectorEnd.y,dVectorEnd.z);
-        */
-        /*
         qDebug() << "fairleadPos x:" << fairleadPosCVec.x;
         qDebug() << "fairleadPos y:" << fairleadPosCVec.y;
         qDebug() << "fairleadPos z:" << fairleadPosCVec.z;
@@ -262,7 +260,7 @@ void MooringLine::render(){
             qDebug() << "nodeD y:" << nodeD.y();
             qDebug() << "nodeD z:" << nodeD.z();
             */
-            qDebug() << "nodeD Length x:" << nodeD.Length();
+            //qDebug() << "nodeD Length x:" << nodeD.Length();
         }
 
         //Render react forces inside the link of fairlead

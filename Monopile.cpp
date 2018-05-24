@@ -181,12 +181,8 @@ ChVector<> Monopile::calculateGravityCenterFromBottom(){
 
     double xs = (0.5*p.towerDensity*areaMonopile*pow(p.towerHeight,2)+p.towerHeight*p.nacelleMass)/massTotal;
     qDebug() << "xs : " << xs;
-    ChVector<> gravityCenter = markerBottom->GetAbsCoord().pos ;//+ ChVector<>(0,xs,0);
-    /*
-    qDebug() << "gravityCenter x: " << gravityCenter.x();
-    qDebug() << "gravityCenter y: " << gravityCenter.y();
-    qDebug() << "gravityCenter z: " << gravityCenter.z();
-    */
+
     return ChVector<>(0,0,xs);
+
 }
 
