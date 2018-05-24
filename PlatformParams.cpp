@@ -5,8 +5,8 @@ using namespace chrono;
 PlatformParams::PlatformParams(){
 
   this->towerHeight=200;
-  towerRadius=5;
-  towerDensity=93.5767;
+  towerRadius=2.5;
+  towerDensity=374.307;
   towerSetupPos = ChVector<>(0, 0, 0);
   towerSetupDir = ChVector<>(0, 0, 1);
 

@@ -36,7 +36,7 @@ Monopile::Monopile(ChSystem &system, PlatformParams p)
     cylinder->SetRot(qSetup);
     system.Add(cylinder);
 
-    //qDebug() << "cylinder mass: " << cylinder->GetMass();
+    qDebug() << "cylinder mass: " << cylinder->GetMass();
 
 //    //ChVector<> pos = cylinder->GetPos();
 
