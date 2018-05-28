@@ -25,6 +25,8 @@ private:
     std::shared_ptr<chrono::ChMarker> markerTop;
     std::shared_ptr<chrono::ChMarker> markerGravityCenter;
 
+    chrono::ChVector<> buoyancyCenter; //z-coordinate of buyoancy center of monopile from xy-plane
+    chrono::ChVector<> intersectionPoint;
 public:
     Monopile(chrono::ChSystem& system, PlatformParams p);
 
@@ -37,6 +39,11 @@ public:
     std::shared_ptr<chrono::ChMarker> getMarkerBottom(){return markerBottom;}
     std::shared_ptr<chrono::ChBody> getCylinder(){return cylinder;}
     std::shared_ptr<chrono::ChBody> getBallast(){return ballast;}
+    chrono::ChVector<> getBuoyancyCenter() const;
+    chrono::ChVector<> getIntersectionPoint() const;
+
+    void setBuoyancyCenter(chrono::ChVector<> buoyancyCenter){this->buoyancyCenter=buoyancyCenter;}
+    void setIntersectionPoint(chrono::ChVector<> intersectionPoint){this->intersectionPoint=intersectionPoint;}
 
 };
 

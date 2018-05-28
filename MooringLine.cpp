@@ -24,7 +24,12 @@ using namespace chrono::fea;
 MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, PlatformParams p, double theta, std::shared_ptr<Monopile> monopile)
 :p(p)
 {
-  double mooringLengthSetup = sqrt(pow(p.mooringPosBottomZ-p.mooringPosFairleadZInBodyCoords,2) + pow(p.mooringAnchorRadiusFromFairlead,2));
+  //position of fairlead in body coordinate system (which here coincides with the absolute coordinate system).
+  //the fairlead coordinates in the paper are given as coordinates from the bottom of the monopile
+  double mooringPosFairleadZInBodyCoords = -0.5*p.towerHeight+p.mooringPosFairleadZFromBottom;
+  qDebug() << "mooringPosFairleadZInBodyCoords: " << mooringPosFairleadZInBodyCoords;
+
+  mooringLengthSetup = sqrt(pow(p.mooringPosAnchorZ-mooringPosFairleadZInBodyCoords,2) + pow(p.mooringAnchorRadiusFromFairlead,2));
 
   std::shared_ptr<ChBeamSectionCable> sectionCable = std::make_shared<ChBeamSectionCable>();
   sectionCable->SetDiameter(p.mooringDiameter);
@@ -47,7 +52,7 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   double xEnd = (p.towerRadius+p.mooringAnchorRadiusFromFairlead)*sin(theta/180*M_PI);
   double yEnd = (p.towerRadius+p.mooringAnchorRadiusFromFairlead)*cos(theta/180*M_PI);
 
-  //double length_test = sqrt(pow((xEnd-xStart),2) + pow((yEnd-yStart),2) + pow((p.mooringPosBottomZ-p.mooringPosFairleadZInBodyCoords),2));
+  //double length_test = sqrt(pow((xEnd-xStart),2) + pow((yEnd-yStart),2) + pow((p.mooringPosAnchorZ-p.mooringPosFairleadZInBodyCoords),2));
   //double distance_test = sqrt(pow(xStart,2)+pow(yStart,2));
 
   qDebug() << "mooringLengthSetup :" << mooringLengthSetup;
@@ -55,13 +60,11 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   //qDebug() << "distance start to csystem origin:" << distance_test;
 
   //Coordinates of Fairlead in local frame of monopile, which is 90° turned around x axis
-  //ChVector<> mooringFairlead = ChVector<>(xStart, yStart, p.mooringPosFairleadZInBodyCoords);
-  mooringFairlead = monopile->getCylinder()->TransformPointLocalToParent(ChVector<>(xStart, p.mooringPosFairleadZInBodyCoords, -yStart));
+  mooringFairlead = monopile->getCylinder()->TransformPointLocalToParent(ChVector<>(xStart,mooringPosFairleadZInBodyCoords, -yStart));
 
   qDebug() << "created mooring fairlead";
   //Coordinates of anchor in parent coordinates, y with negative sign because of rotation of monopile?
-  mooringAnchor = ChVector<>(xEnd, yEnd, p.mooringPosBottomZ);
-  //ChVector<> mooringAnchor = monopile->TransformPointLocalToParent(ChVector<>(xEnd, p.mooringPosBottomZ, yEnd));
+  mooringAnchor = ChVector<>(xEnd, yEnd, p.mooringPosAnchorZ);
 
   // Now, simply use BuildBeam to create a beam from a point to another:
   builder.BuildBeam(mesh,                       // the mesh where to put the created nodes and elements
@@ -115,7 +118,7 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
 /*
 void MooringLine::setRestLengthAndPosition(){
 
-    double mooringLengthSetup = sqrt(pow(p.mooringPosBottomZ-p.mooringPosFairleadZInBodyCoords,2) + pow(p.mooringAnchorRadiusFromFairlead,2));
+    double mooringLengthSetup = sqrt(pow(p.mooringPosAnchorZ-p.mooringPosFairleadZInBodyCoords,2) + pow(p.mooringAnchorRadiusFromFairlead,2));
     qDebug()<< "mooringLengthSetup: " << mooringLengthSetup ;
 
     //Calculate actual length after initialization, this is necessary because the mooring lines
@@ -176,7 +179,7 @@ double MooringLine::GetTensionForceAt(double pos){
 
 void MooringLine::setRestLengthAndPosition(){
 
-    double mooringLengthSetup = sqrt(pow(p.mooringPosBottomZ-p.mooringPosFairleadZInBodyCoords,2) + pow(p.mooringAnchorRadiusFromFairlead,2));
+    //double mooringLengthSetup = sqrt(pow(p.mooringPosAnchorZ-p.mooringPosFairleadZInBodyCoords,2) + pow(p.mooringAnchorRadiusFromFairlead,2));
     qDebug()<< "mooringLengthSetup: " << mooringLengthSetup ;
 
     double setupLengthOfElement = mooringLengthSetup/p.mooringNrElements;

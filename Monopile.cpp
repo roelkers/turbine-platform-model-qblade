@@ -21,8 +21,18 @@
 using namespace chrono;
 using namespace chrono::fea;
 
+chrono::ChVector<> Monopile::getBuoyancyCenter() const
+{
+    return buoyancyCenter;
+}
+
+chrono::ChVector<> Monopile::getIntersectionPoint() const
+{
+    return intersectionPoint;
+}
+
 Monopile::Monopile(ChSystem &system, PlatformParams p)
-:p(p)
+    :p(p)
 {
 
     qDebug() << "creating cylinder";

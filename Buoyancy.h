@@ -17,8 +17,6 @@ private:
   std::shared_ptr<Monopile> monopile;
   std::shared_ptr<chrono::ChLoadBodyForce> buoyancyForce;
   std::shared_ptr<chrono::ChLoadContainer> loadContainer;
-  chrono::ChVector<> buoyancyCenter; //z-coordinate of buyoancy center of monopile from xy-plane
-  chrono::ChVector<> intersectionPoint;
 
 public:
   Buoyancy(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<Monopile> monopile);

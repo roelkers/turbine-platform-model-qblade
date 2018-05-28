@@ -24,8 +24,9 @@ PlatformParams::PlatformParams(){
   mooringRaleyghDamping = 0.1000;
   mooringNrElements = 10;
   mooringAnchorRadiusFromFairlead = 600;
-  mooringPosFairleadZInBodyCoords = -15;
-  mooringPosBottomZ = -300;
+  //mooringPosFairleadZInBodyCoords = -15;
+  mooringPosFairleadZFromBottom = 80;
+  mooringPosAnchorZ = -300;
   mooringDensity = 2431;
 
   fairleadMass = 0.5;

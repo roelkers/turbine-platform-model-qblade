@@ -28,8 +28,8 @@ public:
   double mooringRaleyghDamping;
   int mooringNrElements;
   double mooringAnchorRadiusFromFairlead;
-  double mooringPosFairleadZInBodyCoords;
-  double mooringPosBottomZ;
+  double mooringPosFairleadZFromBottom;
+  double mooringPosAnchorZ;
   double mooringDensity;
 
   double fairleadMass;

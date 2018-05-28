@@ -63,6 +63,7 @@ void Buoyancy::update(){
 
   ChVector<> vecE;
   ChVector<> vecI;
+  ChVector<> intersectionPoint;
   //Check if the sea level plane is parallel to the tower axis,
   //this is the edge case. then the intersection point will be undefined.
   //Scalar Product:
@@ -96,7 +97,7 @@ void Buoyancy::update(){
 
     qDebug() << "r-Konstante:" << rConstant << "\n";
   }
-
+  monopile->setIntersectionPoint(intersectionPoint);
   computeBuoyancy(vecE, vecI);
   /*
   qDebug() << "monopile x: " << towerPos.x();
@@ -132,7 +133,7 @@ void Buoyancy::computeBuoyancy(ChVector<> vecE, ChVector<> vecI){
   //            B
   //            |
   //------------E-------------
-
+  ChVector<> intersectionPoint = monopile->getIntersectionPoint();
   ChVector<> towerPos = monopile->getCylinder()->GetPos();
 
   //ChVector<> vecES = intersectionPoint- vecE;
@@ -145,6 +146,7 @@ void Buoyancy::computeBuoyancy(ChVector<> vecE, ChVector<> vecI){
   ChVector<> vecGI = vecI - towerPos;
 
   double force = 0;
+  ChVector<> buoyancyCenter;
   //check if distance to sea level is larger than distance to top of tower
   if(vecGS.Length() >= vecGI.Length() && vecGS.Length() >= vecGE.Length()){
     //sanity check if I and E are both below Sea level
@@ -187,9 +189,13 @@ void Buoyancy::computeBuoyancy(ChVector<> vecE, ChVector<> vecI){
 
   qDebug() << "buoyancyForce:" << force << "\n";
 
-  buoyancyForce->SetApplicationPoint(buoyancyCenter,false);
+  monopile->setBuoyancyCenter(buoyancyCenter);
+
+  buoyancyForce->SetApplicationPoint(monopile->getBuoyancyCenter(),false);
 
   buoyancyForce->SetForce(ChVector<>(0,0,force),false);
+
+
 }
 
 double Buoyancy::computeBuoyancyForce(double submergedLength){
@@ -205,11 +211,11 @@ void Buoyancy::render(){
     glBegin(GL_POINTS);
         //red/green: intersection Point
         glColor4d(1,1,0,1);
-        CVector isPos = CVecFromChVec(intersectionPoint);
+        CVector isPos = CVecFromChVec(monopile->getIntersectionPoint());
         glVertex3d(isPos.x,isPos.y,isPos.z);
         //blue/green: buoyancy center
         glColor4d(0,1,1,1);
-        CVector buoyancyCenterPos = CVecFromChVec(buoyancyCenter);
+        CVector buoyancyCenterPos = CVecFromChVec(monopile->getBuoyancyCenter());
         glVertex3d(buoyancyCenterPos.x,buoyancyCenterPos.y,buoyancyCenterPos.z);
     glEnd();
 }

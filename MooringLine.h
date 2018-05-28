@@ -27,6 +27,7 @@ private:
 
   double eModMooring;
   double mooringArea;
+  double mooringLengthSetup;
 
 public:
   MooringLine(chrono::ChSystem& system, std::shared_ptr<chrono::fea::ChMesh> mesh, PlatformParams p, double theta, std::shared_ptr<Monopile> monopile);
