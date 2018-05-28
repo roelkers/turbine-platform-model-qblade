@@ -30,6 +30,7 @@ public:
   double mooringAnchorRadiusFromFairlead;
   double mooringPosFairleadZInBodyCoords;
   double mooringPosBottomZ;
+  double mooringDensity;
 
   double fairleadMass;
   double ballastMass;

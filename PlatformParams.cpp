@@ -26,6 +26,7 @@ PlatformParams::PlatformParams(){
   mooringAnchorRadiusFromFairlead = 600;
   mooringPosFairleadZInBodyCoords = -15;
   mooringPosBottomZ = -300;
+  mooringDensity = 2431;
 
   fairleadMass = 0.5;
   nacelleMass = 2.385e5;

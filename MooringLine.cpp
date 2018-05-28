@@ -38,6 +38,8 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   sectionCable->SetYoungModulus(eModMooring);
   sectionCable->SetBeamRaleyghDamping(p.mooringRaleyghDamping);
 
+  sectionCable->SetDensity(p.mooringDensity);
+
   //Starting Position of Mooring Line on the Monopile
   double xStart = p.towerRadius*sin(theta/180*M_PI);
   double yStart = p.towerRadius*cos(theta/180*M_PI);
@@ -186,10 +188,12 @@ void MooringLine::setRestLengthAndPosition(){
     qDebug() << "frac : " << frac;
     qDebug() << "res:" << setupLengthOfElement*frac;
 
+    double massTotal = 0;
+
     //Iterate over beam elements to set the rest length and rest position
     std::vector<std::shared_ptr<ChElementCableANCF>> beamElements = builder.GetLastBeamElements();
     for(auto &element : beamElements){
-
+        massTotal += element->GetMass();
         //qDebug() << "initial length"<<element->GetRestLength();
 
         element->SetRestLength(setupLengthOfElement*frac);
@@ -209,6 +213,8 @@ void MooringLine::setRestLengthAndPosition(){
 
         //qDebug() << "new rest length"<<CVector(pos-pos0).VAbs() <<frac;
     }
+
+    qDebug() << "cable mass:" << massTotal;
 }
 
 void MooringLine::render(){
