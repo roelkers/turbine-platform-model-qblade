@@ -27,6 +27,8 @@ private:
 
     chrono::ChVector<> buoyancyCenter; //z-coordinate of buyoancy center of monopile from xy-plane
     chrono::ChVector<> intersectionPoint;
+    chrono::ChVector<> submergedVector;
+
 public:
     Monopile(chrono::ChSystem& system, PlatformParams p);
 
@@ -41,10 +43,11 @@ public:
     std::shared_ptr<chrono::ChBody> getBallast(){return ballast;}
     chrono::ChVector<> getBuoyancyCenter() const;
     chrono::ChVector<> getIntersectionPoint() const;
+    chrono::ChVector<> getSubmergedVector() const;
 
     void setBuoyancyCenter(chrono::ChVector<> buoyancyCenter){this->buoyancyCenter=buoyancyCenter;}
     void setIntersectionPoint(chrono::ChVector<> intersectionPoint){this->intersectionPoint=intersectionPoint;}
-
+    void setSubmergedVector(const chrono::ChVector<> &value);
 };
 
 #endif // MONOPILE_H

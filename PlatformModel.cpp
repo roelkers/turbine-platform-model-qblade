@@ -14,12 +14,15 @@
 #include "PlatformParams.h"
 #include "Monopile.h"
 #include "Buoyancy.h"
+#include "HydrodynamicDamping.h"
 
 using namespace chrono;
 using namespace chrono::fea;
 
 PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 {
+
+    m_qlltSim = qLLTSim;
 
     auto mkl_solver_speed = std::make_shared<ChSolverMKL<>>();
 
@@ -58,6 +61,8 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     system.Add(loadcontainer);
 
     buoyancy = std::make_shared<Buoyancy>(p, loadcontainer, monopile);
+
+    hydrodynamicDamping = std::make_shared<HydrodynamicDamping>(p, loadcontainer, monopile);
 
     //Add Gravity
     system.Set_G_acc(ChVector<>(0,0,-p.g));
@@ -135,12 +140,15 @@ void PlatformModel::update(double endTime){
     double left_time;
     int restore_oldstep = FALSE;
 
+    double dT = m_qlltSim->getTimeStep();
+
     system.SetStep(dT);
 
     while (system.GetChTime() < endTime) {
 
         //qDebug() << "updating buoyancy again";
         buoyancy->update();
+        hydrodynamicDamping->update();
 
         restore_oldstep = FALSE;
         left_time = endTime - system.GetChTime();
@@ -156,4 +164,11 @@ void PlatformModel::update(double endTime){
     }
 
     if (restore_oldstep) dT = old_step;
+}
+
+double PlatformModel::GetXPosition(){
+
+    return monopile->getCylinder()->GetPos().x();
+
+
 }

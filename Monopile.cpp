@@ -31,6 +31,16 @@ chrono::ChVector<> Monopile::getIntersectionPoint() const
     return intersectionPoint;
 }
 
+chrono::ChVector<> Monopile::getSubmergedVector() const
+{
+    return submergedVector;
+}
+
+void Monopile::setSubmergedVector(const chrono::ChVector<> &value)
+{
+    submergedVector = value;
+}
+
 Monopile::Monopile(ChSystem &system, PlatformParams p)
     :p(p)
 {

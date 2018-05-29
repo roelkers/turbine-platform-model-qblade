@@ -144,6 +144,7 @@ void Buoyancy::computeBuoyancy(ChVector<> vecE, ChVector<> vecI){
   ChVector<> vecGE = vecE - towerPos;
   ChVector<> vecGS = intersectionPoint - towerPos;
   ChVector<> vecGI = vecI - towerPos;
+  ChVector<> vecEI = vecI - vecE;
 
   double force = 0;
   ChVector<> buoyancyCenter;
@@ -154,13 +155,14 @@ void Buoyancy::computeBuoyancy(ChVector<> vecE, ChVector<> vecI){
     //tower completely submerged, buoyancy center is same as gravity center
     qDebug() << "completely submerged\n";
     buoyancyCenter = towerPos;
-    //force = maximumBuoyancyForce;
+    monopile->setSubmergedVector(vecEI);
     force = computeBuoyancyForce(p.towerHeight);
     qDebug() << "buoyancyForce completely submerged:" << force << "\n";
     }
     else{
     // in this case the tower is "flying", and we should not apply any buoyancy force
     qDebug() << "flying tower\n";
+    monopile->setSubmergedVector(ChVector<>(0,0,0));
     force = 0;
     }
   }
@@ -173,6 +175,7 @@ void Buoyancy::computeBuoyancy(ChVector<> vecE, ChVector<> vecI){
       //ChVector<> submergedVector = vecSI*2;
       ChVector<> submergedVector = vecSI;
       qDebug() << "submergedVector" << submergedVector.Length();
+      monopile->setSubmergedVector(submergedVector);
       force = computeBuoyancyForce(submergedVector.Length());
     }
     else if(vecI.z() > p.seaLevel){
@@ -181,6 +184,7 @@ void Buoyancy::computeBuoyancy(ChVector<> vecE, ChVector<> vecI){
       buoyancyCenter = intersectionPoint + 0.5*vecSE;
       //ChVector<> submergedVector = vecSE*2;
       ChVector<> submergedVector = vecSE;
+      monopile->setSubmergedVector(submergedVector);
       qDebug() << "submergedVector" << submergedVector.Length();
       force = computeBuoyancyForce(submergedVector.Length());
     }
