@@ -32,14 +32,26 @@ HydrodynamicDamping::HydrodynamicDamping(PlatformParams p, std::shared_ptr<ChLoa
        true //local point
     );
 
+    dragTorqueX = std::make_shared<ChLoadBodyTorque> (
+       monopile->getCylinder(), //body
+       ChVector<>(0,0,0), //initialize
+       true //local_force
+    );
+
+    dragTorqueZ = std::make_shared<ChLoadBodyTorque> (
+       monopile->getCylinder(), //body
+       ChVector<>(0,0,0), //initialize
+       true //local_force
+    );
+
     //Add load to container
     loadContainer->Add(dragForceZBottom);
     loadContainer->Add(dragForceXY);
+    loadContainer->Add(dragTorqueX);
+    loadContainer->Add(dragTorqueZ);
 }
 
 HydrodynamicDamping::update(){
-
-
 
     //update drag due to force on the monopile bottom in z direction
     double speedMonopileBottomZ = monopile->getBallast()->GetPos_dt().z();
@@ -70,14 +82,33 @@ HydrodynamicDamping::update(){
     qDebug() << "hydrodynamic drag force y:" << forceY;
     qDebug() << "hydrodynamic drag force z:" << forceZ;
 
+    //update drag torque in local x and z direction (torque around local body x and z axis)
+
+    ChFrameMoving<> frameMoving = monopile->getCylinder()->GetFrame_COG_to_abs();
+
+    //Get Angular Speeds in local body coordinates
+    ChVector<> phiDot = frameMoving.GetWvel_loc();
+
+    //analytic formula for torque:
+    double torqueX = 1/4*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.x(),2)*pow(submergedVector.Length(),4);
+    double torqueZ = 1/4*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.z(),2)*pow(submergedVector.Length(),4);
+    //drag torque around local y axis is zero for the cylinder (for a rotation around its own axis a cylinder does not displace any fluid, there is only friction)
+
+    //get local x and z axis for torque application
+    ChVector<> xAxisLocal = frameMoving.GetCoord().rot.GetXaxis();
+    ChVector<> zAxisLocal = frameMoving.GetCoord().rot.GetZaxis();
+
+    //sanity check, whether monopile is actually submerged
     if(submergedVector.Length()>0){
         dragForceZBottom->SetForce(ChVector<>(0,0,forceZ),false);
         dragForceXY->SetForce(ChVector<>(forceX,forceY,0),false);
+        dragTorqueX->SetTorque(torqueX*xAxisLocal);
+        dragTorqueZ->SetTorque(torqueZ*zAxisLocal);
     }
     else{
         dragForceZBottom->SetForce(ChVector<>(0,0,0),false);
         dragForceXY->SetForce(ChVector<>(0,0,0),false);
+        dragTorqueX->SetTorque(ChVector<>(0,0,0));
+        dragTorqueZ->SetTorque(ChVector<>(0,0,0));
     }
 }
-
-

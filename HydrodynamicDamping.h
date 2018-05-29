@@ -11,9 +11,12 @@ class HydrodynamicDamping
 {
 public:
     PlatformParams p;
+    std::shared_ptr<Monopile> monopile;
     std::shared_ptr<chrono::ChLoadBodyForce> dragForceZBottom;
     std::shared_ptr<chrono::ChLoadBodyForce> dragForceXY;
-    std::shared_ptr<Monopile> monopile;
+
+    std::shared_ptr<chrono::ChLoadBodyTorque> dragTorqueX;
+    std::shared_ptr<chrono::ChLoadBodyTorque> dragTorqueZ;
 
     HydrodynamicDamping(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<Monopile> monopile);
     update();

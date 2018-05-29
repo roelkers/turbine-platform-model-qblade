@@ -36,6 +36,9 @@ public:
   double ballastMass;
   double nacelleMass;
 
+  double dragCoefficientCylinderAxial;
+  double dragCoefficientCylinderLateral;
+
   double seaLevel;
   double rhoWater;
   double g;

@@ -33,6 +33,9 @@ PlatformParams::PlatformParams(){
   nacelleMass = 0;//2.385e5;
   ballastMass = 9.71e5;
 
+  dragCoefficientCylinderAxial = 1;
+  dragCoefficientCylinderLateral = 1;
+
   seaLevel = 0; //sea level [m] in z-direction from origin
   rhoWater = 1000;
   g = 9.81;
