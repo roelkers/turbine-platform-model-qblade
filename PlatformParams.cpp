@@ -15,9 +15,9 @@ PlatformParams::PlatformParams(){
   qRotationY= Q_from_AngAxis(5 * CH_C_DEG_TO_RAD, VECT_Y);
   qRotationZ= Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_Z);
   //Translate to initial Position
-  initPosVec = ChVector<>(200,0,0);
+  initPosVec = ChVector<>(0,0,0);
 
-  mooringLineNr = 2;
+  mooringLineNr = 0;
   mooringDiameter = 0.15;
   mooringStiffness = 8471133.49;
   mooringPreTensionForce = 827652;
@@ -33,8 +33,10 @@ PlatformParams::PlatformParams(){
   nacelleMass = 0;//2.385e5;
   ballastMass = 9.71e5;
 
-  dragCoefficientCylinderAxial = 1;
-  dragCoefficientCylinderLateral = 1;
+  //source: https:en.wikipedia.org/wiki/Drag_coefficient
+  dragCoefficientCylinderAxial = 0.82;
+  //source: http://sv.20file.org/up1/916_0.pdf
+  dragCoefficientCylinderLateral = 1.20;
 
   seaLevel = 0; //sea level [m] in z-direction from origin
   rhoWater = 1000;

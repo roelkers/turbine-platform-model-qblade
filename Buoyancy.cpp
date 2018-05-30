@@ -153,15 +153,17 @@ void Buoyancy::computeBuoyancy(ChVector<> vecE, ChVector<> vecI){
     //sanity check if I and E are both below Sea level
     if(vecE.z() < p.seaLevel && vecI.z() < p.seaLevel){
     //tower completely submerged, buoyancy center is same as gravity center
-    qDebug() << "completely submerged\n";
+    monopile->submergedPart = Monopile::BOTH;
+    //qDebug() << "completely submerged\n";
     buoyancyCenter = towerPos;
     monopile->setSubmergedVector(vecEI);
     force = computeBuoyancyForce(p.towerHeight);
-    qDebug() << "buoyancyForce completely submerged:" << force << "\n";
+    //qDebug() << "buoyancyForce completely submerged:" << force << "\n";
     }
     else{
     // in this case the tower is "flying", and we should not apply any buoyancy force
     qDebug() << "flying tower\n";
+    monopile->submergedPart= Monopile::NONE;
     monopile->setSubmergedVector(ChVector<>(0,0,0));
     force = 0;
     }
@@ -169,7 +171,8 @@ void Buoyancy::computeBuoyancy(ChVector<> vecE, ChVector<> vecI){
   else{
     //Check which end of the tower is submerged, and which is above the sea
     if(vecE.z() > p.seaLevel){
-      qDebug() << "partly submerged, E above sea level\n";
+      //qDebug() << "partly submerged, E above sea level\n";
+      monopile->submergedPart = Monopile::NACELLE;
       //construct buoyancy volume from S to I
       buoyancyCenter = intersectionPoint + 0.5*vecSI;
       //ChVector<> submergedVector = vecSI*2;
@@ -179,8 +182,9 @@ void Buoyancy::computeBuoyancy(ChVector<> vecE, ChVector<> vecI){
       force = computeBuoyancyForce(submergedVector.Length());
     }
     else if(vecI.z() > p.seaLevel){
-      qDebug() << "partly submerged, I above sea level\n";
+      //qDebug() << "partly submerged, I above sea level\n";
       //construct buoyancy volume from S to E
+      monopile->submergedPart = Monopile::BALLAST;
       buoyancyCenter = intersectionPoint + 0.5*vecSE;
       //ChVector<> submergedVector = vecSE*2;
       ChVector<> submergedVector = vecSE;
@@ -191,6 +195,7 @@ void Buoyancy::computeBuoyancy(ChVector<> vecE, ChVector<> vecI){
     else qDebug() << "both E and I below sea level.This MUST not happen.\n";
   }
 
+  qDebug() << "submerged Part of Monopile:" << monopile->submergedPart;
   qDebug() << "buoyancyForce:" << force << "\n";
 
   monopile->setBuoyancyCenter(buoyancyCenter);

@@ -53,6 +53,9 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     ChCoordsys<> initCoords =ChCoordsys<>(p.initPosVec,p.qRotationX*p.qRotationY*p.qRotationZ);
     monopile->getCylinder()->Move(initCoords);
 
+    //set submerged status, to indicate the bottom is submerged
+    monopile->submergedPart = Monopile::BALLAST;
+
     //Now that the cylinder is in the init position we can add the nacelle and ballast masses
     monopile->addNacelleAndBallast(system);
 

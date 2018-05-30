@@ -29,6 +29,7 @@ private:
     chrono::ChVector<> intersectionPoint;
     chrono::ChVector<> submergedVector;
 
+
 public:
     Monopile(chrono::ChSystem& system, PlatformParams p);
 
@@ -48,6 +49,16 @@ public:
     void setBuoyancyCenter(chrono::ChVector<> buoyancyCenter){this->buoyancyCenter=buoyancyCenter;}
     void setIntersectionPoint(chrono::ChVector<> intersectionPoint){this->intersectionPoint=intersectionPoint;}
     void setSubmergedVector(const chrono::ChVector<> &value);
+
+    enum submergedPartType{
+        BALLAST,
+        NACELLE,
+        BOTH,
+        NONE
+    };
+
+    submergedPartType submergedPart;
+
 };
 
 #endif // MONOPILE_H
