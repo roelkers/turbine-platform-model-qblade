@@ -50,7 +50,7 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     ChVector<> restPosVec = ChVector<>(0,0,restPosition);
 
     //Define initial displacement
-    ChCoordsys<> initCoords =ChCoordsys<>(p.initPosVec,p.qRotationX*p.qRotationY*p.qRotationZ);
+    ChCoordsys<> initCoords =ChCoordsys<>(p.initPosVec,p.qRotationZ*p.qRotationY*p.qRotationX);
     monopile->getCylinder()->Move(initCoords);
 
     //set submerged status, to indicate the bottom is submerged
@@ -169,9 +169,98 @@ void PlatformModel::update(double endTime){
     if (restore_oldstep) dT = old_step;
 }
 
-double PlatformModel::GetXPosition(){
+double PlatformModel::getXPosition(){
 
     return monopile->getCylinder()->GetPos().x();
 
+}
 
+double PlatformModel::getYPosition(){
+
+    return monopile->getCylinder()->GetPos().z();
+}
+
+double PlatformModel::getZPosition(){
+
+    return monopile->getCylinder()->GetPos().z();
+}
+
+double PlatformModel::getRollAngle(){
+
+    ChQuaternion<> rotBody = monopile->getCylinder()->GetRot();
+    /*ChVector<> xAxisBody = rotBody.GetXaxis();
+    ChQuaternion<> rotGlobal = ChQuaternion<>(1,0,0,0);
+    ChVector<> xAxisGlobal = rotGlobal.GetXaxis();
+
+    double scalarProduct = xAxisBody^xAxisGlobal;
+
+    double angle = acos(scalarProduct)/M_PI*180;
+    */
+    //rotate monopile back from setup position to get correct angle
+    ChQuaternion<> qSetup = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
+    ChQuaternion<> rotCorrected = rotBody*qSetup;
+    double angleNasa = rotCorrected.Q_to_NasaAngles().y()/M_PI*180;
+    return angleNasa;
+}
+
+double PlatformModel::getPitchAngle(){
+
+    ChQuaternion<> rotBody = monopile->getCylinder()->GetRot();
+    /*
+    ChVector<> yAxisBody = rotBody.GetYaxis();
+    ChQuaternion<> rotGlobal = ChQuaternion<>(1,0,0,0);
+    ChVector<> yAxisGlobal = rotGlobal.GetYaxis();
+
+    double scalarProduct = yAxisBody^yAxisGlobal;
+
+    double angle = acos(scalarProduct)/M_PI*180 - 90;
+    */
+    //rotate monopile back from setup position to get correct angle
+    ChQuaternion<> qSetup = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
+    ChQuaternion<> rotCorrected = rotBody*qSetup;
+    double angleNasa = rotCorrected.Q_to_NasaAngles().x()/M_PI*180;
+    return angleNasa;
+}
+
+double PlatformModel::getYawAngle(){
+
+    ChQuaternion<> rotBody = monopile->getCylinder()->GetRot();
+    /*
+    ChVector<> zAxisBody = rotBody.GetZaxis();
+    ChQuaternion<> rotGlobal = ChQuaternion<>(1,0,0,0);
+    ChVector<> zAxisGlobal = rotGlobal.GetZaxis();
+
+    double scalarProduct = zAxisBody^zAxisGlobal;
+
+    double angle = acos(scalarProduct)/M_PI*180 - 90;
+    */
+    //rotate monopile back from setup position to get correct angle
+    ChQuaternion<> qSetup = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
+    ChQuaternion<> rotCorrected = rotBody*qSetup;
+    double angleNasa = rotBody.Q_to_NasaAngles().z()/M_PI*180;
+    return angleNasa;
+}
+
+double PlatformModel::getXTorque(){
+
+    ChVector<> torque = hydrodynamicDamping->getDragTorqueX()->GetTorque();
+    return torque.Length();
+}
+
+double PlatformModel::getZTorque(){
+
+    ChVector<> torque = hydrodynamicDamping->getDragTorqueZ()->GetTorque();
+    return torque.Length();
+}
+
+double PlatformModel::getDragForceXY(){
+
+    ChVector<> force = hydrodynamicDamping->getDragForceXY()->GetForce();
+    return force.Length();
+}
+
+double PlatformModel::getDragForceZBottom(){
+
+    ChVector<> force = hydrodynamicDamping->getDragForceZBottom()->GetForce();
+    return force.Length();
 }

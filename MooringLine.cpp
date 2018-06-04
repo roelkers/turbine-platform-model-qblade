@@ -275,9 +275,9 @@ void MooringLine::render(){
         //Render react forces inside the link of fairlead
 
         ChVector<> reactForceFairlead = constraintFairlead->Get_react_force();
-        qDebug() << "reactForceFairlead: " << reactForceFairlead.Length();
+        //qDebug() << "reactForceFairlead: " << reactForceFairlead.Length();
         double tension = reactForceFairlead.Length()/mooringArea;
-        qDebug() << "mooringTension: " << tension;
+        //qDebug() << "mooringTension: " << tension;
 
         reactForceFairlead.Normalize();
         //red: react force

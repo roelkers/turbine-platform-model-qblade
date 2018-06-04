@@ -11,6 +11,26 @@
 using namespace chrono;
 using namespace chrono::fea;
 
+std::shared_ptr<chrono::ChLoadBodyTorque> HydrodynamicDamping::getDragTorqueX() const
+{
+    return dragTorqueX;
+}
+
+std::shared_ptr<chrono::ChLoadBodyForce> HydrodynamicDamping::getDragForceZBottom() const
+{
+    return dragForceZBottom;
+}
+
+std::shared_ptr<chrono::ChLoadBodyForce> HydrodynamicDamping::getDragForceXY() const
+{
+    return dragForceXY;
+}
+
+std::shared_ptr<chrono::ChLoadBodyTorque> HydrodynamicDamping::getDragTorqueZ() const
+{
+    return dragTorqueZ;
+}
+
 HydrodynamicDamping::HydrodynamicDamping(PlatformParams p, std::shared_ptr<ChLoadContainer> loadContainer, std::shared_ptr<Monopile> monopile)
     :p(p),
     monopile(monopile)
@@ -72,15 +92,15 @@ HydrodynamicDamping::update(){
     double areaXZSurface = submergedLengthXZ*2*p.towerRadius;
     double forceY = -0.5*p.rhoWater*speedMonopileY*abs(speedMonopileY)*p.dragCoefficientCylinderLateral*areaXZSurface;
 
-    qDebug() << "speedMonopileX:" << speedMonopileX;
-    qDebug() << "speedMonopileY:" << speedMonopileY;
+//    qDebug() << "speedMonopileX:" << speedMonopileX;
+//    qDebug() << "speedMonopileY:" << speedMonopileY;
 
-    qDebug() << "areaXZSurface: " << areaXZSurface;
-    qDebug() << "areaYZSurface: " << areaYZSurface;
+//    qDebug() << "areaXZSurface: " << areaXZSurface;
+//    qDebug() << "areaYZSurface: " << areaYZSurface;
 
-    qDebug() << "hydrodynamic drag force x:" << forceX;
-    qDebug() << "hydrodynamic drag force y:" << forceY;
-    qDebug() << "hydrodynamic drag force z:" << forceZ;
+//    qDebug() << "hydrodynamic drag force x:" << forceX;
+//    qDebug() << "hydrodynamic drag force y:" << forceY;
+//    qDebug() << "hydrodynamic drag force z:" << forceZ;
 
     //update drag torque in local x and z direction (torque around local body x and z axis)
 
@@ -165,6 +185,9 @@ HydrodynamicDamping::update(){
     //get local x and z axis for torque application
     ChVector<> xAxisLocal = frameMoving.GetCoord().rot.GetXaxis();
     ChVector<> zAxisLocal = frameMoving.GetCoord().rot.GetZaxis();
+
+    qDebug() << "torqueX: " << torqueX;
+    qDebug() << "torqueZ: " << torqueZ;
 
     //drag torque around local y axis is zero for the cylinder (for a rotation around its own axis a cylinder does not displace any fluid, there is only friction)
     //therefore there is no need to set torque around local y axis

@@ -21,6 +21,10 @@ public:
     HydrodynamicDamping(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<Monopile> monopile);
     update();
 
+    std::shared_ptr<chrono::ChLoadBodyTorque> getDragTorqueX() const;
+    std::shared_ptr<chrono::ChLoadBodyForce> getDragForceZBottom() const;
+    std::shared_ptr<chrono::ChLoadBodyForce> getDragForceXY() const;
+    std::shared_ptr<chrono::ChLoadBodyTorque> getDragTorqueZ() const;
 };
 
 #endif // HYDRODYNAMICDAMPINGFORCE_H

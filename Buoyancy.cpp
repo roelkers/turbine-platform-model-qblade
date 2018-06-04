@@ -77,7 +77,7 @@ void Buoyancy::update(){
   qDebug() << "towerAxis z: " << towerAxis.z();
   */
   if((towerAxis^zUnityVector)==0){
-    qDebug() << "Edge Case for Buoyancy" << "\n";
+    //qDebug() << "Edge Case for Buoyancy" << "\n";
     //intersection point is exactly on a line parallel to the z axis below the gravity
     //center. Point E and I are at the radius of the tower
     intersectionPoint = ChVector<>(towerPos.x(),towerPos.y(),p.seaLevel);
@@ -94,8 +94,6 @@ void Buoyancy::update(){
     //Get Position of the Top and bottom via the body markers
     vecE = monopile->getMarkerBottom()->GetAbsCoord().pos;
     vecI = monopile->getMarkerTop()->GetAbsCoord().pos;
-
-    qDebug() << "r-Konstante:" << rConstant << "\n";
   }
   monopile->setIntersectionPoint(intersectionPoint);
   computeBuoyancy(vecE, vecI);
@@ -162,7 +160,6 @@ void Buoyancy::computeBuoyancy(ChVector<> vecE, ChVector<> vecI){
     }
     else{
     // in this case the tower is "flying", and we should not apply any buoyancy force
-    qDebug() << "flying tower\n";
     monopile->submergedPart= Monopile::NONE;
     monopile->setSubmergedVector(ChVector<>(0,0,0));
     force = 0;
@@ -177,7 +174,6 @@ void Buoyancy::computeBuoyancy(ChVector<> vecE, ChVector<> vecI){
       buoyancyCenter = intersectionPoint + 0.5*vecSI;
       //ChVector<> submergedVector = vecSI*2;
       ChVector<> submergedVector = vecSI;
-      qDebug() << "submergedVector" << submergedVector.Length();
       monopile->setSubmergedVector(submergedVector);
       force = computeBuoyancyForce(submergedVector.Length());
     }
@@ -189,14 +185,13 @@ void Buoyancy::computeBuoyancy(ChVector<> vecE, ChVector<> vecI){
       //ChVector<> submergedVector = vecSE*2;
       ChVector<> submergedVector = vecSE;
       monopile->setSubmergedVector(submergedVector);
-      qDebug() << "submergedVector" << submergedVector.Length();
       force = computeBuoyancyForce(submergedVector.Length());
     }
     else qDebug() << "both E and I below sea level.This MUST not happen.\n";
   }
 
-  qDebug() << "submerged Part of Monopile:" << monopile->submergedPart;
-  qDebug() << "buoyancyForce:" << force << "\n";
+  //qDebug() << "submerged Part of Monopile:" << monopile->submergedPart;
+  //qDebug() << "buoyancyForce:" << force << "\n";
 
   monopile->setBuoyancyCenter(buoyancyCenter);
 

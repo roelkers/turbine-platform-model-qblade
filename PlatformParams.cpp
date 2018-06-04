@@ -11,11 +11,11 @@ PlatformParams::PlatformParams(){
   towerSetupDir = ChVector<>(0, 0, 1);
 
   //Initial rotation of the monopile
-  qRotationX = Q_from_AngAxis(15* CH_C_DEG_TO_RAD, VECT_X);
-  qRotationY= Q_from_AngAxis(5 * CH_C_DEG_TO_RAD, VECT_Y);
-  qRotationZ= Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_Z);
+  qRotationX = Q_from_AngAxis(150 * CH_C_DEG_TO_RAD, VECT_X); //roll angle
+  qRotationY= Q_from_AngAxis(70 * CH_C_DEG_TO_RAD, VECT_Y); //pitch angle
+  qRotationZ= Q_from_AngAxis(10 * CH_C_DEG_TO_RAD, VECT_Z); //yaw angle
   //Translate to initial Position
-  initPosVec = ChVector<>(0,0,0);
+  initPosVec = ChVector<>(0,0,-200);
 
   mooringLineNr = 0;
   mooringDiameter = 0.15;

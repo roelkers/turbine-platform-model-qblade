@@ -35,7 +35,16 @@ class PlatformModel{
     double calculateRestPositionOfPlatform();
     void update(double endTime);
     void render();
-    double GetXPosition();
+    double getXPosition();
+    double getYPosition();
+    double getZPosition();
+    double getRollAngle();
+    double getPitchAngle();
+    double getYawAngle();
+    double getXTorque();
+    double getZTorque();
+    double getDragForceXY();
+    double getDragForceZBottom();
 };
 
 #endif
