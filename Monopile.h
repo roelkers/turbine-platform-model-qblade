@@ -42,6 +42,7 @@ public:
     std::shared_ptr<chrono::ChMarker> getMarkerBottom(){return markerBottom;}
     std::shared_ptr<chrono::ChBody> getCylinder(){return cylinder;}
     std::shared_ptr<chrono::ChBody> getBallast(){return ballast;}
+    std::shared_ptr<chrono::ChBody> getNacelle(){return nacelle;}
     chrono::ChVector<> getBuoyancyCenter() const;
     chrono::ChVector<> getIntersectionPoint() const;
     chrono::ChVector<> getSubmergedVector() const;

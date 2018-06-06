@@ -1,9 +1,12 @@
 #include "HydrodynamicDamping.h"
 
-
 #include "chrono/physics/ChLoadContainer.h"
 #include "chrono/physics/ChLoadsBody.h"
 #include "math.h"
+
+#include "../GlobalFunctions.h"
+#include "../XLLT/QLLTSimulation.h"
+#include <QtOpenGL>
 
 #include "PlatformParams.h"
 #include "Monopile.h"
@@ -29,6 +32,11 @@ std::shared_ptr<chrono::ChLoadBodyForce> HydrodynamicDamping::getDragForceXY() c
 std::shared_ptr<chrono::ChLoadBodyTorque> HydrodynamicDamping::getDragTorqueZ() const
 {
     return dragTorqueZ;
+}
+
+chrono::ChVector<> HydrodynamicDamping::getPhiDot() const
+{
+    return phiDot;
 }
 
 HydrodynamicDamping::HydrodynamicDamping(PlatformParams p, std::shared_ptr<ChLoadContainer> loadContainer, std::shared_ptr<Monopile> monopile)
@@ -67,8 +75,8 @@ HydrodynamicDamping::HydrodynamicDamping(PlatformParams p, std::shared_ptr<ChLoa
     //Add load to container
     loadContainer->Add(dragForceZBottom);
     loadContainer->Add(dragForceXY);
-    loadContainer->Add(dragTorqueX);
-    loadContainer->Add(dragTorqueZ);
+    //loadContainer->Add(dragTorqueX);
+    //loadContainer->Add(dragTorqueZ);
 }
 
 HydrodynamicDamping::update(){
@@ -110,67 +118,62 @@ HydrodynamicDamping::update(){
     ChFrameMoving<> frameMoving = monopile->getCylinder()->GetFrame_COG_to_abs();
 
     //Get Angular Speeds in local body coordinates
-    ChVector<> phiDot = frameMoving.GetWvel_loc();
+    phiDot = frameMoving.GetWvel_loc();
 
     qDebug()<<  "submerged Part of Monopile:" << monopile->submergedPart;
 
-    switch(monopile->submergedPart){
-        case Monopile::NACELLE:{
+    ChVector<> vecG = monopile->getCylinder()->GetPos();
+    ChVector<> vecS = monopile->getIntersectionPoint();
+    ChVector<> vecE = monopile->getBallast()->GetPos();
+    ChVector<> vecI = monopile->getNacelle()->GetPos();
+    //vector from gravity center to intersection point
+    ChVector<> vecGS = vecS - vecG;
+    //vector from gravity center to ballast
+    ChVector<> vecGE = vecE - vecG;
+    //vector from gravity center to interface
+    ChVector<> vecGI = vecI - vecG;
 
-        ChVector<> vecG = monopile->getCylinder()->GetPos();
-        ChVector<> vecS = monopile->getIntersectionPoint();
-        ChVector<> vecI = monopile->getMarkerTop()->GetPos();
-        //vector from gravity center to intersection point
-        ChVector<> vecGS = vecS - vecG;
-        //vector from gravity center to bottom
-        ChVector<> vecGI = vecI - vecG;
-        if(vecG.x()>p.seaLevel){
-            //integrate from point S to bottom if G is above sea level
-            torqueX = -1/4*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.x(),2)*(pow(vecGI.Length(),4)-pow(vecGS.Length(),4));
-            torqueZ = -1/4*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.z(),2)*(pow(vecGI.Length(),4)-pow(vecGS.Length(),4));
-        }
-        else{
-            //integrate from Gravity centre G to bottom and to sea level respectively otherwise
-            torqueX = -1/4*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.x(),2)*(pow(vecGS.Length(),4)+pow(vecGI.Length(),4));
-            torqueZ = -1/4*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.z(),2)*(pow(vecGS.Length(),4)+pow(vecGI.Length(),4));
-        }
-        break;
-        }
+    switch(monopile->submergedPart){
         case Monopile::BALLAST:{
 
-        ChVector<> vecG = monopile->getCylinder()->GetPos();
-        ChVector<> vecS = monopile->getIntersectionPoint();
-        ChVector<> vecE = monopile->getMarkerBottom()->GetPos();
-        //vector from gravity center to intersection point
-        ChVector<> vecGS = vecS - vecG;
-        //vector from gravity center to bottom
-        ChVector<> vecGE = vecE - vecG;
         if(vecG.x()>p.seaLevel){
             //integrate from point S to bottom if G is above sea level
-            torqueX = -1/4*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.x(),2)*(pow(vecGE.Length(),4)-pow(vecGS.Length(),4));
-            torqueZ = -1/4*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.z(),2)*(pow(vecGE.Length(),4)-pow(vecGS.Length(),4));
+            torqueX = -0.25*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.x(),2)*(pow(vecGE.Length(),4)-pow(vecGS.Length(),4));
+            torqueZ = -0.25*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.z(),2)*(pow(vecGE.Length(),4)-pow(vecGS.Length(),4));
         }
         else{
             //integrate from Gravity centre G to bottom and to sea level respectively otherwise
-            torqueX = -1/4*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.x(),2)*(pow(vecGS.Length(),4)+pow(vecGE.Length(),4));
-            torqueZ = -1/4*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.z(),2)*(pow(vecGS.Length(),4)+pow(vecGE.Length(),4));
+            torqueX = -0.25*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.x(),2)*(pow(vecGS.Length(),4)+pow(vecGE.Length(),4));
+            torqueZ = -0.25*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.z(),2)*(pow(vecGS.Length(),4)+pow(vecGE.Length(),4));
         }
+        qDebug() << "pow(vecGS.Length(),4)+pow(vecGE.Length(),4)" << pow(vecGS.Length(),4)+pow(vecGE.Length(),4);
+        qDebug() << "pow(vecGE.Length(),4)-pow(vecGS.Length(),4)" << pow(vecGE.Length(),4)-pow(vecGS.Length(),4);
+
+        break;
+        }
+        case Monopile::NACELLE:{
+
+        if(vecG.x()>p.seaLevel){
+            //integrate from point S to bottom if G is above sea level
+            torqueX = -0.25*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.x(),2)*(pow(vecGI.Length(),4)-pow(vecGS.Length(),4));
+            torqueZ = -0.25*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.z(),2)*(pow(vecGI.Length(),4)-pow(vecGS.Length(),4));
+        }
+        else{
+            //integrate from Gravity centre G to bottom and to sea level respectively otherwise
+            torqueX = -0.25*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.x(),2)*(pow(vecGS.Length(),4)+pow(vecGI.Length(),4));
+            torqueZ = -0.25*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.z(),2)*(pow(vecGS.Length(),4)+pow(vecGI.Length(),4));
+        }
+        qDebug() << "pow(vecGS.Length(),4)+pow(vecGI.Length(),4)" << pow(vecGS.Length(),4)+pow(vecGI.Length(),4);
+        qDebug() << "pow(vecGS.Length(),4)+pow(vecGI.Length(),4)" << pow(vecGI.Length(),4)-pow(vecGS.Length(),4);
         break;
         }
         case Monopile::BOTH:{
 
-        ChVector<> vecG = monopile->getCylinder()->GetPos();
-        ChVector<> vecE = monopile->getMarkerBottom()->GetPos();
-        ChVector<> vecI = monopile->getMarkerTop()->GetPos();
-        //vector from gravity center to top
-        ChVector<> vecGI = vecI - vecG;
-        //vector from gravity center to bottom
-        ChVector<> vecGE = vecE - vecG;
-
         //integrate from Gravity centre G to bottom and to top respectively
-        torqueX = -1/4*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.x(),2)*(pow(vecGI.Length(),4)+pow(vecGE.Length(),4));
-        torqueZ = -1/4*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.z(),2)*(pow(vecGI.Length(),4)+pow(vecGE.Length(),4));
-
+        torqueX = -0.25*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.x(),2)*(pow(vecGI.Length(),4)+pow(vecGE.Length(),4));
+        torqueZ = -0.25*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.z(),2)*(pow(vecGI.Length(),4)+pow(vecGE.Length(),4));
+        qDebug() << "pow(vecGI.Length(),4)+pow(vecGE.Length(),4)" << pow(vecGI.Length(),4)+pow(vecGE.Length(),4),
+        qDebug() << "pow(vecGI.Length(),4)+pow(vecGE.Length(),4)" << pow(vecGI.Length(),4)+pow(vecGE.Length(),4);
         break;
         }
         case Monopile::NONE:{
@@ -186,11 +189,20 @@ HydrodynamicDamping::update(){
     ChVector<> xAxisLocal = frameMoving.GetCoord().rot.GetXaxis();
     ChVector<> zAxisLocal = frameMoving.GetCoord().rot.GetZaxis();
 
+    qDebug() << "vecGI.Length()" << vecGI.Length();
+    qDebug() << "vecGE.Length()" << vecGI.Length();
+    qDebug() << "vecG.Length()" << vecG.Length();
+    qDebug() << "vecE.Length()" << vecE.Length();
+    qDebug() << "vecI.Length()" << vecI.Length();
+    qDebug() << "pow(phiDot.x(),2)" << pow(phiDot.x(),2);
+    qDebug() << "pow(phiDot.z(),2)" << pow(phiDot.z(),2);
     qDebug() << "torqueX: " << torqueX;
     qDebug() << "torqueZ: " << torqueZ;
 
     //drag torque around local y axis is zero for the cylinder (for a rotation around its own axis a cylinder does not displace any fluid, there is only friction)
     //therefore there is no need to set torque around local y axis
+
+    dragForceXY->SetApplicationPoint(monopile->getBuoyancyCenter(),false);
 
     //sanity check, whether monopile is actually submerged
     if(submergedVector.Length()>0){
@@ -205,4 +217,27 @@ HydrodynamicDamping::update(){
         dragTorqueX->SetTorque(ChVector<>(0,0,0));
         dragTorqueZ->SetTorque(ChVector<>(0,0,0));
     }
+}
+
+void HydrodynamicDamping::render(){
+    glPointSize(10);
+    glLineWidth(3);
+    CVector monopilePos = CVecFromChVec(monopile->getCylinder()->GetPos());
+
+    ChVector<> dragTorqueXVec = dragTorqueX->GetTorque();
+    ChVector<> dragTorqueZVec = dragTorqueZ->GetTorque();
+
+    glPointSize(0.1);
+    glBegin(GL_LINES);
+        //light green/blue: x-torque
+        glColor4d(0,0.5,1,1);
+        glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
+        CVector torqueAxisEnd = CVecFromChVec(monopile->getCylinder()->GetPos()+dragTorqueXVec);
+        glVertex3d(torqueAxisEnd.x,torqueAxisEnd.y,torqueAxisEnd.z);
+        //blue /light green: z-torque
+        glColor4d(0,1,0.5,1);
+        glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
+        torqueAxisEnd = CVecFromChVec(monopile->getCylinder()->GetPos()+dragTorqueZVec);
+        glVertex3d(torqueAxisEnd.x,torqueAxisEnd.y,torqueAxisEnd.z);
+    glEnd();
 }

@@ -126,6 +126,7 @@ void PlatformModel::render(){
     {
         monopile->render();
         buoyancy->render();
+        hydrodynamicDamping->render();
 
         for(auto & mooringLine : mooringLines) {
             mooringLine.render();
@@ -263,4 +264,12 @@ double PlatformModel::getDragForceZBottom(){
 
     ChVector<> force = hydrodynamicDamping->getDragForceZBottom()->GetForce();
     return force.Length();
+}
+
+double PlatformModel::getPhiDotX(){
+    return hydrodynamicDamping->getPhiDot().x();
+}
+
+double PlatformModel::getPhiDotZ(){
+    return hydrodynamicDamping->getPhiDot().z();
 }

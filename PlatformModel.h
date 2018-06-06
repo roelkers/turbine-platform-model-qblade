@@ -45,6 +45,8 @@ class PlatformModel{
     double getZTorque();
     double getDragForceXY();
     double getDragForceZBottom();
+    double getPhiDotX();
+    double getPhiDotZ();
 };
 
 #endif

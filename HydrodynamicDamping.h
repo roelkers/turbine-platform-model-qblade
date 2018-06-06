@@ -17,6 +17,7 @@ public:
 
     std::shared_ptr<chrono::ChLoadBodyTorque> dragTorqueX;
     std::shared_ptr<chrono::ChLoadBodyTorque> dragTorqueZ;
+    chrono::ChVector<> phiDot;
 
     HydrodynamicDamping(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<Monopile> monopile);
     update();
@@ -25,6 +26,10 @@ public:
     std::shared_ptr<chrono::ChLoadBodyForce> getDragForceZBottom() const;
     std::shared_ptr<chrono::ChLoadBodyForce> getDragForceXY() const;
     std::shared_ptr<chrono::ChLoadBodyTorque> getDragTorqueZ() const;
+    chrono::ChVector<> getPhiDot() const;
+
+    void render();
+
 };
 
 #endif // HYDRODYNAMICDAMPINGFORCE_H
