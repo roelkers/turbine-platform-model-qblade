@@ -151,6 +151,7 @@ void PlatformModel::update(double endTime){
     while (system.GetChTime() < endTime) {
 
         //qDebug() << "updating buoyancy again";
+        monopile->update();
         buoyancy->update();
         hydrodynamicDamping->update();
 

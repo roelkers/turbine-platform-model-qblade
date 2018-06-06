@@ -21,8 +21,6 @@ private:
     std::shared_ptr<chrono::ChBody> nacelle;
     std::shared_ptr<chrono::ChBody> ballast;
 
-    std::shared_ptr<chrono::ChMarker> markerBottom;
-    std::shared_ptr<chrono::ChMarker> markerTop;
     std::shared_ptr<chrono::ChMarker> markerGravityCenter;
 
     chrono::ChVector<> buoyancyCenter; //z-coordinate of buyoancy center of monopile from xy-plane
@@ -34,12 +32,10 @@ public:
     Monopile(chrono::ChSystem& system, PlatformParams p);
 
     void render();
-    void updateMarkers();
+    void update();
     chrono::ChVector<> calculateGravityCenterFromBottom();
     void addNacelleAndBallast(chrono::ChSystem &system);
 
-    std::shared_ptr<chrono::ChMarker> getMarkerTop(){return markerTop;}
-    std::shared_ptr<chrono::ChMarker> getMarkerBottom(){return markerBottom;}
     std::shared_ptr<chrono::ChBody> getCylinder(){return cylinder;}
     std::shared_ptr<chrono::ChBody> getBallast(){return ballast;}
     std::shared_ptr<chrono::ChBody> getNacelle(){return nacelle;}

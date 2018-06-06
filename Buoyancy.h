@@ -21,7 +21,6 @@ private:
 public:
   Buoyancy(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<Monopile> monopile);
   void update();
-  void computeBuoyancy(chrono::ChVector<> vecE, chrono::ChVector<> vecI);
   double computeBuoyancyForce(double submergedLength);
   void render();
 

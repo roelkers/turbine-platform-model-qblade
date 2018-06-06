@@ -75,8 +75,8 @@ HydrodynamicDamping::HydrodynamicDamping(PlatformParams p, std::shared_ptr<ChLoa
     //Add load to container
     loadContainer->Add(dragForceZBottom);
     loadContainer->Add(dragForceXY);
-    loadContainer->Add(dragTorqueX);
-    loadContainer->Add(dragTorqueZ);
+    //loadContainer->Add(dragTorqueX);
+    //loadContainer->Add(dragTorqueZ);
 }
 
 HydrodynamicDamping::update(){
@@ -146,8 +146,8 @@ HydrodynamicDamping::update(){
             torqueX = -0.25*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.x(),2)*(pow(vecGS.Length(),4)+pow(vecGE.Length(),4));
             torqueZ = -0.25*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.z(),2)*(pow(vecGS.Length(),4)+pow(vecGE.Length(),4));
         }
-        qDebug() << "pow(vecGS.Length(),4)+pow(vecGE.Length(),4)" << pow(vecGS.Length(),4)+pow(vecGE.Length(),4);
-        qDebug() << "pow(vecGE.Length(),4)-pow(vecGS.Length(),4)" << pow(vecGE.Length(),4)-pow(vecGS.Length(),4);
+        //qDebug() << "pow(vecGS.Length(),4)+pow(vecGE.Length(),4)" << pow(vecGS.Length(),4)+pow(vecGE.Length(),4);
+        //qDebug() << "pow(vecGE.Length(),4)-pow(vecGS.Length(),4)" << pow(vecGE.Length(),4)-pow(vecGS.Length(),4);
 
         break;
         }
@@ -163,8 +163,8 @@ HydrodynamicDamping::update(){
             torqueX = -0.25*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.x(),2)*(pow(vecGS.Length(),4)+pow(vecGI.Length(),4));
             torqueZ = -0.25*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.z(),2)*(pow(vecGS.Length(),4)+pow(vecGI.Length(),4));
         }
-        qDebug() << "pow(vecGS.Length(),4)+pow(vecGI.Length(),4)" << pow(vecGS.Length(),4)+pow(vecGI.Length(),4);
-        qDebug() << "pow(vecGS.Length(),4)+pow(vecGI.Length(),4)" << pow(vecGI.Length(),4)-pow(vecGS.Length(),4);
+        //qDebug() << "pow(vecGS.Length(),4)+pow(vecGI.Length(),4)" << pow(vecGS.Length(),4)+pow(vecGI.Length(),4);
+        //qDebug() << "pow(vecGS.Length(),4)+pow(vecGI.Length(),4)" << pow(vecGI.Length(),4)-pow(vecGS.Length(),4);
         break;
         }
         case Monopile::BOTH:{
@@ -172,8 +172,8 @@ HydrodynamicDamping::update(){
         //integrate from Gravity centre G to bottom and to top respectively
         torqueX = -0.25*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.x(),2)*(pow(vecGI.Length(),4)+pow(vecGE.Length(),4));
         torqueZ = -0.25*p.towerRadius*p.rhoWater*p.dragCoefficientCylinderLateral*pow(phiDot.z(),2)*(pow(vecGI.Length(),4)+pow(vecGE.Length(),4));
-        qDebug() << "pow(vecGI.Length(),4)+pow(vecGE.Length(),4)" << pow(vecGI.Length(),4)+pow(vecGE.Length(),4),
-        qDebug() << "pow(vecGI.Length(),4)+pow(vecGE.Length(),4)" << pow(vecGI.Length(),4)+pow(vecGE.Length(),4);
+        //qDebug() << "pow(vecGI.Length(),4)+pow(vecGE.Length(),4)" << pow(vecGI.Length(),4)+pow(vecGE.Length(),4),
+        //qDebug() << "pow(vecGI.Length(),4)+pow(vecGE.Length(),4)" << pow(vecGI.Length(),4)+pow(vecGE.Length(),4);
         break;
         }
         case Monopile::NONE:{
@@ -189,15 +189,15 @@ HydrodynamicDamping::update(){
     ChVector<> xAxisLocal = frameMoving.GetCoord().rot.GetXaxis();
     ChVector<> zAxisLocal = frameMoving.GetCoord().rot.GetZaxis();
 
-    qDebug() << "vecGI.Length()" << vecGI.Length();
-    qDebug() << "vecGE.Length()" << vecGI.Length();
-    qDebug() << "vecG.Length()" << vecG.Length();
-    qDebug() << "vecE.Length()" << vecE.Length();
-    qDebug() << "vecI.Length()" << vecI.Length();
-    qDebug() << "pow(phiDot.x(),2)" << pow(phiDot.x(),2);
-    qDebug() << "pow(phiDot.z(),2)" << pow(phiDot.z(),2);
-    qDebug() << "torqueX: " << torqueX;
-    qDebug() << "torqueZ: " << torqueZ;
+//    qDebug() << "vecGI.Length()" << vecGI.Length();
+//    qDebug() << "vecGE.Length()" << vecGI.Length();
+//    qDebug() << "vecG.Length()" << vecG.Length();
+//    qDebug() << "vecE.Length()" << vecE.Length();
+//    qDebug() << "vecI.Length()" << vecI.Length();
+//    qDebug() << "pow(phiDot.x(),2)" << pow(phiDot.x(),2);
+//    qDebug() << "pow(phiDot.z(),2)" << pow(phiDot.z(),2);
+//    qDebug() << "torqueX: " << torqueX;
+//    qDebug() << "torqueZ: " << torqueZ;
 
     //drag torque around local y axis is zero for the cylinder (for a rotation around its own axis a cylinder does not displace any fluid, there is only friction)
     //therefore there is no need to set torque around local y axis

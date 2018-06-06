@@ -73,22 +73,6 @@ Monopile::Monopile(ChSystem &system, PlatformParams p)
 //    //Get vector in direction of tower axis by rotating vector around quaternion
 //    ChVector<> towerAxis = qcombined.Rotate(zUnityVector);
 
-    //Add markers on top and bottom of cylinder for the calculation of buoyancy
-
-    markerBottom = std::make_shared<ChMarker>();
-    //Set Marker Position relative to local coordinate system
-    ChCoordsys<> bottomCoordsys = ChCoordsys<>(cylinder->TransformPointLocalToParent(ChVector<>(0,-0.5*p.towerHeight,0)));
-    //Set marker parameters
-    markerBottom->SetBody(cylinder.get());
-    markerBottom->Impose_Abs_Coord(bottomCoordsys);
-
-    markerTop = std::make_shared<ChMarker>();
-    //Set Marker Position relative to local coordinate system
-    ChCoordsys<> topCoordsys = ChCoordsys<>(cylinder->TransformPointLocalToParent(ChVector<>(0,0.5*p.towerHeight,0)));
-    //Set marker parameters
-    markerTop->SetBody(cylinder.get());
-    markerTop->Impose_Abs_Coord(topCoordsys);
-
     markerGravityCenter = std::make_shared<ChMarker>();
     //Set Marker Position relative to local coordinate system
     ChCoordsys<> gravCenterCoordsys = ChCoordsys<>(ChVector<>(0,0,-0.5*p.towerHeight)+calculateGravityCenterFromBottom());
@@ -129,12 +113,94 @@ void Monopile::addNacelleAndBallast(ChSystem &system){
     system.Add(constraint_nacelle);
 }
 
-void Monopile::updateMarkers(){
+void Monopile::update(){
+    // Skizze:
+    // G: Center of gravity
+    // S: intersection point at water surface
+    // B: buoyancy Center
+    // E: bottom
+    // I: top
+    // -----------I------------
+    //            |
+    //            |
+    //            |
+    //            |
+    //            G
+    //            |
+    //~~~~~~~~~~~~S~~~~~~~~~~~~
+    //            |
+    //            B
+    //            |
+    //------------E-------------
 
-    //qDebug() << "update markers";
-    markerBottom->UpdateState();
-    markerTop->UpdateState();
     markerGravityCenter->UpdateState();
+
+    ChVector<> seaLevelVector = ChVector<>(0,0,p.seaLevel);
+    ChVector<> towerPos = cylinder->GetPos();
+    ChFrameMoving<> frame = cylinder->GetFrame_COG_to_abs();
+    //Get rotation of frame as a quaternion
+    ChQuaternion<> qmonopile = frame.GetRot();
+    //Rotate Coordinate system back
+    ChQuaternion<> qcorrection = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
+
+    ChQuaternion<> qcombined = qmonopile* qcorrection;
+    //qDebug() << "qcombined:" << qcombined << "\n";
+    //Get unity vector in z direction
+    ChVector<> zUnityVector = ChVector<>(0,0,1);
+    //Get vector in direction of tower axis by rotating vector around quaternion
+    ChVector<> towerAxis = qcombined.Rotate(zUnityVector);
+
+    //Point E and I are at the top and bottom of the tower
+    //Calculate Intersection point of sea level plane with algebraic equation
+    const double rConstant = ((seaLevelVector-towerPos)^zUnityVector)/(towerAxis^zUnityVector);
+    //Intersection point using straight line equation
+    intersectionPoint = towerPos + towerAxis*rConstant;
+    //Get Position of the Top and bottom via the body markers
+    ChVector<> vecE = ballast->GetPos();
+    ChVector<> vecI = nacelle->GetPos();
+
+    ChVector<> vecSE = vecE - intersectionPoint;
+    ChVector<> vecSI = vecI - intersectionPoint;
+
+    ChVector<> vecGE = vecE - towerPos;
+    ChVector<> vecGS = intersectionPoint - towerPos;
+    ChVector<> vecGI = vecI - towerPos;
+    ChVector<> vecEI = vecI - vecE;
+
+    //check if distance to sea level is larger than distance to top of tower
+    if(vecGS.Length() >= vecGI.Length() && vecGS.Length() >= vecGE.Length()){
+      //sanity check if I and E are both below Sea level
+      if(vecE.z() < p.seaLevel && vecI.z() < p.seaLevel){
+          //tower completely submerged, buoyancy center is same as gravity center
+          submergedPart = Monopile::BOTH;
+          //qDebug() << "completely submerged\n";
+          buoyancyCenter = towerPos;
+          submergedVector = vecEI;
+          }
+          else{
+          // in this case the tower is "flying", and we should not apply any buoyancy force
+          submergedPart= Monopile::NONE;
+          submergedVector = ChVector<>(0,0,0);
+      }
+    }
+    else{
+      //Check which end of the tower is submerged, and which is above the sea
+      if(vecE.z() > p.seaLevel){
+        //qDebug() << "partly submerged, E above sea level\n";
+        submergedPart = Monopile::NACELLE;
+        //construct buoyancy volume from S to I
+        buoyancyCenter = intersectionPoint + 0.5*vecSI;
+        submergedVector = vecSI;
+      }
+      else if(vecI.z() > p.seaLevel){
+        //qDebug() << "partly submerged, I above sea level\n";
+        //construct buoyancy volume from S to E
+        submergedPart = Monopile::BALLAST;
+        buoyancyCenter = intersectionPoint + 0.5*vecSE;
+        submergedVector = vecSE;
+      }
+      else qDebug() << "both E and I below sea level.This MUST not happen.\n";
+    }
 }
 
 void Monopile::render(){
@@ -147,14 +213,6 @@ void Monopile::render(){
         glColor4d(0,0,1,1);
         CVector monopilePos = CVecFromChVec(cylinder->GetPos());
         glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
-        //green: topMarker
-        glColor4d(0,1,0,1);
-        CVector topMarkerPos = CVecFromChVec(markerTop->GetAbsCoord().pos);
-        glVertex3d(topMarkerPos.x,topMarkerPos.y,topMarkerPos.z);
-        //red: bottomMarker
-        glColor4d(1,0,0,1);
-        CVector bottomMarkerPos = CVecFromChVec(markerBottom->GetAbsCoord().pos);
-        glVertex3d(bottomMarkerPos.x,bottomMarkerPos.y,bottomMarkerPos.z);
         //red/blue: ballast Body
         glColor4d(1,0,1,1);
         CVector ballastPos = CVecFromChVec(ballast->GetPos());
@@ -173,8 +231,8 @@ void Monopile::render(){
     glBegin(GL_LINES);
         //Draw axis of tower
         glColor4d(0,0,0,1);
-        glVertex3d(topMarkerPos.x,topMarkerPos.y,topMarkerPos.z);
-        glVertex3d(bottomMarkerPos.x,bottomMarkerPos.y,bottomMarkerPos.z);
+        glVertex3d(nacellePos.x,nacellePos.y,nacellePos.z);
+        glVertex3d(ballastPos.x,ballastPos.y,ballastPos.z);
         //Draw Coordinate system of monopile
         ChCoordsys<> monopileCoord = cylinder->GetCoord();
         //red: x-axis
