@@ -75,8 +75,8 @@ HydrodynamicDamping::HydrodynamicDamping(PlatformParams p, std::shared_ptr<ChLoa
     //Add load to container
     loadContainer->Add(dragForceZBottom);
     loadContainer->Add(dragForceXY);
-    //loadContainer->Add(dragTorqueX);
-    //loadContainer->Add(dragTorqueZ);
+    loadContainer->Add(dragTorqueX);
+    loadContainer->Add(dragTorqueZ);
 }
 
 HydrodynamicDamping::update(){

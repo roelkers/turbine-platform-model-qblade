@@ -126,7 +126,7 @@ void PlatformModel::render(){
     {
         monopile->render();
         buoyancy->render();
-        hydrodynamicDamping->render();
+        //hydrodynamicDamping->render();
 
         for(auto & mooringLine : mooringLines) {
             mooringLine.render();
