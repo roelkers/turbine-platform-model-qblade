@@ -36,6 +36,7 @@ public:
   double ballastMass;
   double nacelleMass;
 
+  int dampingNrElements;
   double dragCoefficientCylinderAxial;
   double dragCoefficientCylinderLateral;
 

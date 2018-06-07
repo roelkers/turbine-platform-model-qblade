@@ -126,7 +126,7 @@ void PlatformModel::render(){
     {
         monopile->render();
         buoyancy->render();
-        //hydrodynamicDamping->render();
+        hydrodynamicDamping->render();
 
         for(auto & mooringLine : mooringLines) {
             mooringLine.render();
@@ -243,34 +243,9 @@ double PlatformModel::getYawAngle(){
     return angleNasa;
 }
 
-double PlatformModel::getXTorque(){
-
-    ChVector<> torque = hydrodynamicDamping->getDragTorqueX()->GetTorque();
-    return torque.Length();
-}
-
-double PlatformModel::getZTorque(){
-
-    ChVector<> torque = hydrodynamicDamping->getDragTorqueZ()->GetTorque();
-    return torque.Length();
-}
-
-double PlatformModel::getDragForceXY(){
-
-    ChVector<> force = hydrodynamicDamping->getDragForceXY()->GetForce();
-    return force.Length();
-}
-
 double PlatformModel::getDragForceZBottom(){
 
     ChVector<> force = hydrodynamicDamping->getDragForceZBottom()->GetForce();
     return force.Length();
 }
 
-double PlatformModel::getPhiDotX(){
-    return hydrodynamicDamping->getPhiDot().x();
-}
-
-double PlatformModel::getPhiDotZ(){
-    return hydrodynamicDamping->getPhiDot().z();
-}

@@ -41,12 +41,8 @@ class PlatformModel{
     double getRollAngle();
     double getPitchAngle();
     double getYawAngle();
-    double getXTorque();
-    double getZTorque();
-    double getDragForceXY();
     double getDragForceZBottom();
-    double getPhiDotX();
-    double getPhiDotZ();
+
 };
 
 #endif
