@@ -19,8 +19,7 @@ public:
     std::vector<DampingElement> dampingElements;
 
     HydrodynamicDamping(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<Monopile> monopile);
-    update();
-
+    void update();
 
     void render();
 

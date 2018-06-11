@@ -14,8 +14,10 @@ using namespace chrono::fea;
 DampingElement::DampingElement(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<Monopile> monopile, double length, ChVector<> A, ChVector<> B, double crossSectionArea)
     :p(p),
      monopile(monopile),
-     A(A),
-     B(B),
+     A(monopile->getCylinder()->TransformPointParentToLocal(A)),
+     B(monopile->getCylinder()->TransformPointParentToLocal(B)),
+     AinAbsoluteFrame(A),
+     BinAbsoluteFrame(B),
      length(length),
      crossSectionArea(crossSectionArea)
 {
@@ -50,17 +52,27 @@ void DampingElement::update(){
     double markerVelY = marker->GetAbsCoord_dt().pos.y();
     double markerVelZ = marker->GetAbsCoord_dt().pos.z();
 
-    //double markerVelX = marker->GetPos_dt().x();
-    //double markerVelY = marker->GetPos_dt().y();
+    AinAbsoluteFrame = monopile->getCylinder()->TransformPointLocalToParent(A);
+    BinAbsoluteFrame = monopile->getCylinder()->TransformPointLocalToParent(B);
+
+    ChVector<> vecABabs = BinAbsoluteFrame - AinAbsoluteFrame;
+    double projectedLengthXZ = sqrt(pow(vecABabs.x() ,2) + pow(vecABabs.z(),2));
+    double projectedLengthYZ = sqrt(pow(vecABabs.y() ,2) + pow(vecABabs.z(),2));
+
+    double areaXZ = projectedLengthXZ*2*p.towerRadius;
+    double areaYZ = projectedLengthYZ*2*p.towerRadius;
 
     double forceX;
     double forceY;
     double forceZ;
     //check if marker is submerged
     if(marker->GetAbsCoord().pos.z() < p.seaLevel){
-        forceX = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelX*crossSectionArea;
-        forceY = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelY*crossSectionArea;
-        forceZ = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelZ*crossSectionArea;
+//        forceX = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelX*crossSectionArea;
+//        forceY = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelY*crossSectionArea;
+//        forceZ = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelZ*crossSectionArea;
+
+        forceX = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelX*areaYZ;
+        forceY = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelY*areaXZ;
 
 //        qDebug() << "element submerged";
 //        qDebug() << "-0.5*p.rhoWater*p.dragCoefficientCylinderLateral" << -0.5*p.rhoWater*p.dragCoefficientCylinderLateral;
@@ -104,6 +116,15 @@ void DampingElement::render(){
         //red/light green/blue: marker
         glColor4d(1,0.5,1,1);
         glVertex3d(markerPos.x,markerPos.y,markerPos.z);
+        //Draw Points A and B
+        //red: point A
+        CVector Apos = CVecFromChVec(AinAbsoluteFrame);
+        glColor4d(1,0,0,1);
+        glVertex3d(Apos.x,Apos.y,Apos.z);
+        //green: point B
+        CVector Bpos = CVecFromChVec(BinAbsoluteFrame);
+        glColor4d(0,1,0,1);
+        glVertex3d(Bpos.x,Bpos.y,Bpos.z);
     glEnd();
     glBegin(GL_LINES);
 //        //Draw Coordinate system of marker

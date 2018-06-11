@@ -20,6 +20,10 @@ private:
     std::shared_ptr<Monopile> monopile;
     chrono::ChVector<> A; //start of element
     chrono::ChVector<> B; //end of element
+
+    chrono::ChVector<> AinAbsoluteFrame;
+    chrono::ChVector<> BinAbsoluteFrame;
+
     std::shared_ptr<chrono::ChMarker> marker;
 
     std::shared_ptr<chrono::ChLoadBodyForce> dampingForce;

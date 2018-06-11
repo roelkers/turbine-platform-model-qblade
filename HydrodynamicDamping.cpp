@@ -56,10 +56,9 @@ HydrodynamicDamping::HydrodynamicDamping(PlatformParams p, std::shared_ptr<ChLoa
     }
     //Add load to container
     loadContainer->Add(dragForceZBottom);
-
 }
 
-HydrodynamicDamping::update(){
+void HydrodynamicDamping::update(){
 
     //update drag due to force on the monopile bottom in z direction
     double speedMonopileBottomZ = monopile->getBallast()->GetPos_dt().z();
