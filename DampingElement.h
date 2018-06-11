@@ -16,6 +16,7 @@ private:
     PlatformParams p;
     double length;
     double crossSectionArea;
+
     std::shared_ptr<Monopile> monopile;
     chrono::ChVector<> A; //start of element
     chrono::ChVector<> B; //end of element
