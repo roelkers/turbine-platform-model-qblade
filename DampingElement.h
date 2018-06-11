@@ -26,8 +26,8 @@ private:
 
 public:
     DampingElement(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<Monopile> monopile, double length, chrono::ChVector<> A, chrono::ChVector<> B, double crossSectionArea);
-    update();
-    render();
+    void update();
+    void render();
 };
 
 #endif // DAMPINGELEMENT_H
