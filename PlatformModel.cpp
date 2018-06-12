@@ -78,7 +78,8 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
         thetaInc = 360/p.mooringLineNr;
     }
     //Angle on Monopile of mooring line
-    double theta = 0;
+    //start at 45 degrees to have symmetric roll and pitch forces for x and y
+    double theta = 45;
     //Construct Mooring Lines
     for(int i = 0; i < p.mooringLineNr; i++){
         theta = theta + thetaInc;
@@ -179,7 +180,7 @@ double PlatformModel::getXPosition(){
 
 double PlatformModel::getYPosition(){
 
-    return monopile->getCylinder()->GetPos().z();
+    return monopile->getCylinder()->GetPos().y();
 }
 
 double PlatformModel::getZPosition(){

@@ -59,6 +59,9 @@ void DampingElement::update(){
     double projectedLengthXZ = sqrt(pow(vecABabs.x() ,2) + pow(vecABabs.z(),2));
     double projectedLengthYZ = sqrt(pow(vecABabs.y() ,2) + pow(vecABabs.z(),2));
 
+    qDebug() << "projectedLengthXZ: " << projectedLengthXZ;
+    qDebug() << "projectedLengthYZ: " << projectedLengthYZ;
+
     double areaXZ = projectedLengthXZ*2*p.towerRadius;
     double areaYZ = projectedLengthYZ*2*p.towerRadius;
 
@@ -86,9 +89,9 @@ void DampingElement::update(){
 
     //ChVector<> force = ChVector<>(forceX,forceY,0);
     ChVector<> force = ChVector<>(forceX, forceY, 0);
-    qDebug() << "calc: damping force x: " << forceX;
-    qDebug() << "calc: damping force y: " << forceY;
-    qDebug() << "calc: damping force z: " << forceZ;
+//    qDebug() << "calc: damping force x: " << forceX;
+//    qDebug() << "calc: damping force y: " << forceY;
+//    qDebug() << "calc: damping force z: " << forceZ;
 //    qDebug() << "damping force elem: " << force.Length();
 
     dampingForce->SetForce(force,false);
@@ -108,9 +111,9 @@ void DampingElement::render(){
     ChVector<> force = dampingForce->GetForce();
     //ChVector<> force = monopile->getCylinder()->TransformDirectionLocalToParent(dampingForce->GetForce());
 
-    qDebug() << " damping force x: " << force.x();
-    qDebug() << " damping force y: " << force.y();
-    qDebug() << " damping force z: " << force.z();
+//    qDebug() << " damping force x: " << force.x();
+//    qDebug() << " damping force y: " << force.y();
+//    qDebug() << " damping force z: " << force.z();
 
     glBegin(GL_POINTS);
         //red/light green/blue: marker
