@@ -11,27 +11,26 @@ PlatformParams::PlatformParams(){
   towerSetupDir = ChVector<>(0, 0, 1);
 
   //Initial rotation of the monopile
-  qRotationX = Q_from_AngAxis(5 * CH_C_DEG_TO_RAD, VECT_X); //roll angle
+  qRotationX = Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_X); //roll angle
   qRotationY= Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_Y); //pitch angle
   qRotationZ= Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_Z); //yaw angle
   //Translate to initial Position
-  initPosVec = ChVector<>(0,0,-10.6);
+  initPosVec = ChVector<>(0,0,-12.9);
 
   mooringLineNr = 3;
   mooringDiameter = 0.15;
-  mooringStiffness = 8471133.49;
-  mooringPreTensionForce = 89000;
+  mooringStiffness = 84040;//8471133.49;
+  mooringPreTensionForce = 89000;//case 1:89000;
   mooringRaleyghDamping = 0.3000;
   mooringNrElements = 3;
-  mooringAnchorRadiusFromFairlead = 600;
-  //mooringPosFairleadZInBodyCoords = -15;
+  mooringAnchorRadiusFromFairlead = 900;
   mooringPosFairleadZFromBottom = 80;
   mooringPosAnchorZ = -300;
   mooringDensity = 2431;
 
   fairleadMass = 0.5;
-  nacelleMass = 0;//2.385e5;
-  ballastMass = 9.71e5;
+  nacelleMass = 2.385e5;//2.385e5;
+  ballastMass = 10.71e5;
 
   //source: https:en.wikipedia.org/wiki/Drag_coefficient
   dragCoefficientCylinderAxial = 0.82;

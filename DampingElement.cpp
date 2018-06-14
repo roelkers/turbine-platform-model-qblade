@@ -59,8 +59,8 @@ void DampingElement::update(){
     double projectedLengthXZ = sqrt(pow(vecABabs.x() ,2) + pow(vecABabs.z(),2));
     double projectedLengthYZ = sqrt(pow(vecABabs.y() ,2) + pow(vecABabs.z(),2));
 
-    qDebug() << "projectedLengthXZ: " << projectedLengthXZ;
-    qDebug() << "projectedLengthYZ: " << projectedLengthYZ;
+    //qDebug() << "projectedLengthXZ: " << projectedLengthXZ;
+    //qDebug() << "projectedLengthYZ: " << projectedLengthYZ;
 
     double areaXZ = projectedLengthXZ*2*p.towerRadius;
     double areaYZ = projectedLengthYZ*2*p.towerRadius;

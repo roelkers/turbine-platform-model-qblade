@@ -46,7 +46,7 @@ HydrodynamicDamping::HydrodynamicDamping(PlatformParams p, std::shared_ptr<ChLoa
     A = yStart;
 
     for(int i = 0; i<p.dampingNrElements; i++){
-        qDebug() << "adding damping element";
+        //qDebug() << "adding damping element";
         B = A+lengthOfElement*yAxisMonopile;
 
         DampingElement dampingElement(p,loadContainer,monopile,lengthOfElement,A,B,crossSectionArea);

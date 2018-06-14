@@ -28,12 +28,15 @@ private:
   double eModMooring;
   double mooringArea;
   double mooringLengthSetup;
+  double restLengthOfElement;
 
 public:
   MooringLine(chrono::ChSystem& system, std::shared_ptr<chrono::fea::ChMesh> mesh, PlatformParams p, double theta, std::shared_ptr<Monopile> monopile);
   void render();
   void setRestLengthAndPosition();
-  double getTensionForceAt(double pos);
+  void getTensionForce();
+  std::shared_ptr<chrono::ChLinkMateFix> getConstraintFairlead() const;
+  std::shared_ptr<chrono::fea::ChLinkPointFrame> getConstraintMooring() const;
 };
 
 #endif

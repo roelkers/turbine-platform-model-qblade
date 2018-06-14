@@ -84,8 +84,6 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     for(int i = 0; i < p.mooringLineNr; i++){
         theta = theta + thetaInc;
 
-        qDebug() << "Mooring Line Angular position: " << theta << "deg\n";
-        qDebug() << "Constructing mooring line " << i << "\n";
         MooringLine mLine(system, mesh, p, theta, monopile);
         mooringLines.push_back(mLine);
     }
@@ -99,7 +97,22 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     //Set Rest position and rest length of mooring lines
     for(auto & mooringLine : mooringLines) {
         mooringLine.setRestLengthAndPosition();
+
     }
+
+    system.DoStepDynamics(m_qlltSim->getTimeStep());
+
+    for(auto & mooringLine : mooringLines) {
+
+        //get reaction force from fairleads
+        ChVector<> reactForce = mooringLine.getConstraintFairlead()->Get_react_force();
+        qDebug() << "reactForce fairlead: " << reactForce.Length();
+        reactForce = mooringLine.getConstraintMooring()->Get_react_force();
+        qDebug() << "reactForce mooring: " << reactForce.Length();
+
+        mooringLine.getTensionForce();
+    }
+
 
 }
 
@@ -138,8 +151,6 @@ void PlatformModel::render(){
 }
 
 void PlatformModel::update(double endTime){
-
-    qDebug() << "updating";
 
     double old_step;
     double left_time;

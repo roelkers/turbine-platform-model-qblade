@@ -21,6 +21,16 @@
 using namespace chrono;
 using namespace chrono::fea;
 
+std::shared_ptr<chrono::ChLinkMateFix> MooringLine::getConstraintFairlead() const
+{
+    return constraintFairlead;
+}
+
+std::shared_ptr<chrono::fea::ChLinkPointFrame> MooringLine::getConstraintMooring() const
+{
+    return constraintMooring;
+}
+
 MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, PlatformParams p, double theta, std::shared_ptr<Monopile> monopile)
 :p(p)
 {
@@ -118,9 +128,6 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
 /*
 void MooringLine::setRestLengthAndPosition(){
 
-    double mooringLengthSetup = sqrt(pow(p.mooringPosAnchorZ-p.mooringPosFairleadZInBodyCoords,2) + pow(p.mooringAnchorRadiusFromFairlead,2));
-    qDebug()<< "mooringLengthSetup: " << mooringLengthSetup ;
-
     //Calculate actual length after initialization, this is necessary because the mooring lines
     //are not in the setup position (at the coordinate origin) anymore, so we need to account for that
     ChVector<> mooringActual = mooringAnchor - mooringFairlead;
@@ -158,24 +165,24 @@ void MooringLine::setRestLengthAndPosition(){
     }
 }
 */
-/*
-double MooringLine::GetTensionForceAt(double pos){
-    if (pos > 1) pos = 1.0;
-    if (pos < 0) pos = 0.0;
+
+void MooringLine::getTensionForce(){
 
     double strain, currentLength;
     std::shared_ptr<ChBeamSectionCable> sec;
 
-    for (int i=0;i<Elements.size();i++){
-        if (Elements.at(i)->normalizedLengthA <= pos && pos <= Elements.at(i)->normalizedLengthB){
-            currentLength = CVector(Elements.at(i)->m_Nodes[0]->Origin-Elements.at(i)->m_Nodes[1]->Origin).VAbs();
-            strain = (currentLength-initialLength)/initialLength;
-            sec =  Elements.at(i)->GetSection();
-        }
+    std::vector<std::shared_ptr<ChElementCableANCF>> beamElements = builder.GetLastBeamElements();
+    for (auto &element : beamElements){
+        ChVector<> elementVector = element->GetNodeA()->GetPos()-element->GetNodeB()->GetPos();
+        double currentLength = elementVector.Length();
+        strain = (currentLength-restLengthOfElement)/restLengthOfElement;
+        sec =  element->GetSection();
+        double tensionForce = strain*sec->E*sec->Area;
+        qDebug() << "tensionForce: " << strain*sec->E*sec->Area;
     }
-    return strain*sec->E*sec->Area;
+
 }
-*/
+
 
 void MooringLine::setRestLengthAndPosition(){
 
@@ -187,9 +194,11 @@ void MooringLine::setRestLengthAndPosition(){
     double deltal = p.mooringPreTensionForce/p.mooringStiffness;
     double frac = (mooringLengthSetup-deltal)/mooringLengthSetup;
 
-    qDebug() << "setup length:" << setupLengthOfElement;
+    restLengthOfElement = mooringLengthSetup*frac;
+
+    qDebug() << "setup length of cable element:" << setupLengthOfElement;
     qDebug() << "frac : " << frac;
-    qDebug() << "res:" << setupLengthOfElement*frac;
+    qDebug() << "mooring line length at rest:" << restLengthOfElement;
 
     double massTotal = 0;
 
