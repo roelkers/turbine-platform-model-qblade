@@ -1,5 +1,5 @@
-#ifndef DAMPINGELEMENT_H
-#define DAMPINGELEMENT_H
+#ifndef MONOPILEELEMENT_H
+#define MONOPILEELEMENT_H
 
 #include "chrono/physics/ChMarker.h"
 #include "chrono/physics/ChSystem.h"
@@ -9,7 +9,7 @@
 #include "Monopile.h"
 #include "PlatformParams.h"
 
-class DampingElement
+class MonopileElement
 {
 private:
 
@@ -27,11 +27,11 @@ private:
     std::shared_ptr<chrono::ChMarker> marker;
 
     std::shared_ptr<chrono::ChLoadBodyForce> dampingForce;
-
+    std::shared_ptr<chrono::ChLoadBodyForce> buoyancyForce;
 public:
-    DampingElement(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<Monopile> monopile, double length, chrono::ChVector<> A, chrono::ChVector<> B, double crossSectionArea);
+    MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<Monopile> monopile, double length, chrono::ChVector<> A, chrono::ChVector<> B, double crossSectionArea);
     void update();
     void render();
 };
 
-#endif // DAMPINGELEMENT_H
+#endif // MONOPILEELEMENT_H

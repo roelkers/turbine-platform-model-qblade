@@ -19,7 +19,7 @@ private:
     std::vector<MonopileElement> monopileElements;
 
 public:
-    Monopile(chrono::ChSystem& system, PlatformParams p);
+    Monopile(chrono::ChSystem& system, PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer);
 
     void render();
     void update();

@@ -16,9 +16,6 @@ public:
   double massMomentInertiaInYaw;
   int monopileNrElements;
 
-  chrono::ChVector<> towerSetupPos;
-  chrono::ChVector<> towerSetupDir;
-
   chrono::ChQuaternion<> qRotationX;
   chrono::ChQuaternion<> qRotationY;
   chrono::ChQuaternion<> qRotationZ;

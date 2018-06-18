@@ -11,7 +11,7 @@
 using namespace chrono;
 using namespace chrono::fea;
 
-DampingElement::DampingElement(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<Monopile> monopile, double length, ChVector<> A, ChVector<> B, double crossSectionArea)
+MonopileElement::MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<Monopile> monopile, double length, ChVector<> A, ChVector<> B, double crossSectionArea)
     :p(p),
      monopile(monopile),
      A(monopile->getCylinder()->TransformPointParentToLocal(A)),
@@ -44,7 +44,7 @@ DampingElement::DampingElement(PlatformParams p, std::shared_ptr<chrono::ChLoadC
 
 }
 
-void DampingElement::update(){
+void MonopileElement::update(){
 
     marker->UpdateState();
 
@@ -98,7 +98,7 @@ void DampingElement::update(){
     dampingForce->SetApplicationPoint(marker->GetAbsCoord().pos,false);
 }
 
-void DampingElement::render(){
+void MonopileElement::render(){
 
 //    qDebug() << "render damping element";
     glLineWidth(3);

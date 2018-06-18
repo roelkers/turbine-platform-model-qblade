@@ -4,11 +4,12 @@ using namespace chrono;
 
 PlatformParams::PlatformParams(){
 
-  this->towerHeight=200;
-  towerRadius=2.5;
-  towerDensity=374.307;
-  towerSetupPos = ChVector<>(0, 0, 0);
-  towerSetupDir = ChVector<>(0, 0, 1);
+  towerHeight = 200;
+  towerRadius = 2.5;
+  mass = 2.4764e6;
+  massMomentInertiaInRollAndPitch = 1.2622e10;
+  massMomentInertiaInYaw = 2.7879e6;
+  monopileNrElements = 10;
 
   //Initial rotation of the monopile
   qRotationX = Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_X); //roll angle
@@ -28,15 +29,10 @@ PlatformParams::PlatformParams(){
   mooringPosAnchorZ = -300;
   mooringDensity = 2431;
 
-  fairleadMass = 0.5;
-  nacelleMass = 2.385e5;//2.385e5;
-  ballastMass = 10.71e5;
-
   //source: https:en.wikipedia.org/wiki/Drag_coefficient
   dragCoefficientCylinderAxial = 0.82;
   //source: http://sv.20file.org/up1/916_0.pdf
   dragCoefficientCylinderLateral = 1.20;
-  dampingNrElements = 10;
 
   seaLevel = 0; //sea level [m] in z-direction from origin
   rhoWater = 1000;
