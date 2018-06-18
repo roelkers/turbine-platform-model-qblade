@@ -20,7 +20,7 @@ PlatformParams::PlatformParams(){
   mooringLineNr = 3;
   mooringDiameter = 0.15;
   mooringStiffness = 84040;//8471133.49;
-  mooringPreTensionForce = 89000;//case 1:89000;
+  mooringPreTensionForce = 890000;//case 1:89000;
   mooringRaleyghDamping = 0.3000;
   mooringNrElements = 3;
   mooringAnchorRadiusFromFairlead = 900;

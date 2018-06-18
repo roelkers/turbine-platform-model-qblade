@@ -100,19 +100,18 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 
     }
 
-    system.DoStepDynamics(m_qlltSim->getTimeStep());
+    //system.DoStepDynamics(m_qlltSim->getTimeStep());
 
-    for(auto & mooringLine : mooringLines) {
+//    for(auto & mooringLine : mooringLines) {
 
-        //get reaction force from fairleads
-        ChVector<> reactForce = mooringLine.getConstraintFairlead()->Get_react_force();
-        qDebug() << "reactForce fairlead: " << reactForce.Length();
-        reactForce = mooringLine.getConstraintMooring()->Get_react_force();
-        qDebug() << "reactForce mooring: " << reactForce.Length();
+//        //get reaction force from fairleads
+//        ChVector<> reactForce = mooringLine.getConstraintFairlead()->Get_react_force();
+//        qDebug() << "reactForce fairlead: " << reactForce.Length();
+//        reactForce = mooringLine.getConstraintMooring()->Get_react_force();
+//        qDebug() << "reactForce mooring: " << reactForce.Length();
 
-        mooringLine.getTensionForce();
-    }
-
+//        mooringLine.getTensionForce();
+//    }
 
 }
 
@@ -202,14 +201,7 @@ double PlatformModel::getZPosition(){
 double PlatformModel::getRollAngle(){
 
     ChQuaternion<> rotBody = monopile->getCylinder()->GetRot();
-    /*ChVector<> xAxisBody = rotBody.GetXaxis();
-    ChQuaternion<> rotGlobal = ChQuaternion<>(1,0,0,0);
-    ChVector<> xAxisGlobal = rotGlobal.GetXaxis();
 
-    double scalarProduct = xAxisBody^xAxisGlobal;
-
-    double angle = acos(scalarProduct)/M_PI*180;
-    */
     //rotate monopile back from setup position to get correct angle
     ChQuaternion<> qSetup = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
     ChQuaternion<> rotCorrected = rotBody*qSetup;
@@ -220,15 +212,7 @@ double PlatformModel::getRollAngle(){
 double PlatformModel::getPitchAngle(){
 
     ChQuaternion<> rotBody = monopile->getCylinder()->GetRot();
-    /*
-    ChVector<> yAxisBody = rotBody.GetYaxis();
-    ChQuaternion<> rotGlobal = ChQuaternion<>(1,0,0,0);
-    ChVector<> yAxisGlobal = rotGlobal.GetYaxis();
 
-    double scalarProduct = yAxisBody^yAxisGlobal;
-
-    double angle = acos(scalarProduct)/M_PI*180 - 90;
-    */
     //rotate monopile back from setup position to get correct angle
     ChQuaternion<> qSetup = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
     ChQuaternion<> rotCorrected = rotBody*qSetup;
@@ -239,15 +223,7 @@ double PlatformModel::getPitchAngle(){
 double PlatformModel::getYawAngle(){
 
     ChQuaternion<> rotBody = monopile->getCylinder()->GetRot();
-    /*
-    ChVector<> zAxisBody = rotBody.GetZaxis();
-    ChQuaternion<> rotGlobal = ChQuaternion<>(1,0,0,0);
-    ChVector<> zAxisGlobal = rotGlobal.GetZaxis();
 
-    double scalarProduct = zAxisBody^zAxisGlobal;
-
-    double angle = acos(scalarProduct)/M_PI*180 - 90;
-    */
     //rotate monopile back from setup position to get correct angle
     ChQuaternion<> qSetup = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
     ChQuaternion<> rotCorrected = rotBody*qSetup;

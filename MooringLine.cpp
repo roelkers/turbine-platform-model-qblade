@@ -171,16 +171,22 @@ void MooringLine::getTensionForce(){
     double strain, currentLength;
     std::shared_ptr<ChBeamSectionCable> sec;
 
+    double totalLength = 0;
+
+    qDebug() << "testing cable force";
     std::vector<std::shared_ptr<ChElementCableANCF>> beamElements = builder.GetLastBeamElements();
     for (auto &element : beamElements){
         ChVector<> elementVector = element->GetNodeA()->GetPos()-element->GetNodeB()->GetPos();
         double currentLength = elementVector.Length();
+        qDebug() << "length of element after init" << currentLength;
         strain = (currentLength-restLengthOfElement)/restLengthOfElement;
         sec =  element->GetSection();
         double tensionForce = strain*sec->E*sec->Area;
-        qDebug() << "tensionForce: " << strain*sec->E*sec->Area;
+        qDebug() << "tensionForce: analytically" << strain*sec->E*sec->Area;
+        totalLength = totalLength + currentLength;
     }
 
+    qDebug() << "total length of mooring line after init: " << totalLength;
 }
 
 
@@ -194,7 +200,7 @@ void MooringLine::setRestLengthAndPosition(){
     double deltal = p.mooringPreTensionForce/p.mooringStiffness;
     double frac = (mooringLengthSetup-deltal)/mooringLengthSetup;
 
-    restLengthOfElement = mooringLengthSetup*frac;
+    restLengthOfElement = setupLengthOfElement*frac;
 
     qDebug() << "setup length of cable element:" << setupLengthOfElement;
     qDebug() << "frac : " << frac;
