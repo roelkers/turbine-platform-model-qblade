@@ -19,8 +19,8 @@ PlatformParams::PlatformParams(){
   distanceZfromEtoB = 72.6;
 
   //Initial rotation of the monopile
-  qRotationX = Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_X); //roll angle
-  qRotationY= Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_Y); //pitch angle
+  qRotationX = Q_from_AngAxis(5 * CH_C_DEG_TO_RAD, VECT_X); //roll angle
+  qRotationY= Q_from_AngAxis(5 * CH_C_DEG_TO_RAD, VECT_Y); //pitch angle
   qRotationZ= Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_Z); //yaw angle
   //Translate to initial Position
   initPosVec = ChVector<>(0,0,-12.9);

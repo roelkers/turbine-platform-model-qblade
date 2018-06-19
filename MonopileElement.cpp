@@ -41,7 +41,16 @@ MonopileElement::MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoa
        false //not a local point
     );
 
-    //loadContainer->Add(dampingForce);
+    buoyancyForce = std::make_shared<ChLoadBodyForce> (
+       body, //body
+       ChVector<>(0,0,0), //initialize
+       false, //not a local_force
+       marker->GetPos(), //apply force at marker position
+       false //not a local point
+    );
+
+    loadContainer->Add(dampingForce);
+    loadContainer->Add(buoyancyForce);
 
 }
 
@@ -66,37 +75,46 @@ void MonopileElement::update(){
     double areaXZ = projectedLengthXZ*2*p.towerRadius;
     double areaYZ = projectedLengthYZ*2*p.towerRadius;
 
-    double forceX;
-    double forceY;
-    double forceZ;
+    double dragForceX;
+    double dragForceY;
+    double dragForceZ;
+
+    double buoyancyForceZ;
     //check if marker is submerged
     if(marker->GetAbsCoord().pos.z() < p.seaLevel){
 //        forceX = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelX*crossSectionArea;
 //        forceY = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelY*crossSectionArea;
 //        forceZ = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelZ*crossSectionArea;
 
-        forceX = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelX*areaYZ;
-        forceY = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelY*areaXZ;
+        dragForceX = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelX*areaYZ;
+        dragForceY = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelY*areaXZ;
 
+        buoyancyForceZ = p.rhoWater*volume*p.g;
 //        qDebug() << "element submerged";
 //        qDebug() << "-0.5*p.rhoWater*p.dragCoefficientCylinderLateral" << -0.5*p.rhoWater*p.dragCoefficientCylinderLateral;
 //        qDebug() << "markerVelY*crossSectionArea" << markerVelY*crossSectionArea;
     }
     else{
-        forceX = 0;
-        forceY = 0;
-        forceZ = 0;
+        dragForceX = 0;
+        dragForceY = 0;
+        dragForceZ = 0;
+
+        buoyancyForceZ = 0;
     }
 
     //ChVector<> force = ChVector<>(forceX,forceY,0);
-    ChVector<> force = ChVector<>(forceX, forceY, 0);
+    ChVector<> dragForceVec = ChVector<>(dragForceX, dragForceY, 0);
 //    qDebug() << "calc: damping force x: " << forceX;
 //    qDebug() << "calc: damping force y: " << forceY;
 //    qDebug() << "calc: damping force z: " << forceZ;
 //    qDebug() << "damping force elem: " << force.Length();
+    ChVector<> buoyancyForceVec = ChVector<>(0,0,buoyancyForceZ);
 
-    dampingForce->SetForce(force,false);
+    dampingForce->SetForce(dragForceVec,false);
     dampingForce->SetApplicationPoint(marker->GetAbsCoord().pos,false);
+
+    buoyancyForce->SetForce(buoyancyForceVec,false);
+    buoyancyForce->SetApplicationPoint(marker->GetAbsCoord().pos,false);
 }
 
 void MonopileElement::render(){
@@ -115,7 +133,7 @@ void MonopileElement::render(){
 //    qDebug() << " damping force x: " << force.x();
 //    qDebug() << " damping force y: " << force.y();
 //    qDebug() << " damping force z: " << force.z();
-    glPointSize(15);
+    glPointSize(10);
     glBegin(GL_POINTS);
         //red/light green/blue: marker
         glColor4d(1,0.5,1,1);

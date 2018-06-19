@@ -46,6 +46,9 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
     double crossSectionArea = 2*p.towerRadius*lengthOfElement;
     double volume = M_PI*pow(p.towerRadius,2)*lengthOfElement;
 
+    qDebug()<< "element volume" << volume;
+    qDebug()<< "lengthOfElement" << lengthOfElement;
+
     ChVector<> A;
     ChVector<> B;
     A = zStart;
@@ -63,7 +66,9 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
 }
 
 void Monopile::update(){
-
+    for(auto &element : monopileElements){
+        element.update();
+    }
 }
 
 void Monopile::render(){
