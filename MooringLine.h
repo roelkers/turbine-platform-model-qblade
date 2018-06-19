@@ -20,10 +20,8 @@ private:
   chrono::ChVector<> mooringFairlead;
   chrono::ChVector<> mooringAnchor;
 
-  std::shared_ptr<chrono::ChBody> fairleadBody;
   std::shared_ptr<chrono::fea::ChLinkPointFrame> constraintMooring;
   std::shared_ptr<chrono::fea::ChLinkPointFrame> constraintAnchor;
-  std::shared_ptr<chrono::ChLinkMateFix> constraintFairlead;
 
   double eModMooring;
   double mooringArea;

@@ -196,8 +196,8 @@ double PlatformModel::getRollAngle(){
     ChQuaternion<> rotBody = monopile->getBody()->GetRot();
 
     //rotate monopile back from setup position to get correct angle
-    ChQuaternion<> qSetup = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
-    ChQuaternion<> rotCorrected = rotBody*qSetup;
+//    ChQuaternion<> qSetup = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
+//    ChQuaternion<> rotCorrected = rotBody*qSetup;
     double angleNasa = rotBody.Q_to_NasaAngles().x()/M_PI*180;
     return angleNasa;
 }
@@ -207,8 +207,8 @@ double PlatformModel::getPitchAngle(){
     ChQuaternion<> rotBody = monopile->getBody()->GetRot();
 
     //rotate monopile back from setup position to get correct angle
-    ChQuaternion<> qSetup = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
-    ChQuaternion<> rotCorrected = rotBody*qSetup;
+//    ChQuaternion<> qSetup = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
+//    ChQuaternion<> rotCorrected = rotBody*qSetup;
     double angleNasa = rotBody.Q_to_NasaAngles().y()/M_PI*180;
     return angleNasa;
 }
@@ -217,9 +217,9 @@ double PlatformModel::getYawAngle(){
 
     ChQuaternion<> rotBody = monopile->getBody()->GetRot();
 
-    //rotate monopile back from setup position to get correct angle
-    ChQuaternion<> qSetup = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
-    ChQuaternion<> rotCorrected = rotBody*qSetup;
+      //rotate monopile back from setup position to get correct angle
+//    ChQuaternion<> qSetup = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
+//    ChQuaternion<> rotCorrected = rotBody*qSetup;
     double angleNasa = rotBody.Q_to_NasaAngles().z()/M_PI*180;
     return angleNasa;
 }

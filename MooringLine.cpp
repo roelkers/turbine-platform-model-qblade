@@ -21,11 +21,6 @@
 using namespace chrono;
 using namespace chrono::fea;
 
-std::shared_ptr<chrono::ChLinkMateFix> MooringLine::getConstraintFairlead() const
-{
-    return constraintFairlead;
-}
-
 std::shared_ptr<chrono::fea::ChLinkPointFrame> MooringLine::getConstraintMooring() const
 {
     return constraintMooring;
@@ -69,8 +64,8 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   //qDebug() << "length mooring check:" << length_test;
   //qDebug() << "distance start to csystem origin:" << distance_test;
 
-  //Coordinates of Fairlead in local frame of monopile, which is 90° turned around x axis
-  mooringFairlead = monopile->getBody()->TransformPointLocalToParent(ChVector<>(xStart,mooringPosFairleadZInBodyCoords, -yStart));
+  //Coordinates of Fairlead in local frame of monopile
+  mooringFairlead = monopile->getBody()->TransformPointLocalToParent(ChVector<>(xStart,yStart,mooringPosFairleadZInBodyCoords));
 
   qDebug() << "created mooring fairlead";
   //Coordinates of anchor in parent coordinates, y with negative sign because of rotation of monopile?
@@ -289,7 +284,7 @@ void MooringLine::render(){
 
         //Render react forces inside the link of fairlead
 
-        ChVector<> reactForceFairlead = constraintFairlead->Get_react_force();
+        ChVector<> reactForceFairlead = constraintMooring->Get_react_force();
         //qDebug() << "reactForceFairlead: " << reactForceFairlead.Length();
         double tension = reactForceFairlead.Length()/mooringArea;
         //qDebug() << "mooringTension: " << tension;
