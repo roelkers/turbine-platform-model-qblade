@@ -9,6 +9,8 @@
 #include "Monopile.h"
 #include "PlatformParams.h"
 
+class Monopile;
+
 class MonopileElement
 {
 private:
@@ -16,8 +18,9 @@ private:
     PlatformParams p;
     double length;
     double crossSectionArea;
+    double volume;
 
-    std::shared_ptr<Monopile> monopile;
+    std::shared_ptr<chrono::ChBody> body;
     chrono::ChVector<> A; //start of element
     chrono::ChVector<> B; //end of element
 
@@ -28,8 +31,9 @@ private:
 
     std::shared_ptr<chrono::ChLoadBodyForce> dampingForce;
     std::shared_ptr<chrono::ChLoadBodyForce> buoyancyForce;
+
 public:
-    MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<Monopile> monopile, double length, chrono::ChVector<> A, chrono::ChVector<> B, double crossSectionArea);
+    MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<chrono::ChBody> body, double length, chrono::ChVector<> A, chrono::ChVector<> B, double crossSectionArea, double volume);
     void update();
     void render();
 };

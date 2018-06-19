@@ -1,13 +1,10 @@
 
 #include "chrono/physics/ChSystem.h"
-#include "chrono/physics/ChBodyEasy.h"
-
 #include "chrono/physics/ChMarker.h"
 #include "chrono/physics/ChSystem.h"
-#include "chrono/physics/ChBodyEasy.h"
 #include "chrono/physics/ChBody.h"
 #include "chrono_fea/ChMesh.h"
-#include "chrono/physics/ChLinkMate.h"
+#include "chrono/physics/ChLoadContainer.h"
 
 #include "../GlobalFunctions.h"
 #include "../XLLT/QLLTSimulation.h"
@@ -17,6 +14,7 @@
 
 #include "PlatformParams.h"
 #include "Monopile.h"
+#include "MonopileElement.h"
 
 using namespace chrono;
 using namespace chrono::fea;
@@ -31,19 +29,20 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
 
     ChVector<> inertiaVector = ChVector<>(p.massMomentInertiaInRollAndPitch,p.massMomentInertiaInRollAndPitch,p.massMomentInertiaInYaw);
 
-    body->setMass(p.mass);
+    body->SetMass(p.mass);
     body->SetInertiaXX(inertiaVector);
 
-    system.Add(cylinder);
+    system.Add(body);
 
     qDebug() << "body mass: " << body->GetMass();
 
-//    ChVector<> yAxisMonopile = monopile->getBody()->GetFrame_COG_to_abs().GetRot().GetYaxis();
+    ChVector<> zAxisMonopile = body->GetFrame_COG_to_abs().GetRot().GetZaxis();
 
-    ChVector<> zStart = monopile->getBallast()->GetPos();
-    //ChVector<> yEnd = monopile->getNacelle()->GetPos();
+    ChVector<> vecEtoG = ChVector<>(0,0,p.distanceZfromEtoB+p.distanceZfromBtoG);
 
-    double lengthOfElement = p.towerHeight/p.dampingNrElements;
+    ChVector<> zStart = p.towerSetupPos - vecEtoG;
+
+    double lengthOfElement = p.towerHeight/p.monopileNrElements;
     double crossSectionArea = 2*p.towerRadius*lengthOfElement;
     double volume = M_PI*pow(p.towerRadius,2)*lengthOfElement;
 
@@ -55,7 +54,7 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
         //qDebug() << "adding damping element";
         B = A+lengthOfElement*zAxisMonopile;
 
-        monopileElement dampingElement(p,loadContainer,monopile,lengthOfElement,A,B,crossSectionArea,volume);
+        MonopileElement monopileElement(p,loadContainer,body,lengthOfElement,A,B,crossSectionArea,volume);
         monopileElements.push_back(monopileElement);
 
         A = B;
@@ -73,47 +72,35 @@ void Monopile::render(){
 
     //Draw viz vertices
     glBegin(GL_POINTS);
-        //blue: monopile
+        //blue: body
         glColor4d(0,0,1,1);
-        CVector monopilePos = CVecFromChVec(cylinder->GetPos());
+        CVector monopilePos = CVecFromChVec(body->GetPos());
         glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
-        //red/blue: ballast Body
-        glColor4d(1,0,1,1);
-        CVector ballastPos = CVecFromChVec(ballast->GetPos());
-        glVertex3d(ballastPos.x, ballastPos.y, ballastPos.z);
-        //light red/green: nacelle Body
-        glColor4d(0.5,1,0,1);
-        CVector nacellePos = CVecFromChVec(nacelle->GetPos());
-        glVertex3d(nacellePos.x, nacellePos.y, nacellePos.z); 
-        //light red/blue: gravity center
-        glColor4d(0,0.5,1,1);
-        CVector gravityCenterPos = CVecFromChVec(markerGravityCenter->GetAbsCoord().pos);
-        glVertex3d(gravityCenterPos.x,gravityCenterPos.y,gravityCenterPos.z);
     glEnd();
 
     glPointSize(0.1);
     glBegin(GL_LINES);
-        //Draw axis of tower
-        glColor4d(0,0,0,1);
-        glVertex3d(nacellePos.x,nacellePos.y,nacellePos.z);
-        glVertex3d(ballastPos.x,ballastPos.y,ballastPos.z);
         //Draw Coordinate system of monopile
-        ChCoordsys<> monopileCoord = cylinder->GetCoord();
+        ChCoordsys<> monopileCoord = body->GetCoord();
         //red: x-axis
         glColor4d(1,0,0,1);
         glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
-        CVector xAxisEnd = CVecFromChVec(cylinder->GetPos()+p.cSystemFactor*monopileCoord.rot.GetXaxis());
+        CVector xAxisEnd = CVecFromChVec(body->GetPos()+p.cSystemFactor*monopileCoord.rot.GetXaxis());
         glVertex3d(xAxisEnd.x,xAxisEnd.y,xAxisEnd.z);
         //green: y-axis
         glColor4d(0,1,0,1);
         glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
-        CVector yAxisEnd = CVecFromChVec(cylinder->GetPos()+p.cSystemFactor*monopileCoord.rot.GetYaxis());
+        CVector yAxisEnd = CVecFromChVec(body->GetPos()+p.cSystemFactor*monopileCoord.rot.GetYaxis());
         glVertex3d(yAxisEnd.x,yAxisEnd.y,yAxisEnd.z);
         //blue: z-axis
         glColor4d(0,0,1,1);
         glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
-        CVector zAxisEnd = CVecFromChVec(cylinder->GetPos()+p.cSystemFactor*monopileCoord.rot.GetZaxis());
+        CVector zAxisEnd = CVecFromChVec(body->GetPos()+p.cSystemFactor*monopileCoord.rot.GetZaxis());
         glVertex3d(zAxisEnd.x,zAxisEnd.y,zAxisEnd.z);
     glEnd();
+
+    for(auto &element : monopileElements){
+        element.render();
+    }
 }
 

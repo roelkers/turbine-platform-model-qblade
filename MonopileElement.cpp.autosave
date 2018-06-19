@@ -11,36 +11,37 @@
 using namespace chrono;
 using namespace chrono::fea;
 
-MonopileElement::MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<Monopile> monopile, double length, ChVector<> A, ChVector<> B, double crossSectionArea)
+MonopileElement::MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<chrono::ChBody> body, double length, ChVector<> A, ChVector<> B, double crossSectionArea, double volume)
     :p(p),
-     monopile(monopile),
-     A(monopile->getCylinder()->TransformPointParentToLocal(A)),
-     B(monopile->getCylinder()->TransformPointParentToLocal(B)),
+     body(body),
+     A(body->TransformPointParentToLocal(A)),
+     B(body->TransformPointParentToLocal(B)),
      AinAbsoluteFrame(A),
      BinAbsoluteFrame(B),
      length(length),
-     crossSectionArea(crossSectionArea)
+     crossSectionArea(crossSectionArea),
+     volume(volume)
 {
     //Set marker in center of element
     ChVector<> markerPosition = (A + B)/2;
 
     marker = std::make_shared<ChMarker>();
-    ChCoordsys<> markerCoordsys = ChCoordsys<>(ChVector<>(markerPosition),monopile->getCylinder()->GetRot());
-    marker->SetBody(monopile->getCylinder().get());
+    ChCoordsys<> markerCoordsys = ChCoordsys<>(ChVector<>(markerPosition),body->GetRot());
+    marker->SetBody(body.get());
     marker->Impose_Abs_Coord(markerCoordsys);
 
     //ChQuaternion<> qSetup = Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X);
     //marker->SetRot(qSetup);
 
     dampingForce = std::make_shared<ChLoadBodyForce> (
-       monopile->getCylinder(), //body
+       body, //body
        ChVector<>(0,0,0), //initialize
        false, //not a local_force
        marker->GetPos(), //apply force at marker position
        false //not a local point
     );
 
-    loadContainer->Add(dampingForce);
+    //loadContainer->Add(dampingForce);
 
 }
 
@@ -52,8 +53,8 @@ void MonopileElement::update(){
     double markerVelY = marker->GetAbsCoord_dt().pos.y();
     double markerVelZ = marker->GetAbsCoord_dt().pos.z();
 
-    AinAbsoluteFrame = monopile->getCylinder()->TransformPointLocalToParent(A);
-    BinAbsoluteFrame = monopile->getCylinder()->TransformPointLocalToParent(B);
+    AinAbsoluteFrame = body->TransformPointLocalToParent(A);
+    BinAbsoluteFrame = body->TransformPointLocalToParent(B);
 
     ChVector<> vecABabs = BinAbsoluteFrame - AinAbsoluteFrame;
     double projectedLengthXZ = sqrt(pow(vecABabs.x() ,2) + pow(vecABabs.z(),2));
@@ -109,12 +110,12 @@ void MonopileElement::render(){
     //    qDebug()<< "markerPos.z :" << markerPos.z;
 
     ChVector<> force = dampingForce->GetForce();
-    //ChVector<> force = monopile->getCylinder()->TransformDirectionLocalToParent(dampingForce->GetForce());
+    //ChVector<> force = body->TransformDirectionLocalToParent(dampingForce->GetForce());
 
 //    qDebug() << " damping force x: " << force.x();
 //    qDebug() << " damping force y: " << force.y();
 //    qDebug() << " damping force z: " << force.z();
-
+    glPointSize(10);
     glBegin(GL_POINTS);
         //red/light green/blue: marker
         glColor4d(1,0.5,1,1);
@@ -130,6 +131,10 @@ void MonopileElement::render(){
         glVertex3d(Bpos.x,Bpos.y,Bpos.z);
     glEnd();
     glBegin(GL_LINES);
+        //Draw element: black
+        glColor4d(0,0,0,1);
+        glVertex3d(Apos.x,Apos.y,Apos.z);
+        glVertex3d(Bpos.x,Bpos.y,Bpos.z);
 //        //Draw Coordinate system of marker
 //        ChCoordsys<> markerCoord = marker->GetAbsCoord();
 //        //red: x-axis
@@ -147,11 +152,11 @@ void MonopileElement::render(){
 //        glVertex3d(markerPos.x,markerPos.y,markerPos.z);
 //        CVector zAxisEnd = CVecFromChVec(markerCoord.pos+p.cSystemFactor*markerCoord.rot.GetZaxis());
 //        glVertex3d(zAxisEnd.x,zAxisEnd.y,zAxisEnd.z);
-        //light red/light green/ blue: damping force
-        glColor4d(1,0.5,0.5,1);
-        glVertex3d(markerPos.x,markerPos.y,markerPos.z);
-        CVector forceVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+p.cSystemFactor*force/1000);
-        glVertex3d(forceVecEnd.x,forceVecEnd.y,forceVecEnd.z);
+//        //light red/light green/ blue: damping force
+//        glColor4d(1,0.5,0.5,1);
+//        glVertex3d(markerPos.x,markerPos.y,markerPos.z);
+//        CVector forceVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+p.cSystemFactor*force/1000);
+//        glVertex3d(forceVecEnd.x,forceVecEnd.y,forceVecEnd.z);
     glEnd();
 }
 

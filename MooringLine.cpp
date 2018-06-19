@@ -70,7 +70,7 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   //qDebug() << "distance start to csystem origin:" << distance_test;
 
   //Coordinates of Fairlead in local frame of monopile, which is 90° turned around x axis
-  mooringFairlead = monopile->getCylinder()->TransformPointLocalToParent(ChVector<>(xStart,mooringPosFairleadZInBodyCoords, -yStart));
+  mooringFairlead = monopile->getBody()->TransformPointLocalToParent(ChVector<>(xStart,mooringPosFairleadZInBodyCoords, -yStart));
 
   qDebug() << "created mooring fairlead";
   //Coordinates of anchor in parent coordinates, y with negative sign because of rotation of monopile?
@@ -96,21 +96,21 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   //TRY here: mooringFairlead vector instead
   const ChVector<> pos = builder.GetLastBeamNodes().front()->GetPos();
 
-  //Create fairlead body
-  fairleadBody = std::make_shared<ChBody>();
-  fairleadBody->SetMass(p.fairleadMass);
-  system.Add(fairleadBody);
-  fairleadBody->SetPos(pos);
-  qDebug() << "fairlead mass: " << fairleadBody->GetMass();
+//  //Create fairlead body
+//  fairleadBody = std::make_shared<ChBody>();
+//  fairleadBody->SetMass(p.fairleadMass);
+//  system.Add(fairleadBody);
+//  fairleadBody->SetPos(pos);
+//  qDebug() << "fairlead mass: " << fairleadBody->GetMass();
 
-  //constraint fairlead to monopile
-  constraintFairlead = std::make_shared<ChLinkMateFix>();
-  constraintFairlead->Initialize(fairleadBody, monopile->getCylinder());
-  system.Add(constraintFairlead);
+//  //constraint fairlead to monopile
+//  constraintFairlead = std::make_shared<ChLinkMateFix>();
+//  constraintFairlead->Initialize(fairleadBody, monopile->getCylinder());
+//  system.Add(constraintFairlead);
 
-  //constraint mooring to fairlead
+  //constraint mooring to monopile
   constraintMooring = std::make_shared<ChLinkPointFrame>();
-  constraintMooring->Initialize(builder.GetLastBeamNodes().front(), fairleadBody);
+  constraintMooring->Initialize(builder.GetLastBeamNodes().front(), monopile->getBody());
 
   constraintMooring->SetAttachPositionInAbsoluteCoords(pos);
 

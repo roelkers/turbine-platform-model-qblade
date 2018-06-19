@@ -21,11 +21,10 @@ class PlatformModel{
   private:
     PlatformParams p;
     chrono::ChSystemNSC system;
-    std::shared_ptr<chrono::fea::ChNodeFEAxyzD> monopileInitNode;
     std::shared_ptr<chrono::fea::ChMesh> mesh = std::make_shared<chrono::fea::ChMesh>();
     std::shared_ptr<Monopile> monopile;
-    std::shared_ptr<Buoyancy> buoyancy;
-    std::shared_ptr<HydrodynamicDamping> hydrodynamicDamping;
+//    std::shared_ptr<Buoyancy> buoyancy;
+//    std::shared_ptr<HydrodynamicDamping> hydrodynamicDamping;
     std::vector<MooringLine> mooringLines;
 
 //    double dT = 0.005;
@@ -41,7 +40,7 @@ class PlatformModel{
     double getRollAngle();
     double getPitchAngle();
     double getYawAngle();
-    double getDragForceZBottom();
+    //double getDragForceZBottom();
 
 };
 

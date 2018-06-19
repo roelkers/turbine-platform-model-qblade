@@ -10,14 +10,20 @@ public:
 
   PlatformParams();
 
+  chrono::ChVector<> towerSetupPos;
+
   double mass;
-  double towerDensity;
+  double towerHeight;
+  double towerRadius;
   double massMomentInertiaInRollAndPitch;
   double massMomentInertiaInYaw;
   int monopileNrElements;
 
-  chrono::ChVector<> towerSetupPos;
-  chrono::ChVector<> towerSetupDir;
+  double distanceZfromItoN;
+  double distanceZfromWtoI;
+  double distanceZfromGtoW;
+  double distanceZfromBtoG;
+  double distanceZfromEtoB;
 
   chrono::ChQuaternion<> qRotationX;
   chrono::ChQuaternion<> qRotationY;

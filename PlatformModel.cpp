@@ -13,7 +13,6 @@
 #include "PlatformModel.h"
 #include "PlatformParams.h"
 #include "Monopile.h"
-#include "Buoyancy.h"
 #include "HydrodynamicDamping.h"
 
 using namespace chrono;
@@ -41,31 +40,25 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     // Change type of integrator:
     system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT_LINEARIZED);
 
-    //Create monopile
-    monopile = std::make_shared<Monopile>(system, p);
-
-    //translate to rest position, here cylinder is static
-    double restPosition = calculateRestPositionOfPlatform();
-    qDebug() << "restPosition: " << restPosition;
-    ChVector<> restPosVec = ChVector<>(0,0,restPosition);
-
-    //Define initial displacement
-    ChCoordsys<> initCoords =ChCoordsys<>(p.initPosVec,p.qRotationZ*p.qRotationY*p.qRotationX);
-    monopile->getCylinder()->Move(initCoords);
-
-    //set submerged status, to indicate the bottom is submerged
-    monopile->submergedPart = Monopile::BALLAST;
-
-    //Now that the cylinder is in the init position we can add the nacelle and ballast masses
-    monopile->addNacelleAndBallast(system);
-
     //Init Load container
     auto loadcontainer = std::make_shared<ChLoadContainer>();
     system.Add(loadcontainer);
 
-    buoyancy = std::make_shared<Buoyancy>(p, loadcontainer, monopile);
+    //Create monopile
+    monopile = std::make_shared<Monopile>(system, p, loadcontainer);
 
-    hydrodynamicDamping = std::make_shared<HydrodynamicDamping>(p, loadcontainer, monopile);
+    //translate to rest position, here cylinder is static
+//    double restPosition = calculateRestPositionOfPlatform();
+//    qDebug() << "restPosition: " << restPosition;
+//    ChVector<> restPosVec = ChVector<>(0,0,restPosition);
+
+    //Define initial displacement
+    ChCoordsys<> initCoords =ChCoordsys<>(p.initPosVec,p.qRotationZ*p.qRotationY*p.qRotationX);
+    monopile->getBody()->Move(initCoords);
+
+//    buoyancy = std::make_shared<Buoyancy>(p, loadcontainer, monopile);
+
+//    hydrodynamicDamping = std::make_shared<HydrodynamicDamping>(p, loadcontainer, monopile);
 
     //Add Gravity
     system.Set_G_acc(ChVector<>(0,0,-p.g));
@@ -115,31 +108,31 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 
 }
 
-double PlatformModel::calculateRestPositionOfPlatform(){
-    //To set the monopile at the rest position the gravity force and buoyancy force have to be equal at that point
-    double massTotal = monopile->getCylinder()->GetMass()+p.nacelleMass+p.ballastMass;
-    double areaMonopile = pow(p.towerRadius,2)*M_PI;
+//double PlatformModel::calculateRestPositionOfPlatform(){
+//    //To set the monopile at the rest position the gravity force and buoyancy force have to be equal at that point
+//    double massTotal = monopile->getBody()->GetMass()+p.nacelleMass+p.ballastMass;
+//    double areaMonopile = pow(p.towerRadius,2)*M_PI;
 
-    //we get the length by evaluating the force balance
-    double displacedLength = massTotal/(areaMonopile*p.rhoWater);
-    qDebug() << "displaced Length: " << displacedLength;
+//    //we get the length by evaluating the force balance
+//    double displacedLength = massTotal/(areaMonopile*p.rhoWater);
+//    qDebug() << "displaced Length: " << displacedLength;
 
-    double force_gravity = massTotal*p.g;
-    double force_buoyancy = displacedLength*areaMonopile*p.rhoWater*p.g;
+//    double force_gravity = massTotal*p.g;
+//    double force_buoyancy = displacedLength*areaMonopile*p.rhoWater*p.g;
 
-    qDebug() << "force_gravity: " << force_gravity;
-    qDebug() << "force_buoyancy: " << force_buoyancy;
+//    qDebug() << "force_gravity: " << force_gravity;
+//    qDebug() << "force_buoyancy: " << force_buoyancy;
 
-    return p.seaLevel+0.5*p.towerHeight-displacedLength;
-}
+//    return p.seaLevel+0.5*p.towerHeight-displacedLength;
+//}
 
 void PlatformModel::render(){
 
     glNewList(GLPLATFORM,GL_COMPILE);
     {
         monopile->render();
-        buoyancy->render();
-        hydrodynamicDamping->render();
+//        buoyancy->render();
+//        hydrodynamicDamping->render();
 
         for(auto & mooringLine : mooringLines) {
             mooringLine.render();
@@ -163,8 +156,8 @@ void PlatformModel::update(double endTime){
 
         //qDebug() << "updating buoyancy again";
         monopile->update();
-        buoyancy->update();
-        hydrodynamicDamping->update();
+//        buoyancy->update();
+//        hydrodynamicDamping->update();
 
         restore_oldstep = FALSE;
         left_time = endTime - system.GetChTime();
@@ -184,23 +177,23 @@ void PlatformModel::update(double endTime){
 
 double PlatformModel::getXPosition(){
 
-    return monopile->getCylinder()->GetPos().x();
+    return monopile->getBody()->GetPos().x();
 
 }
 
 double PlatformModel::getYPosition(){
 
-    return monopile->getCylinder()->GetPos().y();
+    return monopile->getBody()->GetPos().y();
 }
 
 double PlatformModel::getZPosition(){
 
-    return monopile->getCylinder()->GetPos().z();
+    return monopile->getBody()->GetPos().z();
 }
 
 double PlatformModel::getRollAngle(){
 
-    ChQuaternion<> rotBody = monopile->getCylinder()->GetRot();
+    ChQuaternion<> rotBody = monopile->getBody()->GetRot();
 
     //rotate monopile back from setup position to get correct angle
     ChQuaternion<> qSetup = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
@@ -211,7 +204,7 @@ double PlatformModel::getRollAngle(){
 
 double PlatformModel::getPitchAngle(){
 
-    ChQuaternion<> rotBody = monopile->getCylinder()->GetRot();
+    ChQuaternion<> rotBody = monopile->getBody()->GetRot();
 
     //rotate monopile back from setup position to get correct angle
     ChQuaternion<> qSetup = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
@@ -222,7 +215,7 @@ double PlatformModel::getPitchAngle(){
 
 double PlatformModel::getYawAngle(){
 
-    ChQuaternion<> rotBody = monopile->getCylinder()->GetRot();
+    ChQuaternion<> rotBody = monopile->getBody()->GetRot();
 
     //rotate monopile back from setup position to get correct angle
     ChQuaternion<> qSetup = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
@@ -231,9 +224,9 @@ double PlatformModel::getYawAngle(){
     return angleNasa;
 }
 
-double PlatformModel::getDragForceZBottom(){
+//double PlatformModel::getDragForceZBottom(){
 
-    ChVector<> force = hydrodynamicDamping->getDragForceZBottom()->GetForce();
-    return force.Length();
-}
+//    ChVector<> force = hydrodynamicDamping->getDragForceZBottom()->GetForce();
+//    return force.Length();
+//}
 

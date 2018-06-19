@@ -4,10 +4,12 @@
 #include "chrono/physics/ChSystem.h"
 #include "chrono/physics/ChBody.h"
 #include "chrono_fea/ChMesh.h"
+#include "chrono/physics/ChLoadContainer.h"
 
 #include "../XLLT/QLLTSimulation.h"
 
 #include "PlatformParams.h"
+#include "MonopileElement.h"
 
 class Monopile
 {
@@ -19,7 +21,7 @@ private:
     std::vector<MonopileElement> monopileElements;
 
 public:
-    Monopile(chrono::ChSystem& system, PlatformParams p);
+    Monopile(chrono::ChSystem& system, PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer);
 
     void render();
     void update();
