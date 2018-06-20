@@ -68,12 +68,14 @@ void MonopileElement::update(){
     ChVector<> vecABabs = BinAbsoluteFrame - AinAbsoluteFrame;
     double projectedLengthXZ = sqrt(pow(vecABabs.x() ,2) + pow(vecABabs.z(),2));
     double projectedLengthYZ = sqrt(pow(vecABabs.y() ,2) + pow(vecABabs.z(),2));
+    double projectedLengthXY = sqrt(pow(vecABabs.x() ,2) + pow(vecABabs.y(),2));
 
     //qDebug() << "projectedLengthXZ: " << projectedLengthXZ;
     //qDebug() << "projectedLengthYZ: " << projectedLengthYZ;
 
     double areaXZ = projectedLengthXZ*2*p.towerRadius;
     double areaYZ = projectedLengthYZ*2*p.towerRadius;
+    double areaXY = projectedLengthXY*2*p.towerRadius;
 
     double dragForceX;
     double dragForceY;
@@ -88,6 +90,7 @@ void MonopileElement::update(){
 
         dragForceX = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelX*areaYZ;
         dragForceY = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelY*areaXZ;
+        dragForceZ = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelZ*areaXY;
 
         buoyancyForceZ = p.rhoWater*volume*p.g;
 //        qDebug() << "element submerged";
@@ -103,7 +106,7 @@ void MonopileElement::update(){
     }
 
     //ChVector<> force = ChVector<>(forceX,forceY,0);
-    ChVector<> dragForceVec = ChVector<>(dragForceX, dragForceY, 0);
+    ChVector<> dragForceVec = ChVector<>(dragForceX, dragForceY, dragForceZ);
 //    qDebug() << "calc: damping force x: " << forceX;
 //    qDebug() << "calc: damping force y: " << forceY;
 //    qDebug() << "calc: damping force z: " << forceZ;
@@ -170,11 +173,11 @@ void MonopileElement::render(){
 //        glVertex3d(markerPos.x,markerPos.y,markerPos.z);
 //        CVector zAxisEnd = CVecFromChVec(markerCoord.pos+p.cSystemFactor*markerCoord.rot.GetZaxis());
 //        glVertex3d(zAxisEnd.x,zAxisEnd.y,zAxisEnd.z);
-//        //light red/light green/ blue: damping force
-//        glColor4d(1,0.5,0.5,1);
-//        glVertex3d(markerPos.x,markerPos.y,markerPos.z);
-//        CVector forceVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+p.cSystemFactor*force/1000);
-//        glVertex3d(forceVecEnd.x,forceVecEnd.y,forceVecEnd.z);
+        //light red/light green/ blue: damping force
+        glColor4d(1,0.5,0.5,1);
+        glVertex3d(markerPos.x,markerPos.y,markerPos.z);
+        CVector forceVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+p.cSystemFactor*force/1000);
+        glVertex3d(forceVecEnd.x,forceVecEnd.y,forceVecEnd.z);
     glEnd();
 }
 

@@ -72,7 +72,7 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     }
     //Angle on Monopile of mooring line
     //start at 45 degrees to have symmetric roll and pitch forces for x and y
-    double theta = 45;
+    double theta = 0;
     //Construct Mooring Lines
     for(int i = 0; i < p.mooringLineNr; i++){
         theta = theta + thetaInc;
@@ -93,18 +93,16 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 
     }
 
-    //system.DoStepDynamics(m_qlltSim->getTimeStep());
+    system.DoStepDynamics(m_qlltSim->getTimeStep());
 
-//    for(auto & mooringLine : mooringLines) {
+    for(auto & mooringLine : mooringLines) {
 
-//        //get reaction force from fairleads
-//        ChVector<> reactForce = mooringLine.getConstraintFairlead()->Get_react_force();
-//        qDebug() << "reactForce fairlead: " << reactForce.Length();
-//        reactForce = mooringLine.getConstraintMooring()->Get_react_force();
-//        qDebug() << "reactForce mooring: " << reactForce.Length();
+        //get reaction force from fairleads
+        ChVector<> reactForce = mooringLine.getConstraintMooring()->Get_react_force();
+        qDebug() << "reactForce mooring: " << reactForce.Length();
 
-//        mooringLine.getTensionForce();
-//    }
+        mooringLine.getTensionForce();
+    }
 
 }
 
@@ -196,8 +194,8 @@ double PlatformModel::getRollAngle(){
     ChQuaternion<> rotBody = monopile->getBody()->GetRot();
 
     //rotate monopile back from setup position to get correct angle
-    ChQuaternion<> qSetup = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
-    ChQuaternion<> rotCorrected = rotBody*qSetup;
+//    ChQuaternion<> qSetup = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
+//    ChQuaternion<> rotCorrected = rotBody*qSetup;
     double angleNasa = rotBody.Q_to_NasaAngles().x()/M_PI*180;
     return angleNasa;
 }
@@ -207,8 +205,8 @@ double PlatformModel::getPitchAngle(){
     ChQuaternion<> rotBody = monopile->getBody()->GetRot();
 
     //rotate monopile back from setup position to get correct angle
-    ChQuaternion<> qSetup = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
-    ChQuaternion<> rotCorrected = rotBody*qSetup;
+//    ChQuaternion<> qSetup = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
+//    ChQuaternion<> rotCorrected = rotBody*qSetup;
     double angleNasa = rotBody.Q_to_NasaAngles().y()/M_PI*180;
     return angleNasa;
 }
@@ -217,9 +215,9 @@ double PlatformModel::getYawAngle(){
 
     ChQuaternion<> rotBody = monopile->getBody()->GetRot();
 
-    //rotate monopile back from setup position to get correct angle
-    ChQuaternion<> qSetup = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
-    ChQuaternion<> rotCorrected = rotBody*qSetup;
+      //rotate monopile back from setup position to get correct angle
+//    ChQuaternion<> qSetup = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
+//    ChQuaternion<> rotCorrected = rotBody*qSetup;
     double angleNasa = rotBody.Q_to_NasaAngles().z()/M_PI*180;
     return angleNasa;
 }

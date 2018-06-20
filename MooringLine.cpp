@@ -34,9 +34,9 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   double mooringPosFairleadZInBodyCoords = -0.5*p.towerHeight+p.mooringPosFairleadZFromBottom;
   qDebug() << "mooringPosFairleadZInBodyCoords: " << mooringPosFairleadZInBodyCoords;
 
-  mooringLengthSetup = sqrt(pow(p.mooringPosAnchorZ-mooringPosFairleadZInBodyCoords,2) + pow(p.mooringAnchorRadiusFromFairlead,2));
+  double mooringLengthSetup = sqrt(pow(p.mooringPosAnchorZ-mooringPosFairleadZInBodyCoords,2) + pow(p.mooringAnchorRadiusFromFairlead,2));
 
-  std::shared_ptr<ChBeamSectionCable> sectionCable = std::make_shared<ChBeamSectionCable>();
+  sectionCable = std::make_shared<ChBeamSectionCable>();
   sectionCable->SetDiameter(p.mooringDiameter);
 
   mooringArea = M_PI*pow(p.mooringDiameter,2)/4;
@@ -120,37 +120,49 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   system.Add(constraintAnchor);
 
 }
-/*
+
 void MooringLine::setRestLengthAndPosition(){
 
-    //Calculate actual length after initialization, this is necessary because the mooring lines
-    //are not in the setup position (at the coordinate origin) anymore, so we need to account for that
-    ChVector<> mooringActual = mooringAnchor - mooringFairlead;
+    double mooringLengthSetup = 0;
 
-    double mooringLengthInit = mooringActual.Length();
-    qDebug()<< "mooringLengthInit: " << mooringLengthInit ;
+    std::vector<std::shared_ptr<ChElementCableANCF>> beamElements = builder.GetLastBeamElements();
+    //loop over elements to calculate the actual length of mooring line to determine necessary rest length for the pretension
+    for(auto &element : beamElements){
+        ChVector<> elementVector = element->GetNodeA()->GetPos()-element->GetNodeB()->GetPos();
+        double currentLength = elementVector.Length();
+        mooringLengthSetup = mooringLengthSetup + currentLength;
+    }
 
-    //thats the delta l for the setup position
+    qDebug() << "determined setup length of mooring: " << mooringLengthSetup;
+
+    double setupLengthOfElement = mooringLengthSetup/p.mooringNrElements;
+
     double deltal = p.mooringPreTensionForce/p.mooringStiffness;
     double frac = (mooringLengthSetup-deltal)/mooringLengthSetup;
 
-    //factor for accounting initial position length
-    double factorInit = mooringLengthSetup/mooringLengthInit;
+    restLengthOfElement = setupLengthOfElement*frac;
+
+    qDebug() << "setup length of cable element:" << setupLengthOfElement;
+    qDebug() << "frac : " << frac;
+    qDebug() << "mooring line length at rest:" << restLengthOfElement;
+
+    double massTotal = 0;
 
     //Iterate over beam elements to set the rest length and rest position
-    std::vector<std::shared_ptr<ChElementCableANCF>> beamElements = builder.GetLastBeamElements();
     for(auto &element : beamElements){
-
+        massTotal += element->GetMass();
         //qDebug() << "initial length"<<element->GetRestLength();
 
-        double length = element->GetRestLength();
-        element->SetRestLength(length*frac*factorInit);
+        element->SetRestLength(setupLengthOfElement*frac);
         CVector pos = CVecFromChVec(element->GetNodeA()->GetX0());
         CVector pos0 = CVecFromChVec(element->GetNodeB()->GetX0());
 
         CVector lvec = CVector(pos-pos0);
         lvec.Normalize();
-        lvec *= length*frac*factorInit;
+        lvec *= setupLengthOfElement*frac;
+
+        //element->GetNodeA()->SetD(-ChVecFromCVec(lvec));
+        //element->GetNodeB()->SetD(ChVecFromCVec(lvec));
 
         pos = pos0+lvec;
         ChVector<> chvec(pos.x,pos.y,pos.z);
@@ -158,8 +170,11 @@ void MooringLine::setRestLengthAndPosition(){
 
         //qDebug() << "new rest length"<<CVector(pos-pos0).VAbs() <<frac;
     }
+
+    qDebug() << "cable mass:" << massTotal;
+
 }
-*/
+
 
 void MooringLine::getTensionForce(){
 
@@ -184,7 +199,7 @@ void MooringLine::getTensionForce(){
     qDebug() << "total length of mooring line after init: " << totalLength;
 }
 
-
+/*
 void MooringLine::setRestLengthAndPosition(){
 
     //double mooringLengthSetup = sqrt(pow(p.mooringPosAnchorZ-p.mooringPosFairleadZInBodyCoords,2) + pow(p.mooringAnchorRadiusFromFairlead,2));
@@ -229,6 +244,7 @@ void MooringLine::setRestLengthAndPosition(){
 
     qDebug() << "cable mass:" << massTotal;
 }
+*/
 
 void MooringLine::render(){
     glPointSize(0.1);

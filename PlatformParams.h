@@ -22,8 +22,7 @@ public:
   double distanceZfromItoN;
   double distanceZfromWtoI;
   double distanceZfromGtoW;
-  double distanceZfromBtoG;
-  double distanceZfromEtoB;
+  double distanceZfromEtoG;
 
   chrono::ChQuaternion<> qRotationX;
   chrono::ChQuaternion<> qRotationY;

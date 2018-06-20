@@ -20,12 +20,13 @@ private:
   chrono::ChVector<> mooringFairlead;
   chrono::ChVector<> mooringAnchor;
 
+  std::shared_ptr<chrono::fea::ChBeamSectionCable> sectionCable;
+
   std::shared_ptr<chrono::fea::ChLinkPointFrame> constraintMooring;
   std::shared_ptr<chrono::fea::ChLinkPointFrame> constraintAnchor;
 
   double eModMooring;
   double mooringArea;
-  double mooringLengthSetup;
   double restLengthOfElement;
 
 public:
@@ -33,7 +34,6 @@ public:
   void render();
   void setRestLengthAndPosition();
   void getTensionForce();
-  std::shared_ptr<chrono::ChLinkMateFix> getConstraintFairlead() const;
   std::shared_ptr<chrono::fea::ChLinkPointFrame> getConstraintMooring() const;
 };
 

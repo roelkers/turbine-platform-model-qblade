@@ -38,7 +38,7 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
 
     ChVector<> zAxisMonopile = body->GetFrame_COG_to_abs().GetRot().GetZaxis();
 
-    ChVector<> vecEtoG = ChVector<>(0,0,p.distanceZfromEtoB+p.distanceZfromBtoG);
+    ChVector<> vecEtoG = ChVector<>(0,0,p.distanceZfromEtoG);
 
     ChVector<> zStart = p.towerSetupPos - vecEtoG;
 
