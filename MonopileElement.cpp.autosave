@@ -11,6 +11,11 @@
 using namespace chrono;
 using namespace chrono::fea;
 
+std::shared_ptr<chrono::ChMarker> MonopileElement::getMarker() const
+{
+    return marker;
+}
+
 MonopileElement::MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<chrono::ChBody> body, double length, ChVector<> A, ChVector<> B, double crossSectionArea, double volume)
     :p(p),
      body(body),
@@ -180,7 +185,7 @@ void MonopileElement::render(){
         //light blue: buoyancyforce
         glColor4d(0,0,0.5,1);
         glVertex3d(markerPos.x,markerPos.y,markerPos.z);
-        CVector buoyancyForceVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+p.cSystemFactor*buoyancyForce->GetForce()/10000);
+        CVector buoyancyForceVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+p.cSystemFactor*buoyancyForce->GetForce()/100000);
         glVertex3d(buoyancyForceVecEnd.x,buoyancyForceVecEnd.y,buoyancyForceVecEnd.z);
     glEnd();
 }

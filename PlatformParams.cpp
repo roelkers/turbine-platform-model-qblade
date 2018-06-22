@@ -8,14 +8,14 @@ PlatformParams::PlatformParams(){
   towerHeight = 200;
   towerRadius = 2.5;
   mass = 2.4764e6;
-  massMomentInertiaInRollAndPitch = 1.2622e10;//1.2622e10;
+  massMomentInertiaInRollAndPitch = 1.2622e11;//1.2622e10;
   massMomentInertiaInYaw = 2.7879e6;
   monopileNrElements = 30;
 
   distanceZfromItoN = 68;
   distanceZfromWtoI = 10.6;
   distanceZfromGtoW = 52.7;
-  distanceZfromEtoG = 62.6;//72.6;
+  distanceZfromEtoG = 72.6;
 
   //Initial rotation of the monopile
   qRotationX = Q_from_AngAxis(15 * CH_C_DEG_TO_RAD, VECT_X); //roll angle
@@ -27,7 +27,7 @@ PlatformParams::PlatformParams(){
   mooringLineNr = 3;
   mooringDiameter = 0.15;
   mooringStiffness = 84040;//8471133.49;
-  mooringPreTensionForce = 89000;//case 1:89000;
+  mooringPreTensionForce = 89000;//case 1:89000; //case2: 623000
   mooringRaleyghDamping = 0.3000;
   mooringNrElements = 3;
   mooringAnchorRadiusFromFairlead = 900;
@@ -38,6 +38,7 @@ PlatformParams::PlatformParams(){
   //source: https:en.wikipedia.org/wiki/Drag_coefficient
   dragCoefficientCylinderAxial = 0.82;
   //source: http://sv.20file.org/up1/916_0.pdf
+  //http://www-mdp.eng.cam.ac.uk/web/library/enginfo/aerothermal_dvd_only/aero/fprops/introvisc/node11.html
   dragCoefficientCylinderLateral = 1.20;
 
   seaLevel = 0; //sea level [m] in z-direction from origin

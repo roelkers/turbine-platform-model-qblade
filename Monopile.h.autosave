@@ -16,7 +16,7 @@ class Monopile
 
 private:
     PlatformParams p;
-
+    
     std::shared_ptr<chrono::ChBody> body;
     std::vector<MonopileElement> monopileElements;
     std::shared_ptr<chrono::ChLoadBodyForce> dragForceBottomZ;
