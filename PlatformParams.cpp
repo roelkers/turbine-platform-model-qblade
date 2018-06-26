@@ -48,4 +48,5 @@ PlatformParams::PlatformParams(){
   //visualisation params
   cSystemFactor = 50;
   dVectorFactor = 10;
+  forceLineFactor = 0.0001;
 }

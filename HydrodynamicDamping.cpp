@@ -25,14 +25,7 @@ HydrodynamicDamping::HydrodynamicDamping(PlatformParams p, std::shared_ptr<Monop
     :p(p),
     monopile(monopile)
 {
-//    //Init Z damping force
-//    dragForceZBottom = std::make_shared<ChLoadBodyForce> (
-//      monopile->getBallast(), //body
-//      ChVector<>(0,0,0), //initialize
-//      false, //local_force
-//      ChVector<>(0,0,0), //local Gravity Center
-//      true //local point
-//    );
+
 }
 
 void HydrodynamicDamping::update(){

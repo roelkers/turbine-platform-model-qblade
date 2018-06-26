@@ -11,6 +11,11 @@
 using namespace chrono;
 using namespace chrono::fea;
 
+std::shared_ptr<chrono::ChMarker> MonopileElement::getMarker() const
+{
+    return marker;
+}
+
 MonopileElement::MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<chrono::ChBody> body, double length, ChVector<> A, ChVector<> B, double crossSectionArea, double volume)
     :p(p),
      body(body),
@@ -36,7 +41,7 @@ MonopileElement::MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoa
     dampingForce = std::make_shared<ChLoadBodyForce> (
        body, //body
        ChVector<>(0,0,0), //initialize
-       false, //not a local_force
+       true, //local_force
        marker->GetPos(), //apply force at marker position
        false //not a local point
     );
@@ -65,30 +70,30 @@ void MonopileElement::update(){
     AinAbsoluteFrame = body->TransformPointLocalToParent(A);
     BinAbsoluteFrame = body->TransformPointLocalToParent(B);
 
-    ChVector<> vecABabs = BinAbsoluteFrame - AinAbsoluteFrame;
-    double projectedLengthXZ = sqrt(pow(vecABabs.x() ,2) + pow(vecABabs.z(),2));
-    double projectedLengthYZ = sqrt(pow(vecABabs.y() ,2) + pow(vecABabs.z(),2));
-    double projectedLengthXY = sqrt(pow(vecABabs.x() ,2) + pow(vecABabs.y(),2));
+//    ChVector<> vecABabs = BinAbsoluteFrame - AinAbsoluteFrame;
+//    double projectedLengthXZ = sqrt(pow(vecABabs.x() ,2) + pow(vecABabs.z(),2));
+//    double projectedLengthYZ = sqrt(pow(vecABabs.y() ,2) + pow(vecABabs.z(),2));
+//    double projectedLengthXY = sqrt(pow(vecABabs.x() ,2) + pow(vecABabs.y(),2));
 
     //qDebug() << "projectedLengthXZ: " << projectedLengthXZ;
     //qDebug() << "projectedLengthYZ: " << projectedLengthYZ;
 
-    double areaXZ = projectedLengthXZ*2*p.towerRadius;
-    double areaYZ = projectedLengthYZ*2*p.towerRadius;
-    double areaXY = projectedLengthXY*2*p.towerRadius;
+//    double areaXZ = projectedLengthXZ*2*p.towerRadius;
+//    double areaYZ = projectedLengthYZ*2*p.towerRadius;
+//    double areaXY = projectedLengthXY*2*p.towerRadius;
 
     double dragForceX;
     double dragForceY;
-    double dragForceZ;
+    //double dragForceZ;
 
     double buoyancyForceZ;
     //check if marker is submerged
 
     if(marker->GetAbsCoord().pos.z() < p.seaLevel){
 
-        dragForceX = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelX*areaYZ;
-        dragForceY = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelY*areaXZ;
-        dragForceZ = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelZ*areaXY;
+        dragForceX = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelX*crossSectionArea;
+        dragForceY = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelY*crossSectionArea;
+        //dragForceZ = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelZ*areaXY;
 
         buoyancyForceZ = p.rhoWater*volume*p.g;
 //        qDebug() << "element submerged";
@@ -98,20 +103,20 @@ void MonopileElement::update(){
     else{
         dragForceX = 0;
         dragForceY = 0;
-        dragForceZ = 0;
+        //dragForceZ = 0;
 
         buoyancyForceZ = 0;
     }
 
     //ChVector<> force = ChVector<>(forceX,forceY,0);
-    ChVector<> dragForceVec = ChVector<>(dragForceX, dragForceY, dragForceZ);
+    ChVector<> dragForceVec = ChVector<>(dragForceX, dragForceY, 0);
 //    qDebug() << "calc: damping force x: " << forceX;
 //    qDebug() << "calc: damping force y: " << forceY;
 //    qDebug() << "calc: damping force z: " << forceZ;
 //    qDebug() << "damping force elem: " << force.Length();
     ChVector<> buoyancyForceVec = ChVector<>(0,0,buoyancyForceZ);
 
-    dampingForce->SetForce(dragForceVec,false);
+    dampingForce->SetForce(dragForceVec,true);
     dampingForce->SetApplicationPoint(marker->GetAbsCoord().pos,false);
 
     buoyancyForce->SetForce(buoyancyForceVec,false);
@@ -175,13 +180,13 @@ void MonopileElement::render(){
         //light red/light green/ blue: damping force
         glColor4d(1,0.5,0.5,1);
         glVertex3d(markerPos.x,markerPos.y,markerPos.z);
-        CVector dragForceVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+p.cSystemFactor*dragForce/10000);
+        CVector dragForceVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+p.cSystemFactor*dragForce*p.forceLineFactor);
         glVertex3d(dragForceVecEnd.x,dragForceVecEnd.y,dragForceVecEnd.z);
         //light blue: buoyancyforce
-        glColor4d(0,0,0.5,1);
-        glVertex3d(markerPos.x,markerPos.y,markerPos.z);
-        CVector buoyancyForceVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+p.cSystemFactor*buoyancyForce->GetForce()/10000);
-        glVertex3d(buoyancyForceVecEnd.x,buoyancyForceVecEnd.y,buoyancyForceVecEnd.z);
+//        glColor4d(0,0,0.5,1);
+//        glVertex3d(markerPos.x,markerPos.y,markerPos.z);
+//        CVector buoyancyForceVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+p.cSystemFactor*buoyancyForce->GetForce()*p.forceLineFactor);
+//        glVertex3d(buoyancyForceVecEnd.x,buoyancyForceVecEnd.y,buoyancyForceVecEnd.z);
     glEnd();
 }
 

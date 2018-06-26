@@ -35,6 +35,9 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
     system.Add(body);
 
     qDebug() << "body mass: " << body->GetMass();
+    qDebug() << "body inertia xx" << body->GetInertiaXX().x();
+    qDebug() << "body inertia yy" << body->GetInertiaXX().y();
+    qDebug() << "body inertia zz" << body->GetInertiaXX().z();
 
     ChVector<> zAxisMonopile = body->GetFrame_COG_to_abs().GetRot().GetZaxis();
 
@@ -75,9 +78,20 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
 }
 
 void Monopile::update(){
+    //update elements
     for(auto &element : monopileElements){
         element.update();
     }
+
+    //calculate drag force on the bottom end of the cylinder
+    double markerVelZ = monopileElements.at(0).getMarker()->GetAbsCoord_dt().pos.z();
+
+    //simplification since the projection of the end of the zylinder on the xy plane will actually be an ellipsis
+    double bottomEndAreaXY = M_PI*pow(p.towerRadius,2);
+
+    double dragForceZValue = -0.5*p.rhoWater*p.dragCoefficientCylinderAxial*markerVelZ*bottomEndAreaXY;
+
+    dragForceZBottom->SetForce(ChVector<>(0,0,dragForceZValue),false);
 }
 
 void Monopile::render(){
@@ -111,8 +125,22 @@ void Monopile::render(){
         glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
         CVector zAxisEnd = CVecFromChVec(body->GetPos()+p.cSystemFactor*monopileCoord.rot.GetZaxis());
         glVertex3d(zAxisEnd.x,zAxisEnd.y,zAxisEnd.z);
+        //Draw Damping Force on the Bottom: light green
+        ChVector<> bottomPos = monopileElements.at(0).getMarker()->GetAbsCoord().pos;
+        CVector bottomPosCVec = CVecFromChVec(bottomPos);
+        glColor4d(0,0.5,0,1);
+        glVertex3d(bottomPosCVec.x,bottomPosCVec.y,bottomPosCVec.z);
+        CVector bottomForceEnd = CVecFromChVec(bottomPos+dragForceZBottom->GetForce()*p.forceLineFactor);
+        qDebug() << "bottom drag force z:" << dragForceZBottom->GetForce().Length();
+        qDebug() << "bottomForceEnd x " << bottomForceEnd.x;
+        qDebug() << "bottomForceEnd y " << bottomForceEnd.y;
+        qDebug() << "bottomForceEnd z " << bottomForceEnd.z;
+        qDebug() << "bottomPos x" << bottomPos.x();
+        qDebug() << "bottomPos y" << bottomPos.y();
+        qDebug() << "bottomPos z" << bottomPos.z();
+        glVertex3d(bottomForceEnd.x,bottomForceEnd.y,bottomForceEnd.z);
     glEnd();
-
+    //Render Elements
     for(auto &element : monopileElements){
         element.render();
     }

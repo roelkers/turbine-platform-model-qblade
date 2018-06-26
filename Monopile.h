@@ -19,7 +19,7 @@ private:
 
     std::shared_ptr<chrono::ChBody> body;
     std::vector<MonopileElement> monopileElements;
-    std::shared_ptr<chrono::ChLoadBodyForce> dragForceBottomZ;
+    std::shared_ptr<chrono::ChLoadBodyForce> dragForceZBottom;
 
 public:
     Monopile(chrono::ChSystem& system, PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer);

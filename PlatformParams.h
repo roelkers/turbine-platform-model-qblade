@@ -50,6 +50,7 @@ public:
   //visualisation params
   double cSystemFactor;
   double dVectorFactor;
+  double forceLineFactor;
 };
 
 #endif
