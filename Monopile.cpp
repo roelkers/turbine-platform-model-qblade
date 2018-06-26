@@ -70,7 +70,7 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
     dragForceZBottom = std::make_shared<ChLoadBodyForce> (
       body, //body
       ChVector<>(0,0,0), //initialize
-      false, //local_force
+      true, //local force
       monopileElements.at(0).getMarker()->GetPos(), //bottom marker position is attack point of force
       true //local point
     );
@@ -83,8 +83,12 @@ void Monopile::update(){
         element.update();
     }
 
+    ChVector<> markerVelocityAbs = monopileElements.at(0).getMarker()->GetAbsFrame().GetPos_dt();
+    ChVector<> markerVelocityDir = body->TransformDirectionParentToLocal(markerVelocityAbs);
     //calculate drag force on the bottom end of the cylinder
-    double markerVelZ = monopileElements.at(0).getMarker()->GetAbsCoord_dt().pos.z();
+    double markerVelZ = markerVelocityAbs.z();
+
+    qDebug() << "markerVelocity z" << markerVelZ;
 
     //simplification since the projection of the end of the zylinder on the xy plane will actually be an ellipsis
     double bottomEndAreaXY = M_PI*pow(p.towerRadius,2);
@@ -126,18 +130,20 @@ void Monopile::render(){
         CVector zAxisEnd = CVecFromChVec(body->GetPos()+p.cSystemFactor*monopileCoord.rot.GetZaxis());
         glVertex3d(zAxisEnd.x,zAxisEnd.y,zAxisEnd.z);
         //Draw Damping Force on the Bottom: light green
+        glLineWidth(7);
         ChVector<> bottomPos = monopileElements.at(0).getMarker()->GetAbsCoord().pos;
         CVector bottomPosCVec = CVecFromChVec(bottomPos);
-        glColor4d(0,0.5,0,1);
+        glColor4d(1,0.5,0,1);
         glVertex3d(bottomPosCVec.x,bottomPosCVec.y,bottomPosCVec.z);
-        CVector bottomForceEnd = CVecFromChVec(bottomPos+dragForceZBottom->GetForce()*p.forceLineFactor);
-        qDebug() << "bottom drag force z:" << dragForceZBottom->GetForce().Length();
-        qDebug() << "bottomForceEnd x " << bottomForceEnd.x;
-        qDebug() << "bottomForceEnd y " << bottomForceEnd.y;
-        qDebug() << "bottomForceEnd z " << bottomForceEnd.z;
-        qDebug() << "bottomPos x" << bottomPos.x();
-        qDebug() << "bottomPos y" << bottomPos.y();
-        qDebug() << "bottomPos z" << bottomPos.z();
+        ChVector<> dragForceZBottomAbs = body->TransformDirectionLocalToParent(dragForceZBottom->GetForce());
+        CVector bottomForceEnd = CVecFromChVec(bottomPos+dragForceZBottomAbs*p.forceLineFactor);
+//        qDebug() << "bottom drag force z:" << dragForceZBottom->GetForce().Length();
+//        qDebug() << "bottomForceEnd x " << bottomForceEnd.x;
+//        qDebug() << "bottomForceEnd y " << bottomForceEnd.y;
+//        qDebug() << "bottomForceEnd z " << bottomForceEnd.z;
+//        qDebug() << "bottomPos x" << bottomPos.x();
+//        qDebug() << "bottomPos y" << bottomPos.y();
+//        qDebug() << "bottomPos z" << bottomPos.z();
         glVertex3d(bottomForceEnd.x,bottomForceEnd.y,bottomForceEnd.z);
     glEnd();
     //Render Elements

@@ -15,7 +15,7 @@ PlatformParams::PlatformParams(){
   distanceZfromItoN = 68;
   distanceZfromWtoI = 10.6;
   distanceZfromGtoW = 52.7;
-  distanceZfromEtoG = 72.6;
+  distanceZfromEtoG = 52.6;
 
   //Initial rotation of the monopile
   qRotationX = Q_from_AngAxis(15 * CH_C_DEG_TO_RAD, VECT_X); //roll angle

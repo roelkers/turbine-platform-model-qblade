@@ -63,9 +63,16 @@ void MonopileElement::update(){
 
     marker->UpdateState();
 
-    double markerVelX = marker->GetAbsCoord_dt().pos.x();
-    double markerVelY = marker->GetAbsCoord_dt().pos.y();
-    double markerVelZ = marker->GetAbsCoord_dt().pos.z();
+    ChVector<> markerVelocityAbs = marker->GetAbsFrame().GetPos_dt();
+    ChVector<> markerVelocityDir = body->TransformDirectionParentToLocal(markerVelocityAbs);
+    //double markerVelocityLength = markerVelocityAbs.Length();
+
+    //qDebug() << "markerVelocityDir Length: "<< markerVelocityDir.Length();
+    //qDebug() << "markerVelocity " << markerVelocityLength;
+
+    double markerVelX = markerVelocityDir.x();
+    double markerVelY = markerVelocityDir.y();
+    double markerVelZ = markerVelocityDir.z();
 
     AinAbsoluteFrame = body->TransformPointLocalToParent(A);
     BinAbsoluteFrame = body->TransformPointLocalToParent(B);
@@ -133,7 +140,7 @@ void MonopileElement::render(){
     //    qDebug()<< "markerPos.y :" << markerPos.y;
     //    qDebug()<< "markerPos.z :" << markerPos.z;
 
-    ChVector<> dragForce = dampingForce->GetForce();
+    ChVector<> dragForce = body->TransformDirectionLocalToParent(dampingForce->GetForce());
     //ChVector<> force = body->TransformDirectionLocalToParent(dampingForce->GetForce());
 
 //    qDebug() << " damping force x: " << force.x();
