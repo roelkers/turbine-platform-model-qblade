@@ -54,8 +54,8 @@ MonopileElement::MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoa
        false //not a local point
     );
 
-    //loadContainer->Add(dampingForce);
-    //loadContainer->Add(buoyancyForce);
+    loadContainer->Add(dampingForce);
+    loadContainer->Add(buoyancyForce);
 
 }
 
