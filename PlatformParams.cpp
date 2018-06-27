@@ -18,13 +18,15 @@ PlatformParams::PlatformParams(){
   distanceZfromEtoG = 52.6;
 
   //Initial rotation of the monopile
-  qRotationX = Q_from_AngAxis(15 * CH_C_DEG_TO_RAD, VECT_X); //roll angle
-  qRotationY= Q_from_AngAxis(15 * CH_C_DEG_TO_RAD, VECT_Y); //pitch angle
+  qRotationX = Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_X); //roll angle
+  qRotationY= Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_Y); //pitch angle
   qRotationZ= Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_Z); //yaw angle
   //Translate to initial Position
-  initPosVec = ChVector<>(0,0,-12.9);
+  initPosVec = ChVector<>(0,0,-200);
+  initVelVec = ChVector<>(0,0,0);
+  initAngVelVec = ChVector<>(0,1,0);
 
-  mooringLineNr = 3;
+  mooringLineNr = 0;
   mooringDiameter = 0.15;
   mooringStiffness = 84040;//8471133.49;
   mooringPreTensionForce = 89000;//case 1:89000; //case2: 623000

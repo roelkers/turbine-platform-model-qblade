@@ -92,10 +92,16 @@ void Monopile::update(){
 
     //simplification since the projection of the end of the zylinder on the xy plane will actually be an ellipsis
     double bottomEndAreaXY = M_PI*pow(p.towerRadius,2);
-
-    double dragForceZValue = -0.5*p.rhoWater*p.dragCoefficientCylinderAxial*markerVelZ*bottomEndAreaXY;
-
+    double dragForceZValue = 0;
+    if(markerVelZ < 0){
+        dragForceZValue = -0.5*p.rhoWater*p.dragCoefficientCylinderAxial*markerVelZ*bottomEndAreaXY;
+    }
+    else{
+        dragForceZValue = 0;
+    }
+    //only apply damping force for a downwards motion of the platform
     dragForceZBottom->SetForce(ChVector<>(0,0,dragForceZValue),false);
+
 }
 
 void Monopile::render(){

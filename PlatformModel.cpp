@@ -13,7 +13,6 @@
 #include "PlatformModel.h"
 #include "PlatformParams.h"
 #include "Monopile.h"
-#include "HydrodynamicDamping.h"
 
 using namespace chrono;
 using namespace chrono::fea;
@@ -56,14 +55,20 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     ChCoordsys<> initCoords =ChCoordsys<>(p.initPosVec,p.qRotationZ*p.qRotationY*p.qRotationX);
     monopile->getBody()->Move(initCoords);
 
+    //set initial velocity
+    monopile->getBody()->SetPos_dt(p.initVelVec);
+
+    //set angular velocity
+    monopile->getBody()->SetWvel_par(p.initAngVelVec);
+
 //    buoyancy = std::make_shared<Buoyancy>(p, loadcontainer, monopile);
 
 //    hydrodynamicDamping = std::make_shared<HydrodynamicDamping>(p, loadcontainer, monopile);
 
     //Add Gravity
-    system.Set_G_acc(ChVector<>(0,0,-p.g));
+    //system.Set_G_acc(ChVector<>(0,0,-p.g));
 
-    //system.Set_G_acc(ChVector<>(0,0,0));
+    system.Set_G_acc(ChVector<>(0,0,0));
 
     //Angular increment of Mooring Line on Monopile
     double thetaInc;

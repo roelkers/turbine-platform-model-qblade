@@ -28,6 +28,8 @@ public:
   chrono::ChQuaternion<> qRotationY;
   chrono::ChQuaternion<> qRotationZ;
   chrono::ChVector<> initPosVec;
+  chrono::ChVector<> initVelVec;
+  chrono::ChVector<> initAngVelVec;
 
   int mooringLineNr;
   double mooringDiameter;

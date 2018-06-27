@@ -10,9 +10,7 @@
 
 #include "Monopile.h"
 #include "MooringLine.h"
-#include "Buoyancy.h"
 #include "PlatformParams.h"
-#include "HydrodynamicDamping.h"
 
 class HydrodynamicDamping;
 
