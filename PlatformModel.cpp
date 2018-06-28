@@ -66,9 +66,9 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 //    hydrodynamicDamping = std::make_shared<HydrodynamicDamping>(p, loadcontainer, monopile);
 
     //Add Gravity
-    //system.Set_G_acc(ChVector<>(0,0,-p.g));
+    system.Set_G_acc(ChVector<>(0,0,-p.g));
 
-    system.Set_G_acc(ChVector<>(0,0,0));
+    //system.Set_G_acc(ChVector<>(0,0,0));
 
     //Angular increment of Mooring Line on Monopile
     double thetaInc;

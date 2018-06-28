@@ -27,9 +27,9 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
     //set cylinder to setup position
     body->SetPos(p.towerSetupPos);
 
-    ChVector<> inertiaVector = ChVector<>(p.massMomentInertiaInRollAndPitch,p.massMomentInertiaInRollAndPitch,p.massMomentInertiaInYaw);
+    ChVector<> inertiaVector = ChVector<>(p.platformMassMomentInertiaInRollAndPitch,p.platoformMassMomentInertiaInRollAndPitch,p.platformMassMomentInertiaInYaw);
 
-    body->SetMass(p.mass);
+    body->SetMass(p.platformMass);
     body->SetInertiaXX(inertiaVector);
 
     system.Add(body);
@@ -41,13 +41,13 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
 
     ChVector<> zAxisMonopile = body->GetFrame_COG_to_abs().GetRot().GetZaxis();
 
-    ChVector<> vecEtoG = ChVector<>(0,0,p.distanceZfromEtoG);
+    ChVector<> vecEtoG = ChVector<>(0,0,p.distanceEtoG);
 
     ChVector<> zStart = p.towerSetupPos - vecEtoG;
 
-    double lengthOfElement = p.towerHeight/p.monopileNrElements;
-    double crossSectionArea = 2*p.towerRadius*lengthOfElement;
-    double volume = M_PI*pow(p.towerRadius,2)*lengthOfElement;
+    double lengthOfElement = p.towerHeight/p.monopileNrElementsBelowTaper;
+    double crossSectionArea = 2*p.platformRadiusBelowTaper*lengthOfElement;
+    double volume = M_PI*pow(p.platformRadiusBelowTaper,2)*lengthOfElement;
 
     qDebug()<< "element volume" << volume;
     qDebug()<< "lengthOfElement" << lengthOfElement;
@@ -56,7 +56,7 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
     ChVector<> B;
     A = zStart;
 
-    for(int i = 0; i<p.monopileNrElements; i++){
+    for(int i = 0; i<p.monopileNrElementsBelowTaper; i++){
         //qDebug() << "adding damping element";
         B = A+lengthOfElement*zAxisMonopile;
 
@@ -101,7 +101,7 @@ void Monopile::update(){
     }
     //only apply damping force for a downwards motion of the platform
     dragForceZBottom->SetForce(ChVector<>(0,0,dragForceZValue),false);
-
+    //qDebug() << "dragForceZBottom " << dragForceZBottom->GetForce().Length();
 }
 
 void Monopile::render(){
@@ -139,6 +139,7 @@ void Monopile::render(){
         glLineWidth(7);
         ChVector<> bottomPos = monopileElements.at(0).getMarker()->GetAbsCoord().pos;
         CVector bottomPosCVec = CVecFromChVec(bottomPos);
+        qDebug() << dragForceZBottom->GetForce().Length();
         glColor4d(1,0.5,0,1);
         glVertex3d(bottomPosCVec.x,bottomPosCVec.y,bottomPosCVec.z);
         ChVector<> dragForceZBottomAbs = body->TransformDirectionLocalToParent(dragForceZBottom->GetForce());

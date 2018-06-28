@@ -54,8 +54,8 @@ MonopileElement::MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoa
        false //not a local point
     );
 
-    //loadContainer->Add(dampingForce);
-    //loadContainer->Add(buoyancyForce);
+    loadContainer->Add(dampingForce);
+    loadContainer->Add(buoyancyForce);
 
 }
 
@@ -103,9 +103,6 @@ void MonopileElement::update(){
         //dragForceZ = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelZ*areaXY;
 
         buoyancyForceZ = p.rhoWater*volume*p.g;
-//        qDebug() << "element submerged";
-//        qDebug() << "-0.5*p.rhoWater*p.dragCoefficientCylinderLateral" << -0.5*p.rhoWater*p.dragCoefficientCylinderLateral;
-//        qDebug() << "markerVelY*crossSectionArea" << markerVelY*crossSectionArea;
     }
     else{
         dragForceX = 0;
@@ -115,13 +112,11 @@ void MonopileElement::update(){
         buoyancyForceZ = 0;
     }
 
-    //ChVector<> force = ChVector<>(forceX,forceY,0);
     ChVector<> dragForceVec = ChVector<>(dragForceX, dragForceY, 0);
-//    qDebug() << "calc: damping force x: " << forceX;
-//    qDebug() << "calc: damping force y: " << forceY;
-//    qDebug() << "calc: damping force z: " << forceZ;
-//    qDebug() << "damping force elem: " << force.Length();
+
     ChVector<> buoyancyForceVec = ChVector<>(0,0,buoyancyForceZ);
+
+    //qDebug()<< "dragForceVec" << dragForceVec.Length();
 
     dampingForce->SetForce(dragForceVec,true);
     dampingForce->SetApplicationPoint(marker->GetAbsCoord().pos,false);
@@ -187,7 +182,7 @@ void MonopileElement::render(){
         //light red/light green/ blue: damping force
         glColor4d(1,0.5,0.5,1);
         glVertex3d(markerPos.x,markerPos.y,markerPos.z);
-        CVector dragForceVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+p.cSystemFactor*dragForce*p.forceLineFactor);
+        CVector dragForceVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+dragForce*p.forceLineFactor);
         glVertex3d(dragForceVecEnd.x,dragForceVecEnd.y,dragForceVecEnd.z);
         //light blue: buoyancyforce
 //        glColor4d(0,0,0.5,1);
