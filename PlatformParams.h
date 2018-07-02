@@ -10,19 +10,22 @@ public:
 
   PlatformParams();
 
+  double distanceEtoG;
   chrono::ChVector<> towerSetupPos;
 
-  double mass;
-  double towerHeight;
-  double towerRadius;
-  double massMomentInertiaInRollAndPitch;
-  double massMomentInertiaInYaw;
-  int monopileNrElements;
+  double platformMass;
+  double platformHeight;
+  double platformRadius;
+  double platformMassMomentInertiaInRollAndPitch;
+  double platformMassMomentInertiaInYaw;
 
-  double distanceZfromItoN;
-  double distanceZfromWtoI;
-  double distanceZfromGtoW;
-  double distanceZfromEtoG;
+  int monopileNrElementsBelowTaper;
+  double platformLengthBelowTaper;
+  double platformLengthTaper;
+  double platformLengthAboveTaper;
+
+  double platformRadiusBelowTaper;
+  double platformRadiusAboveTaper;
 
   chrono::ChQuaternion<> qRotationX;
   chrono::ChQuaternion<> qRotationY;
@@ -30,6 +33,12 @@ public:
   chrono::ChVector<> initPosVec;
   chrono::ChVector<> initVelVec;
   chrono::ChVector<> initAngVelVec;
+
+  int nrElementsTower;
+  double towerMass;
+  double nacelleMass;
+  double hubMass;
+  double bladeMass;
 
   int mooringLineNr;
   double mooringDiameter;

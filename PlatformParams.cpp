@@ -4,27 +4,42 @@ using namespace chrono;
 
 PlatformParams::PlatformParams(){
 
-  towerSetupPos = ChVector<>(0,0,0);
-  towerHeight = 200;
-  towerRadius = 2.5;
-  mass = 2.4764e6;
-  massMomentInertiaInRollAndPitch = 1.2622e11;//1.2622e10;
-  massMomentInertiaInYaw = 2.7879e6;
-  monopileNrElements = 30;
+  distanceEtoG = -89.1955;
 
-  distanceZfromItoN = 68;
-  distanceZfromWtoI = 10.6;
-  distanceZfromGtoW = 52.7;
-  distanceZfromEtoG = 52.6;
+  platformSetupPos = ChVector<>(0,0,distanceGtoW);
+  platformHeight = 130;
+  platformMass = 7466330;
+  platformMassMomentInertiaInRollAndPitch = 4229223000;//1.2622e10;
+  platformMassMomentInertiaInYaw = 164230000;
+  platformNrElementsBelowTaper = 30;
+
+  platformLengthBelowTaper = 108;
+  platformLengthTaper = 8;
+  platformLengthAboveTaper = 14;
+
+  platformRadiusBelowTaper = 4.7;
+  platformRadiusAboveTaper = 2.75;
 
   //Initial rotation of the monopile
   qRotationX = Q_from_AngAxis(15 * CH_C_DEG_TO_RAD, VECT_X); //roll angle
   qRotationY= Q_from_AngAxis(15 * CH_C_DEG_TO_RAD, VECT_Y); //pitch angle
   qRotationZ= Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_Z); //yaw angle
   //Translate to initial Position
+<<<<<<< HEAD
   initPosVec = ChVector<>(0,0,-20);
   initVelVec = ChVector<>(0,0,0);
   initAngVelVec = ChVector<>(0,0,0);
+=======
+  initPosVec = ChVector<>(0,0,0);
+  initVelVec = ChVector<>(0,0,0);
+  initAngVelVec = ChVector<>(0,0,0);
+
+  nrElementsTower = 10;
+  towerMass = 249718;
+  nacelleMass = 240000;
+  hubMass = 56780;
+  bladeMass = 17740;
+>>>>>>> angularVelocityCase
 
   mooringLineNr = 0;
   mooringDiameter = 0.15;
@@ -34,7 +49,7 @@ PlatformParams::PlatformParams(){
   mooringNrElements = 3;
   mooringAnchorRadiusFromFairlead = 900;
   mooringPosFairleadZFromBottom = 80;
-  mooringPosAnchorZ = -300;
+  mooringPosAnchorZ = -320;
   mooringDensity = 2431;
 
   //source: https:en.wikipedia.org/wiki/Drag_coefficient
@@ -50,5 +65,5 @@ PlatformParams::PlatformParams(){
   //visualisation params
   cSystemFactor = 50;
   dVectorFactor = 10;
-  forceLineFactor = 0.0001;
+  forceLineFactor = 0.005;
 }
