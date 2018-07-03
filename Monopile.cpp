@@ -207,15 +207,15 @@ void Monopile::render(){
         glColor4d(0,0,1,1);
         CVector monopilePos = CVecFromChVec(platformBody->GetPos());
         glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
-        //strong red, green: nacelle
+        //strong red, green: nacelle //sky blue
         glColor4d(0.75,1,0,1);
         CVector nacellePos = CVecFromChVec(nacelleBody->GetPos());
         glVertex3d(nacellePos.x,nacellePos.y,nacellePos.z);
-        //strong green, blue: hub
+        //strong green, blue: hub //olive
         glColor4d(0,0.75,1,1);
         CVector hubPos = CVecFromChVec(hubBody->GetPos());
         glVertex3d(hubPos.x,hubPos.y,hubPos.z);
-        //strong red, blue: tower
+        //strong red, blue: tower //dark pink
         glColor4d(0.75,0,1,1);
         CVector towerPos = CVecFromChVec(towerBody->GetPos());
         glVertex3d(towerPos.x,towerPos.y,towerPos.z);

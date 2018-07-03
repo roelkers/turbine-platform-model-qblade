@@ -29,12 +29,16 @@ std::shared_ptr<chrono::fea::ChLinkPointFrame> MooringLine::getConstraintMooring
 MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, PlatformParams p, double theta, std::shared_ptr<Monopile> monopile)
 :p(p)
 {
-  //position of fairlead in body coordinate system (which here coincides with the absolute coordinate system).
-  //the fairlead coordinates in the paper are given as coordinates from the bottom of the monopile
-  double mooringPosFairleadZInBodyCoords = -0.5*p.towerHeight+p.mooringPosFairleadZFromBottom;
-  qDebug() << "mooringPosFairleadZInBodyCoords: " << mooringPosFairleadZInBodyCoords;
+//  //position of fairlead in body coordinate system (which here coincides with the absolute coordinate system).
+//  //the fairlead coordinates in the paper are given as coordinates from the bottom of the monopile
+//  ChVector<> vecGtoE = ChVector<>(0,0,p.distanceGtoE);
+//  ChVector<> vecEtoF = ChVector<>(0,0,p.mooringPosFairleadZFromBottom);
 
-  double mooringLengthSetup = sqrt(pow(p.mooringPosAnchorZ-mooringPosFairleadZInBodyCoords,2) + pow(p.mooringAnchorRadiusFromFairlead,2));
+//  ChVector<>InBodyCoords = monopile->getBody()->TransformPointLocalToParent(vecGtoE + vecEtoF);
+
+//  qDebug() << "mooringPosFairleadZInBodyCoords: " << mooringPosFairleadZInBodyCoords;
+
+  //double mooringLengthSetup = sqrt(pow(p.mooringPosAnchorZ-mooringPosFairleadZInBodyCoords,2) + pow(p.mooringAnchorRadiusFromFairlead,2));
 
   sectionCable = std::make_shared<ChBeamSectionCable>();
   sectionCable->SetDiameter(p.mooringDiameter);
@@ -43,7 +47,7 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
 
   sectionCable->SetArea(mooringArea);
 
-  eModMooring = p.mooringStiffness*mooringLengthSetup/mooringArea;
+  eModMooring = p.mooringStiffness*p.mooringUnstretchedLength/mooringArea;
 
   sectionCable->SetYoungModulus(eModMooring);
   sectionCable->SetBeamRaleyghDamping(p.mooringRaleyghDamping);
@@ -51,21 +55,14 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   sectionCable->SetDensity(p.mooringDensity);
 
   //Starting Position of Mooring Line on the Monopile
-  double xStart = p.platformRadiusBelowTaper*sin(theta/180*M_PI);
-  double yStart = p.platformRadiusBelowTaper*cos(theta/180*M_PI);
+  double xStart = p.mooringRadiusToFairleadsFromCenter*sin(theta/180*M_PI);
+  double yStart = p.mooringRadiusToFairleadsFromCenter*cos(theta/180*M_PI);
   //End Position of Mooring Line
-  double xEnd = (p.platformRadiusBelowTaper+p.mooringAnchorRadiusFromFairlead)*sin(theta/180*M_PI);
-  double yEnd = (p.platformRadiusBelowTaper+p.mooringAnchorRadiusFromFairlead)*cos(theta/180*M_PI);
-
-  //double length_test = sqrt(pow((xEnd-xStart),2) + pow((yEnd-yStart),2) + pow((p.mooringPosAnchorZ-p.mooringPosFairleadZInBodyCoords),2));
-  //double distance_test = sqrt(pow(xStart,2)+pow(yStart,2));
-
-  qDebug() << "mooringLengthSetup :" << mooringLengthSetup;
-  //qDebug() << "length mooring check:" << length_test;
-  //qDebug() << "distance start to csystem origin:" << distance_test;
+  double xEnd = (p.mooringRadiusToFairleadsFromCenter+p.mooringAnchorRadiusFromFairlead)*sin(theta/180*M_PI);
+  double yEnd = (p.mooringRadiusToFairleadsFromCenter+p.mooringAnchorRadiusFromFairlead)*cos(theta/180*M_PI);
 
   //Coordinates of Fairlead in local frame of monopile
-  mooringFairlead = monopile->getBody()->TransformPointLocalToParent(ChVector<>(xStart,yStart,mooringPosFairleadZInBodyCoords));
+  mooringFairlead = monopile->getBody()->TransformPointLocalToParent(ChVector<>(xStart,yStart,p.distanceGtoE+p.mooringPosFairleadZFromBottom));
 
   qDebug() << "created mooring fairlead";
   //Coordinates of anchor in parent coordinates, y with negative sign because of rotation of monopile?
@@ -137,8 +134,7 @@ void MooringLine::setRestLengthAndPosition(){
 
     double setupLengthOfElement = mooringLengthSetup/p.mooringNrElements;
 
-    double deltal = p.mooringPreTensionForce/p.mooringStiffness;
-    double frac = (mooringLengthSetup-deltal)/mooringLengthSetup;
+    double frac = p.mooringUnstretchedLength/mooringLengthSetup;
 
     restLengthOfElement = setupLengthOfElement*frac;
 
