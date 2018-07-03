@@ -17,7 +17,11 @@ class Monopile
 private:
     PlatformParams p;
 
-    std::shared_ptr<chrono::ChBody> body;
+    std::shared_ptr<chrono::ChBody> platformBody;
+    std::shared_ptr<chrono::ChBody> nacelleBody;
+    std::shared_ptr<chrono::ChBody> hubBody;
+    std::shared_ptr<chrono::ChBody> towerBody;
+
     std::vector<MonopileElement> monopileElements;
     std::shared_ptr<chrono::ChLoadBodyForce> dragForceZBottom;
 
@@ -26,8 +30,9 @@ public:
 
     void render();
     void update();
+    void addMasses(chrono::ChSystem &system);
 
-    std::shared_ptr<chrono::ChBody> getBody(){return body;}
+    std::shared_ptr<chrono::ChBody> getBody(){return platformBody;}
 
 };
 

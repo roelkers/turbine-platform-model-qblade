@@ -61,14 +61,13 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     //set angular velocity
     monopile->getBody()->SetWvel_par(p.initAngVelVec);
 
-//    buoyancy = std::make_shared<Buoyancy>(p, loadcontainer, monopile);
-
-//    hydrodynamicDamping = std::make_shared<HydrodynamicDamping>(p, loadcontainer, monopile);
-
     //Add Gravity
     system.Set_G_acc(ChVector<>(0,0,-p.g));
 
     //system.Set_G_acc(ChVector<>(0,0,0));
+
+    //Add nacelle, tower and hub mass
+    monopile->addMasses(system);
 
     //Angular increment of Mooring Line on Monopile
     double thetaInc;

@@ -51,11 +51,11 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   sectionCable->SetDensity(p.mooringDensity);
 
   //Starting Position of Mooring Line on the Monopile
-  double xStart = p.towerRadius*sin(theta/180*M_PI);
-  double yStart = p.towerRadius*cos(theta/180*M_PI);
+  double xStart = p.platformRadiusBelowTaper*sin(theta/180*M_PI);
+  double yStart = p.platformRadiusBelowTaper*cos(theta/180*M_PI);
   //End Position of Mooring Line
-  double xEnd = (p.towerRadius+p.mooringAnchorRadiusFromFairlead)*sin(theta/180*M_PI);
-  double yEnd = (p.towerRadius+p.mooringAnchorRadiusFromFairlead)*cos(theta/180*M_PI);
+  double xEnd = (p.platformRadiusBelowTaper+p.mooringAnchorRadiusFromFairlead)*sin(theta/180*M_PI);
+  double yEnd = (p.platformRadiusBelowTaper+p.mooringAnchorRadiusFromFairlead)*cos(theta/180*M_PI);
 
   //double length_test = sqrt(pow((xEnd-xStart),2) + pow((yEnd-yStart),2) + pow((p.mooringPosAnchorZ-p.mooringPosFairleadZInBodyCoords),2));
   //double distance_test = sqrt(pow(xStart,2)+pow(yStart,2));
