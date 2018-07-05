@@ -47,17 +47,21 @@ public:
   double hubMass;
   double hubDistanceUpstream;
   double hubDistanceToYawBearing;
+  double hubDiameter;
+
+  double bladeNr = 3;
   double bladeMass;
+  double bladeCOGDistanceFromRoot;
 
   int mooringLineNr;
   double mooringDiameter;
-  double mooringStiffness;
+  double mooringStiffnessTimesLength;
   double mooringRaleyghDamping;
   double mooringUnstretchedLength;
   int mooringNrElements;
   double mooringRadiusToFairleadsFromCenter;
   double mooringLineWeightInWaterPerMeter;
-  double mooringAnchorRadiusFromFairlead;
+  double mooringRadiusToAnchorFromCenter;
   double mooringPosFairleadZFromBottom;
   double mooringPosAnchorZ;
   double mooringDensity;

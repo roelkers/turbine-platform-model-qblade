@@ -47,7 +47,7 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
 
   sectionCable->SetArea(mooringArea);
 
-  eModMooring = p.mooringStiffness*p.mooringUnstretchedLength/mooringArea;
+  eModMooring = p.mooringStiffnessTimesLength/mooringArea;
 
   sectionCable->SetYoungModulus(eModMooring);
   sectionCable->SetBeamRaleyghDamping(p.mooringRaleyghDamping);
@@ -58,8 +58,8 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   double xStart = p.mooringRadiusToFairleadsFromCenter*sin(theta/180*M_PI);
   double yStart = p.mooringRadiusToFairleadsFromCenter*cos(theta/180*M_PI);
   //End Position of Mooring Line
-  double xEnd = (p.mooringRadiusToFairleadsFromCenter+p.mooringAnchorRadiusFromFairlead)*sin(theta/180*M_PI);
-  double yEnd = (p.mooringRadiusToFairleadsFromCenter+p.mooringAnchorRadiusFromFairlead)*cos(theta/180*M_PI);
+  double xEnd = p.mooringRadiusToAnchorFromCenter*sin(theta/180*M_PI);
+  double yEnd = p.mooringRadiusToAnchorFromCenter*cos(theta/180*M_PI);
 
   //Coordinates of Fairlead in local frame of monopile
   mooringFairlead = monopile->getBody()->TransformPointLocalToParent(ChVector<>(xStart,yStart,p.distanceGtoE+p.mooringPosFairleadZFromBottom));

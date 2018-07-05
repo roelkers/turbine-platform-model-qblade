@@ -21,6 +21,7 @@ private:
     std::shared_ptr<chrono::ChBody> nacelleBody;
     std::shared_ptr<chrono::ChBody> hubBody;
     std::shared_ptr<chrono::ChBody> towerBody;
+    std::vector<std::shared_ptr<chrono::ChBody>> bladeBodies;
 
     std::vector<MonopileElement> monopileElements;
     std::shared_ptr<chrono::ChLoadBodyForce> dragForceZBottom;

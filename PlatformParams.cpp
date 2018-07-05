@@ -4,9 +4,9 @@ using namespace chrono;
 
 PlatformParams::PlatformParams(){
 
-  distanceGtoE = -89.1955;
+  distanceGtoE = -30.8045;
 
-  platformSetupPos = ChVector<>(0,0,distanceGtoE);
+  platformSetupPos = ChVector<>(0,0,-89.9155);
   platformHeight = 130;
   platformMass = 7466330;
   platformMassMomentInertiaInRollAndPitch = 4229223000;//1.2622e10;
@@ -43,16 +43,20 @@ PlatformParams::PlatformParams(){
   hubMass = 56780;
   hubDistanceUpstream = 5;
   hubDistanceToYawBearing = 2.4;
+  hubDiameter = 3;
+
+  bladeNr = 3;
   bladeMass = 17740;
+  bladeCOGDistanceFromRoot = 20.475;
 
   mooringLineNr = 3;
   mooringDiameter = 0.09;
-  mooringStiffness = 384243.000; //8471133.49;
+  mooringStiffnessTimesLength = 384243000; //8471133.49;
   mooringUnstretchedLength = 902.2;
   mooringRaleyghDamping = 0.3000;
-  mooringNrElements = 3;
+  mooringNrElements = 6;
   mooringRadiusToFairleadsFromCenter = 5.2;
-  mooringAnchorRadiusFromFairlead = 853.87;
+  mooringRadiusToAnchorFromCenter = 853.87;
   mooringLineWeightInWaterPerMeter = 77.7066;
   mooringPosFairleadZFromBottom = 50;
   mooringPosAnchorZ = -320;

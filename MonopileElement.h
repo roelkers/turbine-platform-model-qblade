@@ -31,12 +31,14 @@ private:
 
     std::shared_ptr<chrono::ChLoadBodyForce> dampingForce;
     std::shared_ptr<chrono::ChLoadBodyForce> buoyancyForce;
+    std::shared_ptr<chrono::ChLoadBodyForce> addedDamping;
 
 public:
     MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<chrono::ChBody> body, double length, chrono::ChVector<> A, chrono::ChVector<> B, double crossSectionArea, double volume);
     void update();
     void render();
     std::shared_ptr<chrono::ChMarker> getMarker() const;
+    bool isSubmerged();
 };
 
 #endif // MONOPILEELEMENT_H

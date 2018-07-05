@@ -168,6 +168,47 @@ void Monopile::addMasses(ChSystem& system){
     std::shared_ptr<ChLinkMateFix> towerConstraint = std::make_shared<ChLinkMateFix>();
     towerConstraint->Initialize(platformBody,towerBody);
     system.Add(towerConstraint);
+
+    //Create Blades
+    double thetaInc;
+    if(p.bladeNr>0){
+        thetaInc = 360/p.bladeNr;
+    }
+    double theta = 0;
+
+    std::shared_ptr<ChBody> bladeBody;
+    ChVector<> bladePos;
+    double zBlade = 0;
+    double yBlade = 0;
+    for(int i = 0; i < p.bladeNr; i++){
+        theta = theta + thetaInc;
+        bladeBody = std::make_shared<ChBody>();
+        bladeBody->SetMass(p.bladeMass);
+
+        double xStart = p.mooringRadiusToFairleadsFromCenter*sin(theta/180*M_PI);
+        double yStart = p.mooringRadiusToFairleadsFromCenter*cos(theta/180*M_PI);
+
+        double bladeCOGRadiusFromHubAxis = (p.bladeCOGDistanceFromRoot+p.hubDiameter/2);
+
+        zBlade = bladeCOGRadiusFromHubAxis*sin(theta/180*M_PI);
+        yBlade = bladeCOGRadiusFromHubAxis*cos(theta/180*M_PI);
+
+        bladePos = hubBody->TransformPointLocalToParent(ChVector<>(0,yBlade,zBlade));
+
+        bladeBody->SetPos(bladePos);
+        bladeBodies.push_back(bladeBody);
+
+        system.Add(bladeBody);
+
+        std::shared_ptr<ChLinkMateFix> bladeConstraint = std::make_shared<ChLinkMateFix>();
+        bladeConstraint->Initialize(platformBody,bladeBody);
+        system.Add(bladeConstraint);
+
+        qDebug()<< "creating blade nr:" << i;
+        qDebug()<< "theta blade: " << theta;
+        qDebug()<< "yBlade: " << yBlade;
+        qDebug()<< "zBlade: " << zBlade;
+    }
 }
 
 void Monopile::update(){
@@ -215,10 +256,16 @@ void Monopile::render(){
         glColor4d(0,0.75,1,1);
         CVector hubPos = CVecFromChVec(hubBody->GetPos());
         glVertex3d(hubPos.x,hubPos.y,hubPos.z);
-        //strong red, blue: tower //dark pink
-        glColor4d(0.75,0,1,1);
+        //strong red, blue, green: tower //dark pink
+        glColor4d(0.75,1,1,1);
         CVector towerPos = CVecFromChVec(towerBody->GetPos());
         glVertex3d(towerPos.x,towerPos.y,towerPos.z);
+        //strong blue, red: blades
+        glColor4d(1,0,0.75,1);
+        for(auto &blade : bladeBodies){
+            CVector bladePos = CVecFromChVec(blade->GetPos());
+            glVertex3d(bladePos.x,bladePos.y,bladePos.z);
+        }
     glEnd();
 
     glPointSize(0.1);

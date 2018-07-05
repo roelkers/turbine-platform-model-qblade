@@ -96,7 +96,7 @@ void MonopileElement::update(){
     double buoyancyForceZ;
     //check if marker is submerged
 
-    if(marker->GetAbsCoord().pos.z() < p.seaLevel){
+    if(isSubmerged()){
 
         dragForceX = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelX*crossSectionArea;
         dragForceY = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelY*crossSectionArea;
@@ -123,6 +123,10 @@ void MonopileElement::update(){
 
     buoyancyForce->SetForce(buoyancyForceVec,false);
     buoyancyForce->SetApplicationPoint(marker->GetAbsCoord().pos,false);
+}
+
+bool MonopileElement::isSubmerged(){
+    return (marker->GetAbsCoord().pos.z() < p.seaLevel);
 }
 
 void MonopileElement::render(){
