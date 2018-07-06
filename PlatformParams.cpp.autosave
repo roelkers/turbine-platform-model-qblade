@@ -57,7 +57,7 @@ PlatformParams::PlatformParams(){
   mooringNrElements = 3;
   mooringRadiusToFairleadsFromCenter = 5.2;
   mooringRadiusToAnchorFromCenter = 853.87;
-  mooringLineWeightInWaterPerMeter = 698094;
+  mooringLineWeightInWaterPerMeter = 698.094;
   mooringPosFairleadZFromBottom = 50;
   mooringPosAnchorZ = -320;
   mooringDensity = 77.7066;

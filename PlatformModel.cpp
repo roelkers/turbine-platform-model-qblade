@@ -81,7 +81,7 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     for(int i = 0; i < p.mooringLineNr; i++){
         theta = theta + thetaInc;
 
-        MooringLine mLine(system, mesh, p, theta, monopile);
+        MooringLine mLine(system, mesh, p, theta, monopile,loadcontainer);
         mooringLines.push_back(mLine);
     }
 

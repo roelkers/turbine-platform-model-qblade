@@ -8,6 +8,7 @@
 #include "chrono/physics/ChBodyEasy.h"
 #include "chrono_fea/ChMesh.h"
 #include "chrono/physics/ChLinkMate.h"
+#include "chrono/physics/ChLoadContainer.h"
 
 #include "PlatformParams.h"
 
@@ -30,7 +31,7 @@ private:
   double restLengthOfElement;
 
 public:
-  MooringLine(chrono::ChSystem& system, std::shared_ptr<chrono::fea::ChMesh> mesh, PlatformParams p, double theta, std::shared_ptr<Monopile> monopile);
+  MooringLine(chrono::ChSystem& system, std::shared_ptr<chrono::fea::ChMesh> mesh, PlatformParams p, double theta, std::shared_ptr<Monopile> monopile, std::shared_ptr<chrono::ChLoadContainer> loadContainer);
   void render();
   void setRestLengthAndPosition();
   void getTensionForce();

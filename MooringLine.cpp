@@ -6,6 +6,7 @@
 #include "chrono_fea/ChLinkPointFrame.h"
 #include "chrono_fea/ChElementCableANCF.h"
 #include "chrono/physics/ChLinkMate.h"
+#include "chrono_fea/ChLoadsBeam.h"
 
 #include "../GlobalFunctions.h"
 #include "../XLLT/QLLTSimulation.h"
@@ -26,19 +27,9 @@ std::shared_ptr<chrono::fea::ChLinkPointFrame> MooringLine::getConstraintMooring
     return constraintMooring;
 }
 
-MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, PlatformParams p, double theta, std::shared_ptr<Monopile> monopile)
+MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, PlatformParams p, double theta, std::shared_ptr<Monopile> monopile, std::shared_ptr<ChLoadContainer> loadContainer)
 :p(p)
 {
-//  //position of fairlead in body coordinate system (which here coincides with the absolute coordinate system).
-//  //the fairlead coordinates in the paper are given as coordinates from the bottom of the monopile
-//  ChVector<> vecGtoE = ChVector<>(0,0,p.distanceGtoE);
-//  ChVector<> vecEtoF = ChVector<>(0,0,p.mooringPosFairleadZFromBottom);
-
-//  ChVector<>InBodyCoords = monopile->getBody()->TransformPointLocalToParent(vecGtoE + vecEtoF);
-
-//  qDebug() << "mooringPosFairleadZInBodyCoords: " << mooringPosFairleadZInBodyCoords;
-
-  //double mooringLengthSetup = sqrt(pow(p.mooringPosAnchorZ-mooringPosFairleadZInBodyCoords,2) + pow(p.mooringAnchorRadiusFromFairlead,2));
 
   sectionCable = std::make_shared<ChBeamSectionCable>();
   sectionCable->SetDiameter(p.mooringDiameter);
@@ -76,29 +67,10 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
     mooringAnchor        // the 'B' point in space (end of beam)
   );
 
-  /*
-  double sectionLength = mooringL/p.mooringNrElements;
-  double mooringRestLength = sectionLength*p.mooringRestLengthRelative;
-  */
-
   //create truss (fixed body)
   auto mtruss = std::make_shared<ChBody>();
   mtruss->SetBodyFixed(true);
-
-  //TRY here: mooringFairlead vector instead
   const ChVector<> pos = builder.GetLastBeamNodes().front()->GetPos();
-
-//  //Create fairlead body
-//  fairleadBody = std::make_shared<ChBody>();
-//  fairleadBody->SetMass(p.fairleadMass);
-//  system.Add(fairleadBody);
-//  fairleadBody->SetPos(pos);
-//  qDebug() << "fairlead mass: " << fairleadBody->GetMass();
-
-//  //constraint fairlead to monopile
-//  constraintFairlead = std::make_shared<ChLinkMateFix>();
-//  constraintFairlead->Initialize(fairleadBody, monopile->getCylinder());
-//  system.Add(constraintFairlead);
 
   //constraint mooring to monopile
   constraintMooring = std::make_shared<ChLinkPointFrame>();
@@ -106,9 +78,6 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
 
   constraintMooring->SetAttachPositionInAbsoluteCoords(pos);
 
-  //constraint_fairlead->SetAttachPositionInBodyCoords(mooringFairlead);
-  //ChCoordsys<> mooringFairleadCoord = ChCoordsys<>(mooringFairlead);
-  //constraint_fairlead->SetAttachReferenceInAbsoluteCoords(mooringFairleadCoord);
   system.Add(constraintMooring);
 
   //anchor constraint
@@ -116,6 +85,17 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   constraintAnchor->Initialize(builder.GetLastBeamNodes().back(), mtruss);
   system.Add(constraintAnchor);
 
+  //Apply Aquivalent weight force in water on mooring
+
+  std::vector<std::shared_ptr<ChElementCableANCF>> beamElements = builder.GetLastBeamElements();
+  for(auto &element : beamElements){
+
+      // Add a distributed load along the cable element:
+      auto mwrenchdis = std::make_shared<ChLoadBeamWrenchDistributed>(element);
+      mwrenchdis->loader.SetForcePerUnit(ChVector<>(0, 0, -p.mooringLineWeightInWaterPerMeter));  // load per unit length
+      loadContainer->Add(mwrenchdis);
+
+  }
 }
 
 void MooringLine::setRestLengthAndPosition(){
