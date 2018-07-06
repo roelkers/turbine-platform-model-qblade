@@ -35,10 +35,7 @@ MonopileElement::MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoa
     marker->SetBody(body.get());
     marker->Impose_Abs_Coord(markerCoordsys);
 
-    //ChQuaternion<> qSetup = Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X);
-    //marker->SetRot(qSetup);
-
-    dampingForce = std::make_shared<ChLoadBodyForce> (
+    dragForce = std::make_shared<ChLoadBodyForce> (
        body, //body
        ChVector<>(0,0,0), //initialize
        true, //local_force
@@ -54,12 +51,21 @@ MonopileElement::MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoa
        false //not a local point
     );
 
-    loadContainer->Add(dampingForce);
+    addedDampingForce = std::make_shared<ChLoadBodyForce> (
+        body, //body
+        ChVector<>(0,0,0), //initialize
+        true, //local_force
+        marker->GetPos(), //apply force at marker position
+        false //not a local point
+    );
+
+    loadContainer->Add(dragForce);
     loadContainer->Add(buoyancyForce);
+    loadContainer->Add(addedDampingForce);
 
 }
 
-void MonopileElement::update(){
+void MonopileElement::update(CVector addedDamping){
 
     marker->UpdateState();
 
@@ -93,6 +99,10 @@ void MonopileElement::update(){
     double dragForceY;
     //double dragForceZ;
 
+    double addedDampingForceX;
+    double addedDampingForceY;
+    double addedDampingForceZ;
+
     double buoyancyForceZ;
     //check if marker is submerged
 
@@ -100,7 +110,11 @@ void MonopileElement::update(){
 
         dragForceX = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelX*crossSectionArea;
         dragForceY = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelY*crossSectionArea;
-        //dragForceZ = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelZ*areaXY;
+
+        //Added damping (to comply with reference model)
+        addedDampingForceX = -markerVelX*addedDamping.x;
+        addedDampingForceY = -markerVelY*addedDamping.y;
+        addedDampingForceZ = -markerVelZ*addedDamping.z;
 
         buoyancyForceZ = p.rhoWater*volume*p.g;
     }
@@ -109,6 +123,10 @@ void MonopileElement::update(){
         dragForceY = 0;
         //dragForceZ = 0;
 
+        addedDampingForceX = 0;
+        addedDampingForceY = 0;
+        addedDampingForceZ = 0;
+
         buoyancyForceZ = 0;
     }
 
@@ -116,10 +134,15 @@ void MonopileElement::update(){
 
     ChVector<> buoyancyForceVec = ChVector<>(0,0,buoyancyForceZ);
 
+    ChVector<> addedDampingForceVec = ChVector<>(addedDampingForceX,addedDampingForceY,addedDampingForceZ);
+
     //qDebug()<< "dragForceVec" << dragForceVec.Length();
 
-    dampingForce->SetForce(dragForceVec,true);
-    dampingForce->SetApplicationPoint(marker->GetAbsCoord().pos,false);
+    dragForce->SetForce(dragForceVec,true);
+    dragForce->SetApplicationPoint(marker->GetAbsCoord().pos,false);
+
+    addedDampingForce->SetForce(addedDampingForceVec,true);
+    addedDampingForce->SetApplicationPoint(marker->GetAbsCoord().pos,false);
 
     buoyancyForce->SetForce(buoyancyForceVec,false);
     buoyancyForce->SetApplicationPoint(marker->GetAbsCoord().pos,false);
@@ -139,7 +162,7 @@ void MonopileElement::render(){
     //    qDebug()<< "markerPos.y :" << markerPos.y;
     //    qDebug()<< "markerPos.z :" << markerPos.z;
 
-    ChVector<> dragForce = body->TransformDirectionLocalToParent(dampingForce->GetForce());
+    ChVector<> dragForceAbs = body->TransformDirectionLocalToParent(dragForce->GetForce());
     //ChVector<> force = body->TransformDirectionLocalToParent(dampingForce->GetForce());
 
 //    qDebug() << " damping force x: " << force.x();
@@ -186,7 +209,7 @@ void MonopileElement::render(){
         //light red/light green/ blue: damping force
         glColor4d(1,0.5,0.5,1);
         glVertex3d(markerPos.x,markerPos.y,markerPos.z);
-        CVector dragForceVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+dragForce*p.forceLineFactor);
+        CVector dragForceVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+dragForceAbs*p.forceLineFactor);
         glVertex3d(dragForceVecEnd.x,dragForceVecEnd.y,dragForceVecEnd.z);
         //light blue: buoyancyforce
 //        glColor4d(0,0,0.5,1);

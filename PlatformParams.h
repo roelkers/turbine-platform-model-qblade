@@ -49,7 +49,7 @@ public:
   double hubDistanceToYawBearing;
   double hubDiameter;
 
-  double bladeNr = 3;
+  double bladeNr;
   double bladeMass;
   double bladeCOGDistanceFromRoot;
 
@@ -68,6 +68,11 @@ public:
 
   double dragCoefficientCylinderAxial;
   double dragCoefficientCylinderLateral;
+
+  double addedDampingX;
+  double addedDampingY;
+  double addedDampingZ;
+  double addedDampingYaw;
 
   double seaLevel;
   double rhoWater;

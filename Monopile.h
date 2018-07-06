@@ -25,6 +25,7 @@ private:
 
     std::vector<MonopileElement> monopileElements;
     std::shared_ptr<chrono::ChLoadBodyForce> dragForceZBottom;
+    std::shared_ptr<chrono::ChLoadBodyTorque> addedYawDampingTorque;
 
 public:
     Monopile(chrono::ChSystem& system, PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer);

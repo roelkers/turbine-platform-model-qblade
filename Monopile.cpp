@@ -129,6 +129,15 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
       monopileElements.at(0).getMarker()->GetPos(), //bottom marker position is attack point of force
       true //local point
     );
+
+    addedYawDampingTorque = std::make_shared<ChLoadBodyTorque>(
+      platformBody,
+      ChVector<>(0,0,0), //initialize
+      true //local torque
+    );
+
+    loadContainer->Add(dragForceZBottom);
+    loadContainer->Add(addedYawDampingTorque);
 }
 
 void Monopile::addMasses(ChSystem& system){
@@ -212,9 +221,23 @@ void Monopile::addMasses(ChSystem& system){
 }
 
 void Monopile::update(){
+    //find out how many elements are submerged to distribute artificially added Damping among them
+    int submergedElements = 0;
+    for(auto &element : monopileElements){
+        if(element.isSubmerged()){
+            submergedElements++;
+        }
+    }
+
+    double addedDampingXPerElement = p.addedDampingX/submergedElements;
+    double addedDampingYPerElement = p.addedDampingY/submergedElements;
+    double addedDampingZPerElement = p.addedDampingZ/submergedElements;
+
+    CVector addedDamping = CVector(addedDampingXPerElement,addedDampingYPerElement,addedDampingZPerElement);
+
     //update elements
     for(auto &element : monopileElements){
-        element.update();
+        element.update(addedDamping);
     }
 
     ChVector<> markerVelocityAbs = monopileElements.at(0).getMarker()->GetAbsFrame().GetPos_dt();
@@ -236,6 +259,18 @@ void Monopile::update(){
     //only apply damping force for a downwards motion of the platform
     dragForceZBottom->SetForce(ChVector<>(0,0,dragForceZValue),false);
     //qDebug() << "dragForceZBottom " << dragForceZBottom->GetForce().Length();
+
+    //Calculate additional damping of platform around yaw-axis
+
+    //Angular speed expressed in local coords
+    ChVector<> platformAngularSpeed = platformBody->GetWvel_loc();
+
+    double platformYawSpeed = platformAngularSpeed.z();
+    ChVector<> torque = ChVector<>(0,0,-platformYawSpeed*p.addedDampingYaw);
+
+    qDebug() << "yaw damping" << -platformYawSpeed*p.addedDampingYaw;
+
+    addedYawDampingTorque->SetTorque(torque);
 }
 
 void Monopile::render(){

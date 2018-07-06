@@ -51,10 +51,10 @@ PlatformParams::PlatformParams(){
 
   mooringLineNr = 3;
   mooringDiameter = 0.09;
-  mooringStiffnessTimesLength = 384243000; //8471133.49;
+  mooringStiffnessTimesLength = 384243.000; //8471133.49;
   mooringUnstretchedLength = 902.2;
   mooringRaleyghDamping = 0.3000;
-  mooringNrElements = 6;
+  mooringNrElements = 3;
   mooringRadiusToFairleadsFromCenter = 5.2;
   mooringRadiusToAnchorFromCenter = 853.87;
   mooringLineWeightInWaterPerMeter = 77.7066;
@@ -67,6 +67,11 @@ PlatformParams::PlatformParams(){
   //source: http://sv.20file.org/up1/916_0.pdf
   //http://www-mdp.eng.cam.ac.uk/web/library/enginfo/aerothermal_dvd_only/aero/fprops/introvisc/node11.html
   dragCoefficientCylinderLateral = 1.20;
+
+  addedDampingX = 100000;
+  addedDampingY = 100000;
+  addedDampingZ = 130000;
+  addedDampingYaw = 13000000;
 
   seaLevel = 0; //sea level [m] in z-direction from origin
   rhoWater = 1000;
