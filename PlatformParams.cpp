@@ -21,8 +21,8 @@ PlatformParams::PlatformParams(){
   platformRadiusAboveTaper = 3.25;
 
   //Initial rotation of the monopile
-  qRotationX = Q_from_AngAxis(30 * CH_C_DEG_TO_RAD, VECT_X); //roll angle
-  qRotationY= Q_from_AngAxis(30 * CH_C_DEG_TO_RAD, VECT_Y); //pitch angle
+  qRotationX = Q_from_AngAxis(10 * CH_C_DEG_TO_RAD, VECT_X); //roll angle
+  qRotationY= Q_from_AngAxis(10 * CH_C_DEG_TO_RAD, VECT_Y); //pitch angle
   qRotationZ= Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_Z); //yaw angle
   //Translate to initial Position
 
@@ -57,7 +57,7 @@ PlatformParams::PlatformParams(){
   mooringNrElements = 3;
   mooringRadiusToFairleadsFromCenter = 5.2;
   mooringRadiusToAnchorFromCenter = 853.87;
-  mooringLineWeightInWaterPerMeter = 698094;
+  mooringLineWeightInWaterPerMeter = 698.094;
   mooringPosFairleadZFromBottom = 50;
   mooringPosAnchorZ = -320;
   mooringDensity = 77.7066;

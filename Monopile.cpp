@@ -162,6 +162,7 @@ void Monopile::addMasses(ChSystem& system){
     hubBody = std::make_shared<ChBody>();
     hubBody->SetPos(hubPos);
     hubBody->SetMass(p.hubMass);
+    //hubBody->SetRot(hubBody->GetRot());
     system.Add(hubBody);
 
     std::shared_ptr<ChLinkMateFix> hubConstraint = std::make_shared<ChLinkMateFix>();
@@ -291,6 +292,7 @@ void Monopile::render(){
         glColor4d(0,0.75,1,1);
         CVector hubPos = CVecFromChVec(hubBody->GetPos());
         glVertex3d(hubPos.x,hubPos.y,hubPos.z);
+
         //strong red, blue, green: tower //dark pink
         glColor4d(0.75,1,1,1);
         CVector towerPos = CVecFromChVec(towerBody->GetPos());
@@ -305,6 +307,7 @@ void Monopile::render(){
 
     glPointSize(0.1);
     glBegin(GL_LINES);
+
         //Draw Coordinate system of monopile
         ChCoordsys<> monopileCoord = platformBody->GetCoord();
         //red: x-axis
@@ -322,6 +325,25 @@ void Monopile::render(){
         glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
         CVector zAxisEnd = CVecFromChVec(platformBody->GetPos()+p.cSystemFactor*monopileCoord.rot.GetZaxis());
         glVertex3d(zAxisEnd.x,zAxisEnd.y,zAxisEnd.z);
+
+        //hub c-system
+        //red: x-axis
+        ChCoordsys<> hubCoord = hubBody->GetCoord();
+        glColor4d(1,0,0,1);
+        glVertex3d(hubPos.x,hubPos.y,hubPos.z);
+        xAxisEnd = CVecFromChVec(hubBody->GetPos()+p.cSystemFactor*hubCoord.rot.GetXaxis());
+        glVertex3d(xAxisEnd.x,xAxisEnd.y,xAxisEnd.z);
+        //green: y-axis
+        glColor4d(0,1,0,1);
+        glVertex3d(hubPos.x,hubPos.y,hubPos.z);
+        yAxisEnd = CVecFromChVec(platformBody->GetPos()+p.cSystemFactor*hubCoord.rot.GetYaxis());
+        glVertex3d(yAxisEnd.x,yAxisEnd.y,yAxisEnd.z);
+        //blue: z-axis
+        glColor4d(0,0,1,1);
+        glVertex3d(hubPos.x,hubPos.y,hubPos.z);
+        zAxisEnd = CVecFromChVec(platformBody->GetPos()+p.cSystemFactor*hubCoord.rot.GetZaxis());
+        glVertex3d(zAxisEnd.x,zAxisEnd.y,zAxisEnd.z);
+
         //Draw Damping Force on the Bottom: light green
         glLineWidth(7);
         ChVector<> bottomPos = monopileElements.at(0).getMarker()->GetAbsCoord().pos;
