@@ -70,8 +70,10 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
 
     //Taper element
     B = A+p.platformLengthTaper*zAxisMonopile;
-    double crossSectionAreaTaper = 2*(p.platformRadiusAboveTaper+p.platformRadiusBelowTaper)/2*p.platformLengthTaper;
-    volume = M_PI*pow((p.platformRadiusAboveTaper+p.platformRadiusBelowTaper)/2,2)*p.platformLengthTaper;
+    double lengthTaperMantle = sqrt(pow((p.platformRadiusBelowTaper-p.platformRadiusAboveTaper),2)+pow(p.platformLengthTaper,2));
+    double crossSectionAreaTaper = (p.platformRadiusBelowTaper-p.platformRadiusAboveTaper)*M_PI*lengthTaperMantle;
+    volume = M_PI*p.platformLengthTaper/3*(pow(p.platformRadiusBelowTaper,2)+p.platformRadiusBelowTaper*p.platformRadiusAboveTaper+pow(p.platformRadiusAboveTaper,2));
+
     MonopileElement taperElement(p,loadContainer,platformBody,p.platformLengthTaper,A,B, crossSectionAreaTaper, volume );
     monopileElements.push_back(taperElement);
     qDebug() << "A.z: " << A.z();
@@ -79,7 +81,7 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
     A = B;
 
     qDebug()<< "element volume taper: " << volume;
-    qDebug()<< "lengthOfElement taper: " << p.platformLengthTaper;
+    qDebug()<< "length taper mantle: " << lengthTaperMantle;
     qDebug()<< "crossSectionArea Taper: " << crossSectionAreaTaper;
 
     //Create element above taper
@@ -162,7 +164,7 @@ void Monopile::addMasses(ChSystem& system){
     hubBody = std::make_shared<ChBody>();
     hubBody->SetPos(hubPos);
     hubBody->SetMass(p.hubMass);
-    //hubBody->SetRot(hubBody->GetRot());
+    hubBody->SetRot(platformBody->GetRot());
     system.Add(hubBody);
 
     std::shared_ptr<ChLinkMateFix> hubConstraint = std::make_shared<ChLinkMateFix>();
@@ -211,7 +213,7 @@ void Monopile::addMasses(ChSystem& system){
         system.Add(bladeBody);
 
         std::shared_ptr<ChLinkMateFix> bladeConstraint = std::make_shared<ChLinkMateFix>();
-        bladeConstraint->Initialize(platformBody,bladeBody);
+        bladeConstraint->Initialize(hubBody,bladeBody);
         system.Add(bladeConstraint);
 
         qDebug()<< "creating blade nr:" << i;
