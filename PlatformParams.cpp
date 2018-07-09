@@ -4,7 +4,7 @@ using namespace chrono;
 
 PlatformParams::PlatformParams(){
 
-  distanceGtoE = -30.8045;
+  distanceGtoE = -30.0845;
 
   platformSetupPos = ChVector<>(0,0,-89.9155);
   platformHeight = 130;
@@ -21,8 +21,8 @@ PlatformParams::PlatformParams(){
   platformRadiusAboveTaper = 3.25;
 
   //Initial rotation of the monopile
-  qRotationX = Q_from_AngAxis(10 * CH_C_DEG_TO_RAD, VECT_X); //roll angle
-  qRotationY= Q_from_AngAxis(10 * CH_C_DEG_TO_RAD, VECT_Y); //pitch angle
+  qRotationX = Q_from_AngAxis(5 * CH_C_DEG_TO_RAD, VECT_X); //roll angle
+  qRotationY= Q_from_AngAxis(5 * CH_C_DEG_TO_RAD, VECT_Y); //pitch angle
   qRotationZ= Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_Z); //yaw angle
   //Translate to initial Position
 

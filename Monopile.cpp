@@ -225,16 +225,18 @@ void Monopile::addMasses(ChSystem& system){
 
 void Monopile::update(){
     //find out how many elements are submerged to distribute artificially added Damping among them
-    int submergedElements = 0;
+    int nrSubmergedElements = 0;
     for(auto &element : monopileElements){
         if(element.isSubmerged()){
-            submergedElements++;
+            nrSubmergedElements++;
         }
     }
 
-    double addedDampingXPerElement = p.addedDampingX/submergedElements;
-    double addedDampingYPerElement = p.addedDampingY/submergedElements;
-    double addedDampingZPerElement = p.addedDampingZ/submergedElements;
+    double addedDampingXPerElement = p.addedDampingX/nrSubmergedElements;
+    double addedDampingYPerElement = p.addedDampingY/nrSubmergedElements;
+    double addedDampingZPerElement = p.addedDampingZ/nrSubmergedElements;
+
+    qDebug() << "nr of submerged elements :" << nrSubmergedElements;
 
     CVector addedDamping = CVector(addedDampingXPerElement,addedDampingYPerElement,addedDampingZPerElement);
 
