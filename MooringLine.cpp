@@ -43,7 +43,7 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   sectionCable->SetYoungModulus(eModMooring);
   sectionCable->SetBeamRaleyghDamping(p.mooringRaleyghDamping);
 
-  sectionCable->SetDensity(p.mooringDensity);
+  sectionCable->SetDensity(p.mooringDensityPerUnit/mooringArea);
 
   //Starting Position of Mooring Line on the Monopile
   double xStart = p.mooringRadiusToFairleadsFromCenter*sin(theta/180*M_PI);
@@ -53,11 +53,18 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   double yEnd = p.mooringRadiusToAnchorFromCenter*cos(theta/180*M_PI);
 
   //Coordinates of Fairlead in local frame of monopile
-  mooringFairlead = monopile->getBody()->TransformPointLocalToParent(ChVector<>(xStart,yStart,p.distanceGtoE+p.mooringPosFairleadZFromBottom));
+  mooringFairlead = monopile->getBody()->TransformPointLocalToParent(ChVector<>(xStart,yStart,p.distanceZPlatformCOGtoFairlead));
 
-  qDebug() << "created mooring fairlead";
+  qDebug() << "mooringFairlead x:" << mooringFairlead.x();
+  qDebug() << "mooringFairlead y:" << mooringFairlead.y();
+  qDebug() << "mooringFairlead z:" << mooringFairlead.z();
+
   //Coordinates of anchor in parent coordinates, y with negative sign because of rotation of monopile?
   mooringAnchor = ChVector<>(xEnd, yEnd, p.mooringPosAnchorZ);
+
+  qDebug() << "mooringAnchor x:" << mooringAnchor.x();
+  qDebug() << "mooringAnchor y:" << mooringAnchor.y();
+  qDebug() << "mooringAnchor z:" << mooringAnchor.z();
 
   // Now, simply use BuildBeam to create a beam from a point to another:
   builder.BuildBeam(mesh,                       // the mesh where to put the created nodes and elements
@@ -86,13 +93,16 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   system.Add(constraintAnchor);
 
   //Apply Aquivalent weight force in water on mooring
+  double buoyancyForcePerUnit;
 
   std::vector<std::shared_ptr<ChElementCableANCF>> beamElements = builder.GetLastBeamElements();
   for(auto &element : beamElements){
 
+      buoyancyForcePerUnit = mooringArea*p.rhoWater*p.g;
+
       // Add a distributed load along the cable element:
       auto mwrenchdis = std::make_shared<ChLoadBeamWrenchDistributed>(element);
-      mwrenchdis->loader.SetForcePerUnit(ChVector<>(0, 0, -p.mooringLineWeightInWaterPerMeter));  // load per unit length
+      mwrenchdis->loader.SetForcePerUnit(ChVector<>(0, 0, buoyancyForcePerUnit));  // load per unit length
       loadContainer->Add(mwrenchdis);
 
   }
@@ -174,53 +184,6 @@ void MooringLine::getTensionForce(){
 
     qDebug() << "total length of mooring line after init: " << totalLength;
 }
-
-/*
-void MooringLine::setRestLengthAndPosition(){
-
-    //double mooringLengthSetup = sqrt(pow(p.mooringPosAnchorZ-p.mooringPosFairleadZInBodyCoords,2) + pow(p.mooringAnchorRadiusFromFairlead,2));
-    qDebug()<< "mooringLengthSetup: " << mooringLengthSetup ;
-
-    double setupLengthOfElement = mooringLengthSetup/p.mooringNrElements;
-
-    double deltal = p.mooringPreTensionForce/p.mooringStiffness;
-    double frac = (mooringLengthSetup-deltal)/mooringLengthSetup;
-
-    restLengthOfElement = setupLengthOfElement*frac;
-
-    qDebug() << "setup length of cable element:" << setupLengthOfElement;
-    qDebug() << "frac : " << frac;
-    qDebug() << "mooring line length at rest:" << restLengthOfElement;
-
-    double massTotal = 0;
-
-    //Iterate over beam elements to set the rest length and rest position
-    std::vector<std::shared_ptr<ChElementCableANCF>> beamElements = builder.GetLastBeamElements();
-    for(auto &element : beamElements){
-        massTotal += element->GetMass();
-        //qDebug() << "initial length"<<element->GetRestLength();
-
-        element->SetRestLength(setupLengthOfElement*frac);
-        CVector pos = CVecFromChVec(element->GetNodeA()->GetX0());
-        CVector pos0 = CVecFromChVec(element->GetNodeB()->GetX0());
-
-        CVector lvec = CVector(pos-pos0);
-        lvec.Normalize();
-        lvec *= setupLengthOfElement*frac;
-
-        //element->GetNodeA()->SetD(-ChVecFromCVec(lvec));
-        //element->GetNodeB()->SetD(ChVecFromCVec(lvec));
-
-        pos = pos0+lvec;
-        ChVector<> chvec(pos.x,pos.y,pos.z);
-        element->GetNodeB()->SetX0(chvec);
-
-        //qDebug() << "new rest length"<<CVector(pos-pos0).VAbs() <<frac;
-    }
-
-    qDebug() << "cable mass:" << massTotal;
-}
-*/
 
 void MooringLine::render(){
     glPointSize(0.1);

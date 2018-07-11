@@ -1,4 +1,3 @@
-
 #include "chrono/physics/ChSystem.h"
 #include "chrono/physics/ChMarker.h"
 #include "chrono/physics/ChSystem.h"
@@ -23,7 +22,6 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
     :p(p)
 {
 
-    qDebug() << "creating cylinder";
     platformBody= std::make_shared<ChBody>();
     //set cylinder to setup position
     platformBody->SetPos(p.platformSetupPos);
@@ -42,7 +40,7 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
 
     ChVector<> zAxisMonopile = platformBody->GetFrame_COG_to_abs().GetRot().GetZaxis();
 
-    ChVector<> vecGtoE = ChVector<>(0,0,p.distanceGtoE);
+    ChVector<> vecGtoE = ChVector<>(0,0,-p.distanceGtoE);
 
     ChVector<> zStart = p.platformSetupPos + vecGtoE;
 
@@ -84,18 +82,23 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
     qDebug()<< "length taper mantle: " << lengthTaperMantle;
     qDebug()<< "crossSectionArea Taper: " << crossSectionAreaTaper;
 
-    //Create element above taper
-    double crossSectionAreaAboveTaper = 2*p.platformRadiusAboveTaper*p.platformLengthAboveTaper;
-    volume = M_PI*pow(p.platformRadiusAboveTaper,2)*p.platformLengthAboveTaper;
+    //Create element above taper in water
+    double crossSectionAreaAboveTaperInWater = 2*p.platformRadiusAboveTaper*p.platformLengthAboveTaperInWater;
+    volume = M_PI*pow(p.platformRadiusAboveTaper,2)*p.platformLengthAboveTaperInWater;
 
-    B = A+p.platformLengthAboveTaper*zAxisMonopile;
-    MonopileElement aboveTaperElement(p,loadContainer,platformBody,p.platformLengthAboveTaper,A,B,crossSectionAreaAboveTaper,volume);
+    B = A+p.platformLengthAboveTaperInWater*zAxisMonopile;
+    MonopileElement aboveTaperElement(p,loadContainer,platformBody,p.platformLengthAboveTaperInWater,A,B,crossSectionAreaAboveTaperInWater,volume);
     monopileElements.push_back(aboveTaperElement);
     A = B;
 
-    qDebug()<< "element volume Above taper: " << volume;
-    qDebug()<< "lengthOfElement Above taper: " << p.platformLengthAboveTaper;
-    qDebug()<< "crossSectionAreaAboveTaper: " << crossSectionAreaAboveTaper;
+    //Create element above taper above water
+    double crossSectionAreaAboveTaperAboveWater = 2*p.platformRadiusAboveTaper*p.platformLengthAboveTaperAboveWater;
+    volume = M_PI*pow(p.platformRadiusAboveTaper,2)*p.platformLengthAboveTaperAboveWater;
+
+    B = A+p.platformLengthAboveTaperAboveWater*zAxisMonopile;
+    MonopileElement aboveTaperElementAboveWater(p,loadContainer,platformBody,p.platformLengthAboveTaperAboveWater,A,B,crossSectionAreaAboveTaperAboveWater,volume);
+    monopileElements.push_back(aboveTaperElementAboveWater);
+    A = B;
 
     //Create tower elements
     double towerLengthOfElement = p.towerHeight/p.nrElementsTower;
@@ -144,7 +147,7 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
 
 void Monopile::addMasses(ChSystem& system){
 
-    ChVector<> vecGtoI = ChVector<>(0,0,p.distanceGtoE+p.platformLengthBelowTaper+p.platformLengthTaper+p.platformLengthAboveTaper);
+    ChVector<> vecGtoI = ChVector<>(0,0,-p.distanceGtoE+p.platformLengthBelowTaper+p.platformLengthTaper+p.platformLengthAboveTaperInWater+p.platformLengthAboveTaperAboveWater);
     ChVector<> vecItoY = ChVector<>(0,0,p.towerHeight);
     ChVector<> vecYtoN = ChVector<>(-p.nacelleDistanceDownstream,0,p.nacelleDistanceToYawBearing);
     ChVector<> vecYtoH = ChVector<>(p.hubDistanceUpstream,0,p.hubDistanceToYawBearing);
@@ -156,6 +159,8 @@ void Monopile::addMasses(ChSystem& system){
     nacelleBody->SetMass(p.nacelleMass);
     system.Add(nacelleBody);
 
+    qDebug() << "nacelle mass:" << nacelleBody->GetMass();
+
     std::shared_ptr<ChLinkMateFix> nacelleConstraint = std::make_shared<ChLinkMateFix>();
     nacelleConstraint->Initialize(platformBody,nacelleBody);
     system.Add(nacelleConstraint);
@@ -166,6 +171,8 @@ void Monopile::addMasses(ChSystem& system){
     hubBody->SetMass(p.hubMass);
     hubBody->SetRot(platformBody->GetRot());
     system.Add(hubBody);
+
+    //qDebug() << "nacelle mass:" << nacelleBody->GetMass();
 
     std::shared_ptr<ChLinkMateFix> hubConstraint = std::make_shared<ChLinkMateFix>();
     hubConstraint->Initialize(platformBody,hubBody);
@@ -192,6 +199,7 @@ void Monopile::addMasses(ChSystem& system){
     ChVector<> bladePos;
     double zBlade = 0;
     double yBlade = 0;
+    double totalBladeMass = 0;
     for(int i = 0; i < p.bladeNr; i++){
         theta = theta + thetaInc;
         bladeBody = std::make_shared<ChBody>();
@@ -220,7 +228,12 @@ void Monopile::addMasses(ChSystem& system){
         qDebug()<< "theta blade: " << theta;
         qDebug()<< "yBlade: " << yBlade;
         qDebug()<< "zBlade: " << zBlade;
+
+        totalBladeMass += bladeBody->GetMass();
     }
+
+    double totalMass = platformBody->GetMass() + hubBody->GetMass() + towerBody->GetMass() + nacelleBody->GetMass() + totalBladeMass;
+    qDebug() << "Total mass of all bodies: " << totalMass;
 }
 
 void Monopile::update(){
@@ -240,10 +253,16 @@ void Monopile::update(){
 
     CVector addedDamping = CVector(addedDampingXPerElement,addedDampingYPerElement,addedDampingZPerElement);
 
+    double totalBuoyancyForce = 0;
     //update elements
     for(auto &element : monopileElements){
-        element.update(addedDamping);
+        double elementBuoyancyForce =  element.update(addedDamping);
+        qDebug() << "buoyancyForce of Element: " << elementBuoyancyForce;
+
+        totalBuoyancyForce += elementBuoyancyForce;
     }
+
+    qDebug() << "total Buoyancy Force" << totalBuoyancyForce;
 
     ChVector<> markerVelocityAbs = monopileElements.at(0).getMarker()->GetAbsFrame().GetPos_dt();
     ChVector<> markerVelocityDir = platformBody->TransformDirectionParentToLocal(markerVelocityAbs);
@@ -330,23 +349,23 @@ void Monopile::render(){
         CVector zAxisEnd = CVecFromChVec(platformBody->GetPos()+p.cSystemFactor*monopileCoord.rot.GetZaxis());
         glVertex3d(zAxisEnd.x,zAxisEnd.y,zAxisEnd.z);
 
-        //hub c-system
-        //red: x-axis
-        ChCoordsys<> hubCoord = hubBody->GetCoord();
-        glColor4d(1,0,0,1);
-        glVertex3d(hubPos.x,hubPos.y,hubPos.z);
-        xAxisEnd = CVecFromChVec(hubBody->GetPos()+p.cSystemFactor*hubCoord.rot.GetXaxis());
-        glVertex3d(xAxisEnd.x,xAxisEnd.y,xAxisEnd.z);
-        //green: y-axis
-        glColor4d(0,1,0,1);
-        glVertex3d(hubPos.x,hubPos.y,hubPos.z);
-        yAxisEnd = CVecFromChVec(platformBody->GetPos()+p.cSystemFactor*hubCoord.rot.GetYaxis());
-        glVertex3d(yAxisEnd.x,yAxisEnd.y,yAxisEnd.z);
-        //blue: z-axis
-        glColor4d(0,0,1,1);
-        glVertex3d(hubPos.x,hubPos.y,hubPos.z);
-        zAxisEnd = CVecFromChVec(platformBody->GetPos()+p.cSystemFactor*hubCoord.rot.GetZaxis());
-        glVertex3d(zAxisEnd.x,zAxisEnd.y,zAxisEnd.z);
+//        //hub c-system
+//        //red: x-axis
+//        ChCoordsys<> hubCoord = hubBody->GetCoord();
+//        glColor4d(1,0,0,1);
+//        glVertex3d(hubPos.x,hubPos.y,hubPos.z);
+//        xAxisEnd = CVecFromChVec(hubBody->GetPos()+p.cSystemFactor*hubCoord.rot.GetXaxis());
+//        glVertex3d(xAxisEnd.x,xAxisEnd.y,xAxisEnd.z);
+//        //green: y-axis
+//        glColor4d(0,1,0,1);
+//        glVertex3d(hubPos.x,hubPos.y,hubPos.z);
+//        yAxisEnd = CVecFromChVec(platformBody->GetPos()+p.cSystemFactor*hubCoord.rot.GetYaxis());
+//        glVertex3d(yAxisEnd.x,yAxisEnd.y,yAxisEnd.z);
+//        //blue: z-axis
+//        glColor4d(0,0,1,1);
+//        glVertex3d(hubPos.x,hubPos.y,hubPos.z);
+//        zAxisEnd = CVecFromChVec(platformBody->GetPos()+p.cSystemFactor*hubCoord.rot.GetZaxis());
+//        glVertex3d(zAxisEnd.x,zAxisEnd.y,zAxisEnd.z);
 
         //Draw Damping Force on the Bottom: light green
         glLineWidth(7);

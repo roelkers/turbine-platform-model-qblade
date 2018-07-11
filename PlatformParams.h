@@ -11,6 +11,7 @@ public:
   PlatformParams();
 
   double distanceGtoE;
+
   chrono::ChVector<> platformSetupPos;
 
   double platformMass;
@@ -22,10 +23,13 @@ public:
   int platformNrElementsBelowTaper;
   double platformLengthBelowTaper;
   double platformLengthTaper;
-  double platformLengthAboveTaper;
+  double platformLengthAboveTaperInWater;
+  double platformLengthAboveTaperAboveWater;
 
   double platformRadiusBelowTaper;
   double platformRadiusAboveTaper;
+
+  double zInit;
 
   chrono::ChQuaternion<> qRotationX;
   chrono::ChQuaternion<> qRotationY;
@@ -62,9 +66,9 @@ public:
   double mooringRadiusToFairleadsFromCenter;
   double mooringLineWeightInWaterPerMeter;
   double mooringRadiusToAnchorFromCenter;
-  double mooringPosFairleadZFromBottom;
+  double distanceZPlatformCOGtoFairlead;
   double mooringPosAnchorZ;
-  double mooringDensity;
+  double mooringDensityPerUnit;
 
   double dragCoefficientCylinderAxial;
   double dragCoefficientCylinderLateral;

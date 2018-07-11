@@ -53,7 +53,12 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 
     //Define initial displacement
     ChCoordsys<> initCoords =ChCoordsys<>(p.initPosVec,p.qRotationZ*p.qRotationY*p.qRotationX);
+    //ChCoordsys<> initCoords =ChCoordsys<>(ChVector<(),p.qRotationZ*p.qRotationY*p.qRotationX);
     monopile->getBody()->Move(initCoords);
+
+    qDebug() << "monopile pos x:" << monopile->getBody()->GetPos().x();
+    qDebug() << "monopile pos y:" << monopile->getBody()->GetPos().y();
+    qDebug() << "monopile pos z:" << monopile->getBody()->GetPos().z();
 
     //set initial velocity
     monopile->getBody()->SetPos_dt(p.initVelVec);
@@ -98,6 +103,7 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     }
 
     system.DoStepDynamics(m_qlltSim->getTimeStep());
+    monopile->update();
 
     for(auto & mooringLine : mooringLines) {
 
@@ -156,10 +162,7 @@ void PlatformModel::update(double endTime){
 
     while (system.GetChTime() < endTime) {
 
-        //qDebug() << "updating buoyancy again";
         monopile->update();
-//        buoyancy->update();
-//        hydrodynamicDamping->update();
 
         restore_oldstep = FALSE;
         left_time = endTime - system.GetChTime();
@@ -190,7 +193,8 @@ double PlatformModel::getYPosition(){
 
 double PlatformModel::getZPosition(){
 
-    return monopile->getBody()->GetPos().z();
+    return monopile->getBody()->GetPos().z()-p.zInit;
+
 }
 
 double PlatformModel::getRollAngle(){
@@ -200,7 +204,7 @@ double PlatformModel::getRollAngle(){
     //rotate monopile back from setup position to get correct angle
 //    ChQuaternion<> qSetup = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
 //    ChQuaternion<> rotCorrected = rotBody*qSetup;
-    double angleNasa = rotBody.Q_to_NasaAngles().x()/M_PI*180;
+    double angleNasa = rotBody.Q_to_NasaAngles().y()/M_PI*180;
     return angleNasa;
 }
 
@@ -211,7 +215,7 @@ double PlatformModel::getPitchAngle(){
     //rotate monopile back from setup position to get correct angle
 //    ChQuaternion<> qSetup = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
 //    ChQuaternion<> rotCorrected = rotBody*qSetup;
-    double angleNasa = rotBody.Q_to_NasaAngles().y()/M_PI*180;
+    double angleNasa = rotBody.Q_to_NasaAngles().x()/M_PI*180;
     return angleNasa;
 }
 

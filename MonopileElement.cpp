@@ -65,7 +65,7 @@ MonopileElement::MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoa
 
 }
 
-void MonopileElement::update(CVector addedDamping){
+double MonopileElement::update(CVector addedDamping){
 
     marker->UpdateState();
 
@@ -146,6 +146,8 @@ void MonopileElement::update(CVector addedDamping){
 
     buoyancyForce->SetForce(buoyancyForceVec,false);
     buoyancyForce->SetApplicationPoint(marker->GetAbsCoord().pos,false);
+
+    return buoyancyForceZ;
 }
 
 bool MonopileElement::isSubmerged(){
