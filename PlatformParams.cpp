@@ -12,7 +12,7 @@ PlatformParams::PlatformParams(){
   platformMass = 7466330;
   platformMassMomentInertiaInRollAndPitch = 4229223000;//1.2622e10;
   platformMassMomentInertiaInYaw = 164230000;
-  platformNrElementsBelowTaper = 1;
+  platformNrElementsBelowTaper = 15;
 
   platformLengthBelowTaper = 108;
   platformLengthTaper = 8;
