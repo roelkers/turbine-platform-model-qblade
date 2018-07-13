@@ -35,7 +35,7 @@ private:
 
 public:
     MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<chrono::ChBody> body, double length, chrono::ChVector<> A, chrono::ChVector<> B, double crossSectionArea, double volume);
-    double update(CVector addedDamping);
+    double update();
     void render();
     std::shared_ptr<chrono::ChMarker> getMarker() const;
     bool isSubmerged();

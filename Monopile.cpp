@@ -127,11 +127,11 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
     }
 
     //Init Z damping force
-    dragForceZBottom = std::make_shared<ChLoadBodyForce> (
+    addedDampingForce = std::make_shared<ChLoadBodyForce> (
       platformBody, //platformBody
       ChVector<>(0,0,0), //initialize
       true, //local force
-      monopileElements.at(0).getMarker()->GetPos(), //bottom marker position is attack point of force
+      platformBody->GetPos(), //bottom marker position is attack point of force
       true //local point
     );
 
@@ -141,10 +141,9 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
       true //local torque
     );
 
-    loadContainer->Add(dragForceZBottom);
     loadContainer->Add(addedYawDampingTorque);
+    loadContainer->Add(addedDampingForce);
 }
-
 
 
 void Monopile::addMasses(ChSystem& system){
@@ -239,57 +238,22 @@ void Monopile::addMasses(ChSystem& system){
 }
 
 void Monopile::update(){
-    //find out how many elements are submerged to distribute artificially added Damping among them
-    int nrSubmergedElements = 0;
-    for(auto &element : monopileElements){
-        if(element.isSubmerged()){
-            nrSubmergedElements++;
-        }
-    }
 
-    double addedDampingXPerElement = p.addedDampingX/nrSubmergedElements;
-    double addedDampingYPerElement = p.addedDampingY/nrSubmergedElements;
-    double addedDampingZPerElement = p.addedDampingZ/nrSubmergedElements;
-
-    qDebug() << "nr of submerged elements :" << nrSubmergedElements;
-
-    CVector addedDamping = CVector(addedDampingXPerElement,addedDampingYPerElement,addedDampingZPerElement);
-
-    qDebug() << "added Damping x" << addedDamping.x;
-    qDebug() << "added Damping y" << addedDamping.y;
-    qDebug() << "added Damping z" << addedDamping.z;
-
-    double totalAddedDampingForce = 0;
     //update elements
     for(auto &element : monopileElements){
-        double elementAddedDampingForce =  element.update(addedDamping);
-        //qDebug() << "buoyancyForce of Element: " << elementBuoyancyForce;
-
-        //totalBuoyancyForce += elementBuoyancyForce;
-        totalAddedDampingForce += elementAddedDampingForce;
+        element.update();
     }
 
-    qDebug() << "total damping force" << totalAddedDampingForce;
-
-    ChVector<> markerVelocityAbs = monopileElements.at(0).getMarker()->GetAbsFrame().GetPos_dt();
-    ChVector<> markerVelocityDir = platformBody->TransformDirectionParentToLocal(markerVelocityAbs);
-    //calculate drag force on the bottom end of the cylinder
-    double markerVelZ = markerVelocityAbs.z();
 
     //qDebug() << "markerVelocity z" << markerVelZ;
 
-    //simplification since the projection of the end of the zylinder on the xy plane will actually be an ellipsis
-    double bottomEndAreaXY = M_PI*pow(p.platformRadiusBelowTaper,2);
-    double dragForceZValue = 0;
-    if(markerVelZ < 0){
-        dragForceZValue = -0.5*p.rhoWater*p.dragCoefficientCylinderAxial*markerVelZ*bottomEndAreaXY;
-    }
-    else{
-        dragForceZValue = 0;
-    }
-    //only apply damping force for a downwards motion of the platform
-    dragForceZBottom->SetForce(ChVector<>(0,0,dragForceZValue),false);
-    //qDebug() << "dragForceZBottom " << dragForceZBottom->GetForce().Length();
+    double addedDampingForceX = -platformBody->GetPos_dt().x()*p.addedDampingX;
+    double addedDampingForceY = -platformBody->GetPos_dt().y()*p.addedDampingY;
+    double addedDampingForceZ = -platformBody->GetPos_dt().z()*p.addedDampingZ;
+
+    ChVector<> addedDampingForceVec = ChVector<>(addedDampingForceX,addedDampingForceY,addedDampingForceZ);
+
+    addedDampingForce->SetForce(addedDampingForceVec,true);
 
     //Calculate additional damping of platform around yaw-axis
 
@@ -374,22 +338,11 @@ void Monopile::render(){
 //        zAxisEnd = CVecFromChVec(platformBody->GetPos()+p.cSystemFactor*hubCoord.rot.GetZaxis());
 //        glVertex3d(zAxisEnd.x,zAxisEnd.y,zAxisEnd.z);
 
-        //Draw Damping Force on the Bottom: light green
-        glLineWidth(7);
-        ChVector<> bottomPos = monopileElements.at(0).getMarker()->GetAbsCoord().pos;
-        CVector bottomPosCVec = CVecFromChVec(bottomPos);
-        qDebug() << dragForceZBottom->GetForce().Length();
+        //Draw Added Damping Force: light green
         glColor4d(1,0.5,0,1);
-        glVertex3d(bottomPosCVec.x,bottomPosCVec.y,bottomPosCVec.z);
-        ChVector<> dragForceZBottomAbs = platformBody->TransformDirectionLocalToParent(dragForceZBottom->GetForce());
-        CVector bottomForceEnd = CVecFromChVec(bottomPos+dragForceZBottomAbs*p.forceLineFactor);
-//        qDebug() << "bottom drag force z:" << dragForceZBottom->GetForce().Length();
-//        qDebug() << "bottomForceEnd x " << bottomForceEnd.x;
-//        qDebug() << "bottomForceEnd y " << bottomForceEnd.y;
-//        qDebug() << "bottomForceEnd z " << bottomForceEnd.z;
-//        qDebug() << "bottomPos x" << bottomPos.x();
-//        qDebug() << "bottomPos y" << bottomPos.y();
-//        qDebug() << "bottomPos z" << bottomPos.z();
+        glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
+        ChVector<> addedDampingForceAbs = addedDampingForce->GetForce();
+        CVector bottomForceEnd = CVecFromChVec(platformBody->GetPos()+addedDampingForceAbs*p.forceLineFactor);
         glVertex3d(bottomForceEnd.x,bottomForceEnd.y,bottomForceEnd.z);
     glEnd();
     //Render Elements

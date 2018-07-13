@@ -24,7 +24,7 @@ private:
     std::vector<std::shared_ptr<chrono::ChBody>> bladeBodies;
 
     std::vector<MonopileElement> monopileElements;
-    std::shared_ptr<chrono::ChLoadBodyForce> dragForceZBottom;
+    std::shared_ptr<chrono::ChLoadBodyForce> addedDampingForce;
     std::shared_ptr<chrono::ChLoadBodyTorque> addedYawDampingTorque;
 
 public:

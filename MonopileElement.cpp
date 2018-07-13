@@ -65,7 +65,7 @@ MonopileElement::MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoa
 
 }
 
-double MonopileElement::update(CVector addedDamping){
+double MonopileElement::update(){
 
     marker->UpdateState();
 
@@ -110,20 +110,11 @@ double MonopileElement::update(CVector addedDamping){
         dragForceX = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelX*crossSectionArea;
         dragForceY = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelY*crossSectionArea;
 
-        //Added damping (to comply with reference model)
-        addedDampingForceX = -markerVelX*addedDamping.x;
-        addedDampingForceY = -markerVelY*addedDamping.y;
-        addedDampingForceZ = -markerVelZ*addedDamping.z;
-
         buoyancyForceZ = p.rhoWater*volume*p.g;
     }
     else{
         dragForceX = 0;
         dragForceY = 0;
-
-        addedDampingForceX = 0;
-        addedDampingForceY = 0;
-        addedDampingForceZ = 0;
 
         buoyancyForceZ = 0;
     }
@@ -139,13 +130,9 @@ double MonopileElement::update(CVector addedDamping){
     dragForce->SetForce(dragForceVec,true);
     dragForce->SetApplicationPoint(marker->GetAbsCoord().pos,false);
 
-    addedDampingForce->SetForce(addedDampingForceVec,true);
-    addedDampingForce->SetApplicationPoint(marker->GetAbsCoord().pos,false);
-
     buoyancyForce->SetForce(buoyancyForceVec,false);
     buoyancyForce->SetApplicationPoint(marker->GetAbsCoord().pos,false);
 
-    return buoyancyForceZ;
 }
 
 bool MonopileElement::isSubmerged(){
@@ -163,7 +150,6 @@ void MonopileElement::render(){
     //    qDebug()<< "markerPos.z :" << markerPos.z;
 
     ChVector<> dragForceAbs = body->TransformDirectionLocalToParent(dragForce->GetForce());
-    ChVector<> addedDampingForceAbs = body->TransformDirectionLocalToParent(addedDampingForce->GetForce());
     //ChVector<> force = body->TransformDirectionLocalToParent(dampingForce->GetForce());
 
 //    qDebug() << " damping force x: " << force.x();
@@ -212,12 +198,6 @@ void MonopileElement::render(){
         glVertex3d(markerPos.x,markerPos.y,markerPos.z);
         CVector dragForceVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+dragForceAbs*p.forceLineFactor);
         glVertex3d(dragForceVecEnd.x,dragForceVecEnd.y,dragForceVecEnd.z);
-
-        //strong green/ blue: added damping force
-        glColor4d(0,0.75,1,1);
-        glVertex3d(markerPos.x,markerPos.y,markerPos.z);
-        CVector addedDampingForceVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+addedDampingForceAbs*p.forceLineFactor);
-        glVertex3d(addedDampingForceVecEnd.x,addedDampingForceVecEnd.y,addedDampingForceVecEnd.z);
 
 //        qDebug() << "addedDampingForceAbs.x()" << addedDampingForceAbs.x();
 //        qDebug() << "addedDampingForceAbs.y()" << addedDampingForceAbs.y();
