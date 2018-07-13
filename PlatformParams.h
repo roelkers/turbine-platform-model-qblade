@@ -82,6 +82,9 @@ public:
   double rhoWater;
   double g;
 
+  int nrRelaxations;
+  int nrRelaxationSteps;
+
   //visualisation params
   double cSystemFactor;
   double dVectorFactor;

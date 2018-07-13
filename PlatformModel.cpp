@@ -68,7 +68,7 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 
     //Add Gravity
     system.Set_G_acc(ChVector<>(0,0,-p.g));
-
+    mesh->SetAutomaticGravity(true);
     //system.Set_G_acc(ChVector<>(0,0,0));
 
     //Add nacelle, tower and hub mass
@@ -102,17 +102,24 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 
     }
 
-    system.DoStepDynamics(m_qlltSim->getTimeStep());
-    monopile->update();
+    //system.DoStepDynamics(m_qlltSim->getTimeStep());
 
-    for(auto & mooringLine : mooringLines) {
+    monopile->getBody()->SetBodyFixed(true);
 
-        //get reaction force from fairleads
-        ChVector<> reactForce = mooringLine.getConstraintMooring()->Get_react_force();
-        qDebug() << "reactForce mooring: " << reactForce.Length();
-
-        mooringLine.getTensionForce();
+    for(int i = 0; i< p.nrRelaxations; i++){
+        system.DoStaticRelaxing(p.nrRelaxationSteps);
     }
+
+    monopile->getBody()->SetBodyFixed(false);
+
+//    for(auto & mooringLine : mooringLines) {
+
+//        //get reaction force from fairleads
+//        ChVector<> reactForce = mooringLine.getConstraintMooring()->Get_react_force();
+//        qDebug() << "reactForce mooring: " << reactForce.Length();
+
+//        mooringLine.getTensionForce();
+//    }
 
 }
 

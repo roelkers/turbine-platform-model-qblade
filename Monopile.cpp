@@ -145,6 +145,8 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
     loadContainer->Add(addedYawDampingTorque);
 }
 
+
+
 void Monopile::addMasses(ChSystem& system){
 
     ChVector<> vecGtoI = ChVector<>(0,0,-p.distanceGtoE+p.platformLengthBelowTaper+p.platformLengthTaper+p.platformLengthAboveTaperInWater+p.platformLengthAboveTaperAboveWater);
@@ -253,23 +255,28 @@ void Monopile::update(){
 
     CVector addedDamping = CVector(addedDampingXPerElement,addedDampingYPerElement,addedDampingZPerElement);
 
-    double totalBuoyancyForce = 0;
+    qDebug() << "added Damping x" << addedDamping.x;
+    qDebug() << "added Damping y" << addedDamping.y;
+    qDebug() << "added Damping z" << addedDamping.z;
+
+    double totalAddedDampingForce = 0;
     //update elements
     for(auto &element : monopileElements){
-        double elementBuoyancyForce =  element.update(addedDamping);
-        qDebug() << "buoyancyForce of Element: " << elementBuoyancyForce;
+        double elementAddedDampingForce =  element.update(addedDamping);
+        //qDebug() << "buoyancyForce of Element: " << elementBuoyancyForce;
 
-        totalBuoyancyForce += elementBuoyancyForce;
+        //totalBuoyancyForce += elementBuoyancyForce;
+        totalAddedDampingForce += elementAddedDampingForce;
     }
 
-    qDebug() << "total Buoyancy Force" << totalBuoyancyForce;
+    qDebug() << "total damping force" << totalAddedDampingForce;
 
     ChVector<> markerVelocityAbs = monopileElements.at(0).getMarker()->GetAbsFrame().GetPos_dt();
     ChVector<> markerVelocityDir = platformBody->TransformDirectionParentToLocal(markerVelocityAbs);
     //calculate drag force on the bottom end of the cylinder
     double markerVelZ = markerVelocityAbs.z();
 
-    qDebug() << "markerVelocity z" << markerVelZ;
+    //qDebug() << "markerVelocity z" << markerVelZ;
 
     //simplification since the projection of the end of the zylinder on the xy plane will actually be an ellipsis
     double bottomEndAreaXY = M_PI*pow(p.platformRadiusBelowTaper,2);
@@ -292,7 +299,7 @@ void Monopile::update(){
     double platformYawSpeed = platformAngularSpeed.z();
     ChVector<> torque = ChVector<>(0,0,-platformYawSpeed*p.addedDampingYaw);
 
-    qDebug() << "yaw damping" << -platformYawSpeed*p.addedDampingYaw;
+    //qDebug() << "yaw damping" << -platformYawSpeed*p.addedDampingYaw;
 
     addedYawDampingTorque->SetTorque(torque);
 }

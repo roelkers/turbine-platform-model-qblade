@@ -12,7 +12,7 @@ PlatformParams::PlatformParams(){
   platformMass = 7466330;
   platformMassMomentInertiaInRollAndPitch = 4229223000;//1.2622e10;
   platformMassMomentInertiaInYaw = 164230000;
-  platformNrElementsBelowTaper = 15;
+  platformNrElementsBelowTaper = 50;
 
   platformLengthBelowTaper = 108;
   platformLengthTaper = 8;
@@ -30,7 +30,7 @@ PlatformParams::PlatformParams(){
 
   zInit = -89.9155;
 
-  initPosVec = ChVector<>(0,0,zInit);
+  initPosVec = ChVector<>(0,0,zInit+5);
   initVelVec = ChVector<>(0,0,0);
   initAngVelVec = ChVector<>(0,0,0);
 
@@ -77,9 +77,18 @@ PlatformParams::PlatformParams(){
   addedDampingZ = 130000;
   addedDampingYaw = 13000000;
 
+//  addedDampingX = 0;
+//  addedDampingY = 0;
+//  addedDampingZ = 0;
+//  addedDampingYaw = 0;
+
   seaLevel = 0; //sea level [m] in z-direction from origin
   rhoWater = 1025;
   g = 9.81;
+
+  //Relaxation of mooring lines
+  nrRelaxations = 20;
+  nrRelaxationSteps = 300;
 
   //visualisation params
   cSystemFactor = 50;

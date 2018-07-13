@@ -97,7 +97,6 @@ double MonopileElement::update(CVector addedDamping){
 
     double dragForceX;
     double dragForceY;
-    //double dragForceZ;
 
     double addedDampingForceX;
     double addedDampingForceY;
@@ -121,7 +120,6 @@ double MonopileElement::update(CVector addedDamping){
     else{
         dragForceX = 0;
         dragForceY = 0;
-        //dragForceZ = 0;
 
         addedDampingForceX = 0;
         addedDampingForceY = 0;
@@ -220,6 +218,10 @@ void MonopileElement::render(){
         glVertex3d(markerPos.x,markerPos.y,markerPos.z);
         CVector addedDampingForceVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+addedDampingForceAbs*p.forceLineFactor);
         glVertex3d(addedDampingForceVecEnd.x,addedDampingForceVecEnd.y,addedDampingForceVecEnd.z);
+
+//        qDebug() << "addedDampingForceAbs.x()" << addedDampingForceAbs.x();
+//        qDebug() << "addedDampingForceAbs.y()" << addedDampingForceAbs.y();
+//        qDebug() << "addedDampingForceAbs.z()" << addedDampingForceAbs.z();
 
         //light blue: buoyancyforce
 //        glColor4d(0,0,0.5,1);
