@@ -12,15 +12,17 @@ PlatformParams::PlatformParams(){
   platformMass = 7466330;
   platformMassMomentInertiaInRollAndPitch = 4229223000;//1.2622e10;
   platformMassMomentInertiaInYaw = 164230000;
+
   platformNrElementsBelowTaper = 40;
-
   platformLengthBelowTaper = 108;
-  platformLengthTaper = 8;
-  platformLengthAboveTaperAboveWater = 10;
-  platformLengthAboveTaperInWater = 4;
-
   platformRadiusBelowTaper = 4.7;
+
+  platformLengthTaper = 8;
+  platformNrElementsTaper = 10;
+
+  platformLengthAboveTaper = 10;
   platformRadiusAboveTaper = 3.25;
+  platformNrElementsAboveTaper = 10;
 
   //Initial rotation of the monopile
   qRotationX = Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_X); //roll angle

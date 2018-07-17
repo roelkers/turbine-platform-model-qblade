@@ -18,6 +18,11 @@
 
 using namespace chrono;
 using namespace chrono::fea;
+std::shared_ptr<chrono::ChLoadBodyForce> Monopile::getAddedDampingForce() const
+{
+    return addedDampingForce;
+}
+
 Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadContainer> loadContainer)
     :p(p)
 {
@@ -66,39 +71,51 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
         A = B;
     }
 
-    //Taper element
-    B = A+p.platformLengthTaper*zAxisMonopile;
-    double lengthTaperMantle = sqrt(pow((p.platformRadiusBelowTaper-p.platformRadiusAboveTaper),2)+pow(p.platformLengthTaper,2));
-    double crossSectionAreaTaper = (p.platformRadiusBelowTaper-p.platformRadiusAboveTaper)*M_PI*lengthTaperMantle;
-    volume = M_PI*p.platformLengthTaper/3*(pow(p.platformRadiusBelowTaper,2)+p.platformRadiusBelowTaper*p.platformRadiusAboveTaper+pow(p.platformRadiusAboveTaper,2));
+    //Taper elements
+    double taperLengthOfElement = p.platformLengthTaper/p.platformNrElementsTaper;
+    double crossSectionAreaTaperElement = 0;
+    double currentTaperRadius = 0;
+    double zTaper = 0.5*taperLengthOfElement;
 
-    MonopileElement taperElement(p,loadContainer,platformBody,p.platformLengthTaper,A,B, crossSectionAreaTaper, volume );
-    monopileElements.push_back(taperElement);
-    qDebug() << "A.z: " << A.z();
-    qDebug() << "B.z: " << B.z();
-    A = B;
+    qDebug()<< "lengthOfElement taper: " << taperLengthOfElement;
 
-    qDebug()<< "element volume taper: " << volume;
-    qDebug()<< "length taper mantle: " << lengthTaperMantle;
-    qDebug()<< "crossSectionArea Taper: " << crossSectionAreaTaper;
+    for(int i = 0; i<p.platformNrElementsTaper; i++){
 
-    //Create element above taper in water
-    double crossSectionAreaAboveTaperInWater = 2*p.platformRadiusAboveTaper*p.platformLengthAboveTaperInWater;
-    volume = M_PI*pow(p.platformRadiusAboveTaper,2)*p.platformLengthAboveTaperInWater;
+        B = A+taperLengthOfElement*zAxisMonopile;
+        currentTaperRadius = (p.platformRadiusAboveTaper-p.platformRadiusBelowTaper)/p.platformLengthTaper*zTaper + p.platformRadiusBelowTaper;
 
-    B = A+p.platformLengthAboveTaperInWater*zAxisMonopile;
-    MonopileElement aboveTaperElement(p,loadContainer,platformBody,p.platformLengthAboveTaperInWater,A,B,crossSectionAreaAboveTaperInWater,volume);
-    monopileElements.push_back(aboveTaperElement);
-    A = B;
+        volume = M_PI*pow(currentTaperRadius,2)*taperLengthOfElement;
+        crossSectionAreaTaperElement = 2*currentTaperRadius*taperLengthOfElement;
 
-    //Create element above taper above water
-    double crossSectionAreaAboveTaperAboveWater = 2*p.platformRadiusAboveTaper*p.platformLengthAboveTaperAboveWater;
-    volume = M_PI*pow(p.platformRadiusAboveTaper,2)*p.platformLengthAboveTaperAboveWater;
+        MonopileElement monopileElement(p,loadContainer,platformBody,taperLengthOfElement,A,B,crossSectionAreaTaperElement ,volume);
+        monopileElements.push_back(monopileElement);
 
-    B = A+p.platformLengthAboveTaperAboveWater*zAxisMonopile;
-    MonopileElement aboveTaperElementAboveWater(p,loadContainer,platformBody,p.platformLengthAboveTaperAboveWater,A,B,crossSectionAreaAboveTaperAboveWater,volume);
-    monopileElements.push_back(aboveTaperElementAboveWater);
-    A = B;
+        qDebug()<< "current taper radius" << currentTaperRadius;
+        qDebug()<< "element volume taper: " << volume;
+        qDebug()<< "z taper: " << zTaper;
+        qDebug()<< "crossSectionArea taper:  " << crossSectionAreaTaperElement;
+
+        A = B;
+        zTaper = zTaper + taperLengthOfElement;
+    }
+
+    //Create elements Above taper
+    double platformLengthOfElementAboveTaper = p.platformLengthAboveTaper/p.platformNrElementsAboveTaper;
+    double crossSectionAreaAboveTaper = 2*p.platformRadiusAboveTaper*platformLengthOfElementAboveTaper;
+    volume = M_PI*pow(p.platformRadiusAboveTaper,2)*platformLengthOfElementAboveTaper;
+
+    qDebug()<< "element volume Above taper: " << volume;
+    qDebug()<< "lengthOfElement Above taper: " << platformLengthOfElementAboveTaper;
+    qDebug()<< "crossSectionAreaAboveTaper: " << crossSectionAreaAboveTaper;
+
+    for(int i = 0; i<p.platformNrElementsAboveTaper; i++){
+        B = A+platformLengthOfElementAboveTaper*zAxisMonopile;
+
+        MonopileElement monopileElement(p,loadContainer,platformBody,platformLengthOfElementAboveTaper,A,B,crossSectionAreaAboveTaper,volume);
+        monopileElements.push_back(monopileElement);
+
+        A = B;
+    }
 
     //Create tower elements
     double towerLengthOfElement = p.towerHeight/p.nrElementsTower;
@@ -115,7 +132,7 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
         volume = M_PI*pow(currentTowerRadius,2)*towerLengthOfElement;
         crossSectionAreaTowerElement = 2*currentTowerRadius*towerLengthOfElement;
 
-        MonopileElement monopileElement(p,loadContainer,platformBody,platformLengthOfElementBelowTaper,A,B,crossSectionAreaTowerElement ,volume);
+        MonopileElement monopileElement(p,loadContainer,platformBody,towerLengthOfElement,A,B,crossSectionAreaTowerElement ,volume);
         monopileElements.push_back(monopileElement);
 
         qDebug()<< "element volume tower: " << volume;
@@ -126,7 +143,6 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
         z_tower = z_tower + towerLengthOfElement;
     }
 
-    //Init Z damping force
     addedDampingForce = std::make_shared<ChLoadBodyForce> (
       platformBody, //platformBody
       ChVector<>(0,0,0), //initialize
@@ -152,7 +168,7 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
 
 void Monopile::addMasses(ChSystem& system){
 
-    ChVector<> vecGtoI = ChVector<>(0,0,-p.distanceGtoE+p.platformLengthBelowTaper+p.platformLengthTaper+p.platformLengthAboveTaperInWater+p.platformLengthAboveTaperAboveWater);
+    ChVector<> vecGtoI = ChVector<>(0,0,-p.distanceGtoE+p.platformLengthBelowTaper+p.platformLengthTaper+p.platformLengthAboveTaper);
     ChVector<> vecItoY = ChVector<>(0,0,p.towerHeight);
     ChVector<> vecYtoN = ChVector<>(-p.nacelleDistanceDownstream,0,p.nacelleDistanceToYawBearing);
     ChVector<> vecYtoH = ChVector<>(p.hubDistanceUpstream,0,p.hubDistanceToYawBearing);
