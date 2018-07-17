@@ -36,6 +36,7 @@ public:
 
     std::shared_ptr<chrono::ChBody> getBody(){return platformBody;}
 
+    std::shared_ptr<chrono::ChLoadBodyForce> getAddedDampingForce() const;
 };
 
 #endif // MONOPILE_H

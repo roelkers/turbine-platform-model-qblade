@@ -39,6 +39,8 @@ class PlatformModel{
     double getPitchAngle();
     double getYawAngle();
     //double getDragForceZBottom();
+    double getDampingForceZ();
+    double getVelocityZ();
 
 };
 

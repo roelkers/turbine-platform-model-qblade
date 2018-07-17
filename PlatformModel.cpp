@@ -237,6 +237,17 @@ double PlatformModel::getYawAngle(){
     return angleNasa;
 }
 
+double PlatformModel::getDampingForceZ(){
+
+    return monopile->getAddedDampingForce()->GetForce().z();
+
+}
+
+double PlatformModel::getVelocityZ(){
+
+    return monopile->getBody()->GetPos_dt().z();
+}
+
 //double PlatformModel::getDragForceZBottom(){
 
 //    ChVector<> force = hydrodynamicDamping->getDragForceZBottom()->GetForce();

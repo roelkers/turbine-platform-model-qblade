@@ -22,11 +22,13 @@ public:
 
   int platformNrElementsBelowTaper;
   double platformLengthBelowTaper;
-  double platformLengthTaper;
-  double platformLengthAboveTaperInWater;
-  double platformLengthAboveTaperAboveWater;
-
   double platformRadiusBelowTaper;
+
+  double platformLengthTaper;
+  int platformNrElementsTaper;
+
+  double platformLengthAboveTaper;
+  int platformNrElementsAboveTaper;
   double platformRadiusAboveTaper;
 
   double zInit;
