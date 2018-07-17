@@ -141,7 +141,7 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
       true //local torque
     );
 
-    loadContainer->Add(dragForceZBottom);
+    //loadContainer->Add(dragForceZBottom);
     loadContainer->Add(addedYawDampingTorque);
 }
 

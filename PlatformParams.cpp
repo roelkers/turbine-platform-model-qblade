@@ -72,15 +72,15 @@ PlatformParams::PlatformParams(){
   //http://www-mdp.eng.cam.ac.uk/web/library/enginfo/aerothermal_dvd_only/aero/fprops/introvisc/node11.html
   dragCoefficientCylinderLateral = 1.20;
 
+//  addedDampingX = 100000;
+//  addedDampingY = 100000;
+//  addedDampingZ = 130000;
+//  addedDampingYaw = 13000000;
+
   addedDampingX = 100000;
   addedDampingY = 100000;
-  addedDampingZ = 130000;
+  addedDampingZ = 0;
   addedDampingYaw = 13000000;
-
-//  addedDampingX = 0;
-//  addedDampingY = 0;
-//  addedDampingZ = 0;
-//  addedDampingYaw = 0;
 
   seaLevel = 0; //sea level [m] in z-direction from origin
   rhoWater = 1025;
