@@ -27,12 +27,12 @@ PlatformParams::PlatformParams(){
   //Initial rotation of the monopile
   qRotationX = Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_X); //roll angle
   qRotationY= Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_Y); //pitch angle
-  qRotationZ= Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_Z); //yaw angle
+  qRotationZ= Q_from_AngAxis(-6 * CH_C_DEG_TO_RAD, VECT_Z); //yaw angle
   //Translate to initial Position
 
   zInit = -89.9155;
 
-  initPosVec = ChVector<>(0,0,zInit+5);
+  initPosVec = ChVector<>(0,0,zInit);
   initVelVec = ChVector<>(0,0,0);
   initAngVelVec = ChVector<>(0,0,0);
 
