@@ -61,7 +61,7 @@ MonopileElement::MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoa
 
     loadContainer->Add(dragForce);
     loadContainer->Add(buoyancyForce);
-    loadContainer->Add(addedDampingForce);
+    //loadContainer->Add(addedDampingForce);
 
 }
 
