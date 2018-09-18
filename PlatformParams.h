@@ -66,7 +66,7 @@ public:
   double mooringUnstretchedLength;
   int mooringNrElements;
   double mooringRadiusToFairleadsFromCenter;
-  double mooringLineWeightInWaterPerMeter;
+  //double mooringLineWeightInWaterPerMeter;
   double mooringRadiusToAnchorFromCenter;
   double distanceZPlatformCOGtoFairlead;
   double mooringPosAnchorZ;

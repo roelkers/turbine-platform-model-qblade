@@ -106,6 +106,9 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
       loadContainer->Add(mwrenchdis);
 
   }
+
+  qDebug() << "total buoyancy force of one mooring line" << buoyancyForcePerUnit * p.mooringUnstretchedLength;
+  qDebug() << "total weight of one mooring line" << p.mooringUnstretchedLength*p.g*p.mooringDensityPerUnit;
 }
 
 void MooringLine::setRestLengthAndPosition(){

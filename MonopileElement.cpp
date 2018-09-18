@@ -133,6 +133,7 @@ double MonopileElement::update(){
     buoyancyForce->SetForce(buoyancyForceVec,false);
     buoyancyForce->SetApplicationPoint(marker->GetAbsCoord().pos,false);
 
+    return buoyancyForceZ;
 }
 
 bool MonopileElement::isSubmerged(){

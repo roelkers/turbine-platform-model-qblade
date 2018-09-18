@@ -259,11 +259,17 @@ void Monopile::addMasses(ChSystem& system){
 
 void Monopile::update(){
 
+    double totalBuoyancyForce = 0;
+
+    double elementBuoyancyForce = 0;
     //update elements
     for(auto &element : monopileElements){
-        element.update();
+        elementBuoyancyForce = element.update();
+
+        totalBuoyancyForce += elementBuoyancyForce;
     }
 
+    //qDebug() << "totalBuoyancyForce:" << totalBuoyancyForce;
 
     //qDebug() << "markerVelocity z" << markerVelZ;
 
