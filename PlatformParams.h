@@ -79,6 +79,7 @@ public:
   double addedDampingY;
   double addedDampingZ;
   double addedDampingYaw;
+  double addedYawSpringStiffness;
 
   double seaLevel;
   double rhoWater;

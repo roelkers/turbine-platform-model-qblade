@@ -151,6 +151,12 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
       true //local point
     );
 
+    addedYawSpringTorque = std::make_shared<ChLoadBodyTorque>(
+      platformBody,
+      ChVector<>(0,0,0), //initialize
+      true //local torque
+    );
+
     addedYawDampingTorque = std::make_shared<ChLoadBodyTorque>(
       platformBody,
       ChVector<>(0,0,0), //initialize
@@ -162,7 +168,9 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
 =======
 >>>>>>> change added damping to only being applied at the cog of the monopile
     loadContainer->Add(addedYawDampingTorque);
+    loadContainer->Add(addedYawSpringTorque);
     loadContainer->Add(addedDampingForce);
+
 }
 
 
@@ -280,6 +288,14 @@ void Monopile::update(){
     ChVector<> addedDampingForceVec = ChVector<>(addedDampingForceX,addedDampingForceY,addedDampingForceZ);
 
     addedDampingForce->SetForce(addedDampingForceVec,true);
+
+    //Calculate torque due to artifical yaw spring stiffness
+
+    double addedYawSpringTorqueZ = -platformBody->GetRot().Q_to_NasaAngles().z()*p.addedYawSpringStiffness;
+
+    ChVector<> yawSpringTorque = ChVector<>(0,0,addedYawSpringTorqueZ);
+
+    addedYawSpringTorque->SetTorque(addedYawSpringTorqueZ);
 
     //Calculate additional damping of platform around yaw-axis
 

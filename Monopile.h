@@ -25,6 +25,7 @@ private:
 
     std::vector<MonopileElement> monopileElements;
     std::shared_ptr<chrono::ChLoadBodyForce> addedDampingForce;
+    std::shared_ptr<chrono::ChLoadBodyTorque> addedYawSpringTorque;
     std::shared_ptr<chrono::ChLoadBodyTorque> addedYawDampingTorque;
 
 public:
