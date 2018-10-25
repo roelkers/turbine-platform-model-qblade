@@ -61,7 +61,6 @@ MonopileElement::MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoa
 
     loadContainer->Add(dragForce);
     loadContainer->Add(buoyancyForce);
-    //loadContainer->Add(addedDampingForce);
 
 }
 
@@ -107,8 +106,16 @@ double MonopileElement::update(){
 
     if(isSubmerged()){
 
-        dragForceX = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelX*crossSectionArea;
-        dragForceY = -0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelY*crossSectionArea;
+        double signX = 0;
+        double signY = 0;
+
+        if(markerVelX >= 0) signX = 1;
+        if(markerVelX < 0 ) signX = -1;
+        if(markerVelY >= 0) signY = 1;
+        if(markerVelY < 0 ) signY = -1;
+
+        dragForceX = -signX * 0.5*p.rhoWater*p.dragCoefficientCylinderLateral*pow(markerVelX,2)*crossSectionArea;
+        dragForceY = -signY * 0.5*p.rhoWater*p.dragCoefficientCylinderLateral*pow(markerVelY,2)*crossSectionArea;
 
         buoyancyForceZ = p.rhoWater*volume*p.g;
     }
@@ -133,7 +140,7 @@ double MonopileElement::update(){
     buoyancyForce->SetForce(buoyancyForceVec,false);
     buoyancyForce->SetApplicationPoint(marker->GetAbsCoord().pos,false);
 
-    return buoyancyForceZ;
+    return dragForceVec.Length();
 }
 
 bool MonopileElement::isSubmerged(){

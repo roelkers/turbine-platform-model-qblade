@@ -163,10 +163,9 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
       true //local torque
     );
 
-    //loadContainer->Add(dragForceZBottom);
     loadContainer->Add(addedYawDampingTorque);
     loadContainer->Add(addedYawSpringTorque);
-    loadContainer->Add(addedDampingForce);
+    //loadContainer->Add(addedDampingForce);
 
 }
 
@@ -264,17 +263,17 @@ void Monopile::addMasses(ChSystem& system){
 
 void Monopile::update(){
 
-    double totalBuoyancyForce = 0;
+    double totalDragForce = 0;
 
-    double elementBuoyancyForce = 0;
+    double elementDragForce = 0;
     //update elements
     for(auto &element : monopileElements){
-        elementBuoyancyForce = element.update();
+        elementDragForce = element.update();
 
-        totalBuoyancyForce += elementBuoyancyForce;
+        totalDragForce += elementDragForce;
     }
 
-    //qDebug() << "totalBuoyancyForce:" << totalBuoyancyForce;
+    qDebug() << "totalDragForce:" << totalDragForce;
 
     //qDebug() << "markerVelocity z" << markerVelZ;
 
@@ -283,6 +282,8 @@ void Monopile::update(){
     double addedDampingForceZ = -platformBody->GetPos_dt().z()*p.addedDampingZ;
 
     ChVector<> addedDampingForceVec = ChVector<>(addedDampingForceX,addedDampingForceY,addedDampingForceZ);
+
+    qDebug() << "addedDampingForce: " << addedDampingForceVec.Length();
 
     addedDampingForce->SetForce(addedDampingForceVec,true);
 
@@ -310,6 +311,8 @@ void Monopile::update(){
 void Monopile::render(){
     glPointSize(10);
     glLineWidth(3);
+
+    qDebug()<< "render monopile";
 
     //Draw viz vertices
     glBegin(GL_POINTS);

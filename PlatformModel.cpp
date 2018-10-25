@@ -143,11 +143,11 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 
 void PlatformModel::render(){
 
+    qDebug() << "rendering platform model";
+
     glNewList(GLPLATFORM,GL_COMPILE);
     {
         monopile->render();
-//        buoyancy->render();
-//        hydrodynamicDamping->render();
 
         for(auto & mooringLine : mooringLines) {
             mooringLine.render();

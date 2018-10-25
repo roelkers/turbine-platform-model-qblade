@@ -27,12 +27,12 @@ PlatformParams::PlatformParams(){
   //Initial rotation of the monopile
   qRotationX = Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_X); //roll angle
   qRotationY= Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_Y); //pitch angle
-  qRotationZ= Q_from_AngAxis(-6 * CH_C_DEG_TO_RAD, VECT_Z); //yaw angle
+  qRotationZ= Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_Z); //yaw angle
   //Translate to initial Position
 
   zInit = -89.9155;
 
-  initPosVec = ChVector<>(0,0,zInit);
+  initPosVec = ChVector<>(20,0,zInit);
   initVelVec = ChVector<>(0,0,0);
   initAngVelVec = ChVector<>(0,0,0);
 
@@ -70,8 +70,7 @@ PlatformParams::PlatformParams(){
 
   //source: https:en.wikipedia.org/wiki/Drag_coefficient
   dragCoefficientCylinderAxial = 0.82;
-  //source: http://sv.20file.org/up1/916_0.pdf
-  //http://www-mdp.eng.cam.ac.uk/web/library/enginfo/aerothermal_dvd_only/aero/fprops/introvisc/node11.html
+  https://de.wikipedia.org/wiki/Strömungswiderstandskoeffizient
   dragCoefficientCylinderLateral = 1.20;
 
 //  addedDampingX = 100000;
