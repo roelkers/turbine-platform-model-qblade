@@ -28,6 +28,9 @@ private:
     std::shared_ptr<chrono::ChLoadBodyTorque> addedYawSpringTorque;
     std::shared_ptr<chrono::ChLoadBodyTorque> addedYawDampingTorque;
 
+    std::shared_ptr<chrono::ChLoadBodyForce> aerolasticInterfaceForce;
+    std::shared_ptr<chrono::ChLoadBodyTorque> aerolasticInterfaceTorque;
+
 public:
     Monopile(chrono::ChSystem& system, PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer);
 

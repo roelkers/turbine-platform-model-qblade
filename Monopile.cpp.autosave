@@ -188,7 +188,6 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
     loadContainer->Add(aerolasticInterfaceForce);
     loadContainer->Add(aerolasticInterfaceTorque);
 
-
 }
 
 
