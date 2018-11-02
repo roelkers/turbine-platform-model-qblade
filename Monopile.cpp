@@ -164,19 +164,19 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
     );
 
     //interface force & torque
-
-    ChVector<> vecGtoILocal = ChVector<>(0,0,p.platformLengthBelowTaper+p.platformLengthTaper+p.platformLengthAboveTaper);
+    interfaceBody = std::make_shared<ChBody>();
+    system.Add(interfaceBody);
 
     aerolasticInterfaceForce = std::make_shared<ChLoadBodyForce> (
-      platformBody, //platformBody
+      interfaceBody, //platformBody
       ChVector<>(0,0,0), //initialize
       true, //local force
-      vecGtoILocal,
+      ChVector<>(0,0,0),
       true //local point
     );
 
     aerolasticInterfaceTorque = std::make_shared<ChLoadBodyTorque>(
-      platformBody,
+      interfaceBody,
       ChVector<>(0,0,0), //initialize
       true //local torque
     );
@@ -188,7 +188,6 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
     loadContainer->Add(aerolasticInterfaceForce);
     loadContainer->Add(aerolasticInterfaceTorque);
 
-
 }
 
 
@@ -199,6 +198,12 @@ void Monopile::addMasses(ChSystem& system){
     ChVector<> vecYtoN = ChVector<>(-p.nacelleDistanceDownstream,0,p.nacelleDistanceToYawBearing);
     ChVector<> vecYtoH = ChVector<>(p.hubDistanceUpstream,0,p.hubDistanceToYawBearing);
     ChVector<> vecItoT = ChVector<>(0,0,p.towerCOGDistanceFromBottom);
+
+    ChVector<> interfacePos = platformBody->TransformPointLocalToParent(vecGtoI);
+    interfaceBody->SetPos(interfacePos);
+    std::shared_ptr<ChLinkMateFix> interfaceConstraint = std::make_shared<ChLinkMateFix>();
+    interfaceConstraint->Initialize(platformBody,interfaceBody);
+    system.Add(interfaceConstraint);
 
     ChVector<> nacellePos = platformBody->TransformPointLocalToParent(vecGtoI+vecItoY+vecYtoN);
     nacelleBody = std::make_shared<ChBody>();
@@ -283,7 +288,7 @@ void Monopile::addMasses(ChSystem& system){
     qDebug() << "Total mass of all bodies: " << totalMass;
 }
 
-void Monopile::update(ChVector<> force, ChVector<> torque){
+void Monopile::update(ChVector<> interfaceForceVec, ChVector<> interfaceTorqueVec){
 
     double totalDragForce = 0;
 
@@ -330,8 +335,12 @@ void Monopile::update(ChVector<> force, ChVector<> torque){
     addedYawDampingTorque->SetTorque(torque);
 
     //update forces & torques at interface
-    aerolasticInterfaceForce->SetForce(force);
-    aerolasticInterfaceTorque->SetTorque(torque);
+
+    qDebug() << "aerolasticeInterfaceForce: " << interfaceForceVec.Length();
+    qDebug() << "aerolasticeInterfaceTorque: " << interfaceTorqueVec.Length();
+
+    aerolasticInterfaceForce->SetForce(interfaceForceVec, true);
+    aerolasticInterfaceTorque->SetTorque(interfaceTorqueVec);
 }
 
 void Monopile::render(){

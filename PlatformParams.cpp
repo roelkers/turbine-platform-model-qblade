@@ -32,7 +32,7 @@ PlatformParams::PlatformParams(){
 
   zInit = -89.9155;
 
-  initPosVec = ChVector<>(20,0,zInit);
+  initPosVec = ChVector<>(0,0,6+zInit);
   initVelVec = ChVector<>(0,0,0);
   initAngVelVec = ChVector<>(0,0,0);
 
@@ -63,7 +63,6 @@ PlatformParams::PlatformParams(){
   mooringNrElements = 10;
   mooringRadiusToFairleadsFromCenter = 5.2;
   mooringRadiusToAnchorFromCenter = 853.87;
-  //mooringLineWeightInWaterPerMeter = 698.094;
   distanceZPlatformCOGtoFairlead = 19.9155;
   mooringPosAnchorZ = -320;
   mooringDensityPerUnit = 77.7066;
@@ -72,11 +71,6 @@ PlatformParams::PlatformParams(){
   dragCoefficientCylinderAxial = 0.82;
   https://de.wikipedia.org/wiki/Strömungswiderstandskoeffizient
   dragCoefficientCylinderLateral = 1.20;
-
-//  addedDampingX = 100000;
-//  addedDampingY = 100000;
-//  addedDampingZ = 130000;
-//  addedDampingYaw = 13000000;
 
   addedDampingX = 100000;
   addedDampingY = 100000;

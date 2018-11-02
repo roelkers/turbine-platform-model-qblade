@@ -157,7 +157,7 @@ void PlatformModel::render(){
 
 }
 
-void PlatformModel::update(double endTime){
+void PlatformModel::update(double endTime, CVector aerolasticInterfaceForce, CVector aerolasticInterfaceTorque){
 
     double old_step;
     double left_time;
@@ -169,7 +169,7 @@ void PlatformModel::update(double endTime){
 
     while (system.GetChTime() < endTime) {
 
-        monopile->update();
+        monopile->update(ChVecFromCVec(aerolasticInterfaceForce), ChVecFromCVec(aerolasticInterfaceTorque));
 
         restore_oldstep = FALSE;
         left_time = endTime - system.GetChTime();

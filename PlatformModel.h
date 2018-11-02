@@ -21,16 +21,13 @@ class PlatformModel{
     chrono::ChSystemNSC system;
     std::shared_ptr<chrono::fea::ChMesh> mesh = std::make_shared<chrono::fea::ChMesh>();
     std::shared_ptr<Monopile> monopile;
-//    std::shared_ptr<Buoyancy> buoyancy;
-//    std::shared_ptr<HydrodynamicDamping> hydrodynamicDamping;
     std::vector<MooringLine> mooringLines;
 
-//    double dT = 0.005;
     QLLTSimulation *m_qlltSim;
   public:
     PlatformModel(QLLTSimulation *qLLTSim);
     double calculateRestPositionOfPlatform();
-    void update(double endTime);
+    void update(double endTime, CVector aerolasticInterfaceForce, CVector aerolasticInterfaceTorque);
     void render();
     double getXPosition();
     double getYPosition();

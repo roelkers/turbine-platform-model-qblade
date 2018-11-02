@@ -21,6 +21,7 @@ private:
     std::shared_ptr<chrono::ChBody> nacelleBody;
     std::shared_ptr<chrono::ChBody> hubBody;
     std::shared_ptr<chrono::ChBody> towerBody;
+    std::shared_ptr<chrono::ChBody> interfaceBody;
     std::vector<std::shared_ptr<chrono::ChBody>> bladeBodies;
 
     std::vector<MonopileElement> monopileElements;
@@ -35,7 +36,7 @@ public:
     Monopile(chrono::ChSystem& system, PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer);
 
     void render();
-    void update();
+    void update(chrono::ChVector<> force, chrono::ChVector<> torque);
     void addMasses(chrono::ChSystem &system);
 
     std::shared_ptr<chrono::ChBody> getBody(){return platformBody;}
