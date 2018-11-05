@@ -32,7 +32,7 @@ PlatformParams::PlatformParams(){
 
   zInit = -89.9155;
 
-  initPosVec = ChVector<>(0,0,6+zInit);
+  initPosVec = ChVector<>(0,0,zInit);
   initVelVec = ChVector<>(0,0,0);
   initAngVelVec = ChVector<>(0,0,0);
 
