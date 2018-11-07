@@ -170,7 +170,7 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
     aerolasticInterfaceForce = std::make_shared<ChLoadBodyForce> (
       interfaceBody, //platformBody
       ChVector<>(0,0,0), //initialize
-      true, //local force
+      false, //local force
       ChVector<>(0,0,0),
       true //local point
     );
@@ -178,7 +178,7 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
     aerolasticInterfaceTorque = std::make_shared<ChLoadBodyTorque>(
       interfaceBody,
       ChVector<>(0,0,0), //initialize
-      true //local torque
+      false //local torque
     );
 
     loadContainer->Add(addedYawDampingTorque);
@@ -199,6 +199,8 @@ void Monopile::addMasses(ChSystem& system){
     ChVector<> vecYtoH = ChVector<>(p.hubDistanceUpstream,0,p.hubDistanceToYawBearing);
     ChVector<> vecItoT = ChVector<>(0,0,p.towerCOGDistanceFromBottom);
 
+
+    qDebug() << "vecGtoI Length" << vecGtoI.Length();
     ChVector<> interfacePos = platformBody->TransformPointLocalToParent(vecGtoI);
     interfaceBody->SetPos(interfacePos);
     std::shared_ptr<ChLinkMateFix> interfaceConstraint = std::make_shared<ChLinkMateFix>();
@@ -347,8 +349,6 @@ void Monopile::render(){
     glPointSize(10);
     glLineWidth(3);
 
-    qDebug()<< "render monopile";
-
     //Draw viz vertices
     glBegin(GL_POINTS);
         //blue: body
@@ -374,6 +374,11 @@ void Monopile::render(){
             CVector bladePos = CVecFromChVec(blade->GetPos());
             glVertex3d(bladePos.x,bladePos.y,bladePos.z);
         }
+        //Draw Interface Body: blue
+        CVector interfacePos = CVecFromChVec(interfaceBody->GetPos());
+        glPointSize(20);
+        glColor4d(0,1,0,1);
+        glVertex3d(interfacePos.x,interfacePos.y,interfacePos.z);
     glEnd();
 
     glPointSize(0.1);
@@ -426,5 +431,9 @@ void Monopile::render(){
     for(auto &element : monopileElements){
         element.render();
     }
+}
+
+CVector Monopile::getInterfacePos(){
+    return CVecFromChVec(interfaceBody->GetPos());
 }
 

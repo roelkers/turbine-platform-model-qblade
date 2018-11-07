@@ -143,8 +143,6 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 
 void PlatformModel::render(){
 
-    qDebug() << "rendering platform model";
-
     glNewList(GLPLATFORM,GL_COMPILE);
     {
         monopile->render();
@@ -254,3 +252,6 @@ double PlatformModel::getVelocityZ(){
 //    return force.Length();
 //}
 
+CVector PlatformModel::getInterfacePos(){
+    return monopile->getInterfacePos();
+}

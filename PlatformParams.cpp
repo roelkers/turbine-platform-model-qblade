@@ -20,7 +20,7 @@ PlatformParams::PlatformParams(){
   platformLengthTaper = 8;
   platformNrElementsTaper = 10;
 
-  platformLengthAboveTaper = 10;
+  platformLengthAboveTaper = 14;
   platformRadiusAboveTaper = 3.25;
   platformNrElementsAboveTaper = 10;
 

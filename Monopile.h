@@ -40,6 +40,7 @@ public:
     void addMasses(chrono::ChSystem &system);
 
     std::shared_ptr<chrono::ChBody> getBody(){return platformBody;}
+    CVector getInterfacePos();
 
     std::shared_ptr<chrono::ChLoadBodyForce> getAddedDampingForce() const;
 };

@@ -202,10 +202,10 @@ void MonopileElement::render(){
 //        glVertex3d(zAxisEnd.x,zAxisEnd.y,zAxisEnd.z);
 
         //light red/light green/ blue: drag force
-        glColor4d(1,0.5,0.5,1);
-        glVertex3d(markerPos.x,markerPos.y,markerPos.z);
-        CVector dragForceVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+dragForceAbs*p.forceLineFactor);
-        glVertex3d(dragForceVecEnd.x,dragForceVecEnd.y,dragForceVecEnd.z);
+        //glColor4d(1,0.5,0.5,1);
+        //glVertex3d(markerPos.x,markerPos.y,markerPos.z);
+        //CVector dragForceVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+dragForceAbs*p.forceLineFactor);
+        //glVertex3d(dragForceVecEnd.x,dragForceVecEnd.y,dragForceVecEnd.z);
 
 //        qDebug() << "addedDampingForceAbs.x()" << addedDampingForceAbs.x();
 //        qDebug() << "addedDampingForceAbs.y()" << addedDampingForceAbs.y();
