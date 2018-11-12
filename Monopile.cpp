@@ -117,31 +117,31 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
         A = B;
     }
 
-    //Create tower elements
-    double towerLengthOfElement = p.towerHeight/p.nrElementsTower;
-    double crossSectionAreaTowerElement = 0;
-    double currentTowerRadius = 0;
-    double z_tower = 0.5*towerLengthOfElement;
+//    //Create tower elements
+//    double towerLengthOfElement = p.towerHeight/p.nrElementsTower;
+//    double crossSectionAreaTowerElement = 0;
+//    double currentTowerRadius = 0;
+//    double z_tower = 0.5*towerLengthOfElement;
 
-    for(int i = 0; i<p.nrElementsTower; i++){
+//    for(int i = 0; i<p.nrElementsTower; i++){
 
-        B = A+towerLengthOfElement*zAxisMonopile;
-        //calculate linear tower radius
-        currentTowerRadius = (p.towerRadiusTop-p.platformRadiusAboveTaper)/p.towerHeight*z_tower + p.platformRadiusAboveTaper;
+//        B = A+towerLengthOfElement*zAxisMonopile;
+//        //calculate linear tower radius
+//        currentTowerRadius = (p.towerRadiusTop-p.platformRadiusAboveTaper)/p.towerHeight*z_tower + p.platformRadiusAboveTaper;
 
-        volume = M_PI*pow(currentTowerRadius,2)*towerLengthOfElement;
-        crossSectionAreaTowerElement = 2*currentTowerRadius*towerLengthOfElement;
+//        volume = M_PI*pow(currentTowerRadius,2)*towerLengthOfElement;
+//        crossSectionAreaTowerElement = 2*currentTowerRadius*towerLengthOfElement;
 
-        MonopileElement monopileElement(p,loadContainer,platformBody,towerLengthOfElement,A,B,crossSectionAreaTowerElement ,volume);
-        monopileElements.push_back(monopileElement);
+//        MonopileElement monopileElement(p,loadContainer,platformBody,towerLengthOfElement,A,B,crossSectionAreaTowerElement ,volume);
+//        monopileElements.push_back(monopileElement);
 
-        qDebug()<< "element volume tower: " << volume;
-        qDebug()<< "z tower: " << z_tower;
-        qDebug()<< "crossSectionArea tower:  " << crossSectionAreaTowerElement;
+//        qDebug()<< "element volume tower: " << volume;
+//        qDebug()<< "z tower: " << z_tower;
+//        qDebug()<< "crossSectionArea tower:  " << crossSectionAreaTowerElement;
 
-        A = B;
-        z_tower = z_tower + towerLengthOfElement;
-    }
+//        A = B;
+//        z_tower = z_tower + towerLengthOfElement;
+//    }
 
     addedDampingForce = std::make_shared<ChLoadBodyForce> (
       platformBody, //platformBody
@@ -207,87 +207,87 @@ void Monopile::addMasses(ChSystem& system){
     interfaceConstraint->Initialize(platformBody,interfaceBody);
     system.Add(interfaceConstraint);
 
-    ChVector<> nacellePos = platformBody->TransformPointLocalToParent(vecGtoI+vecItoY+vecYtoN);
-    nacelleBody = std::make_shared<ChBody>();
-    nacelleBody->SetPos(nacellePos);
-    nacelleBody->SetMass(p.nacelleMass);
-    system.Add(nacelleBody);
+//    ChVector<> nacellePos = platformBody->TransformPointLocalToParent(vecGtoI+vecItoY+vecYtoN);
+//    nacelleBody = std::make_shared<ChBody>();
+//    nacelleBody->SetPos(nacellePos);
+//    nacelleBody->SetMass(p.nacelleMass);
+//    system.Add(nacelleBody);
 
-    qDebug() << "nacelle mass:" << nacelleBody->GetMass();
+//    qDebug() << "nacelle mass:" << nacelleBody->GetMass();
 
-    std::shared_ptr<ChLinkMateFix> nacelleConstraint = std::make_shared<ChLinkMateFix>();
-    nacelleConstraint->Initialize(platformBody,nacelleBody);
-    system.Add(nacelleConstraint);
+//    std::shared_ptr<ChLinkMateFix> nacelleConstraint = std::make_shared<ChLinkMateFix>();
+//    nacelleConstraint->Initialize(platformBody,nacelleBody);
+//    system.Add(nacelleConstraint);
 
-    ChVector<> hubPos = platformBody->TransformPointLocalToParent(vecGtoI+vecItoY+vecYtoH);
-    hubBody = std::make_shared<ChBody>();
-    hubBody->SetPos(hubPos);
-    hubBody->SetMass(p.hubMass);
-    hubBody->SetRot(platformBody->GetRot());
-    system.Add(hubBody);
+//    ChVector<> hubPos = platformBody->TransformPointLocalToParent(vecGtoI+vecItoY+vecYtoH);
+//    hubBody = std::make_shared<ChBody>();
+//    hubBody->SetPos(hubPos);
+//    hubBody->SetMass(p.hubMass);
+//    hubBody->SetRot(platformBody->GetRot());
+//    system.Add(hubBody);
 
-    //qDebug() << "nacelle mass:" << nacelleBody->GetMass();
+//    //qDebug() << "nacelle mass:" << nacelleBody->GetMass();
 
-    std::shared_ptr<ChLinkMateFix> hubConstraint = std::make_shared<ChLinkMateFix>();
-    hubConstraint->Initialize(platformBody,hubBody);
-    system.Add(hubConstraint);
+//    std::shared_ptr<ChLinkMateFix> hubConstraint = std::make_shared<ChLinkMateFix>();
+//    hubConstraint->Initialize(platformBody,hubBody);
+//    system.Add(hubConstraint);
 
-    ChVector<> towerPos = platformBody->TransformPointLocalToParent(vecGtoI+vecItoT);
-    towerBody = std::make_shared<ChBody>();
-    towerBody->SetPos(towerPos);
-    towerBody->SetMass(p.towerMass);
-    system.Add(towerBody);
+//    ChVector<> towerPos = platformBody->TransformPointLocalToParent(vecGtoI+vecItoT);
+//    towerBody = std::make_shared<ChBody>();
+//    towerBody->SetPos(towerPos);
+//    towerBody->SetMass(p.towerMass);
+//    system.Add(towerBody);
 
-    std::shared_ptr<ChLinkMateFix> towerConstraint = std::make_shared<ChLinkMateFix>();
-    towerConstraint->Initialize(platformBody,towerBody);
-    system.Add(towerConstraint);
+//    std::shared_ptr<ChLinkMateFix> towerConstraint = std::make_shared<ChLinkMateFix>();
+//    towerConstraint->Initialize(platformBody,towerBody);
+//    system.Add(towerConstraint);
 
-    //Create Blades
-    double thetaInc;
-    if(p.bladeNr>0){
-        thetaInc = 360/p.bladeNr;
-    }
-    double theta = 0;
+//    //Create Blades
+//    double thetaInc;
+//    if(p.bladeNr>0){
+//        thetaInc = 360/p.bladeNr;
+//    }
+//    double theta = 0;
 
-    std::shared_ptr<ChBody> bladeBody;
-    ChVector<> bladePos;
-    double zBlade = 0;
-    double yBlade = 0;
-    double totalBladeMass = 0;
-    for(int i = 0; i < p.bladeNr; i++){
-        theta = theta + thetaInc;
-        bladeBody = std::make_shared<ChBody>();
-        bladeBody->SetMass(p.bladeMass);
+//    std::shared_ptr<ChBody> bladeBody;
+//    ChVector<> bladePos;
+//    double zBlade = 0;
+//    double yBlade = 0;
+//    double totalBladeMass = 0;
+//    for(int i = 0; i < p.bladeNr; i++){
+//        theta = theta + thetaInc;
+//        bladeBody = std::make_shared<ChBody>();
+//        bladeBody->SetMass(p.bladeMass);
 
-        double xStart = p.mooringRadiusToFairleadsFromCenter*sin(theta/180*M_PI);
-        double yStart = p.mooringRadiusToFairleadsFromCenter*cos(theta/180*M_PI);
+//        double xStart = p.mooringRadiusToFairleadsFromCenter*sin(theta/180*M_PI);
+//        double yStart = p.mooringRadiusToFairleadsFromCenter*cos(theta/180*M_PI);
 
-        double bladeCOGRadiusFromHubAxis = (p.bladeCOGDistanceFromRoot+p.hubDiameter/2);
+//        double bladeCOGRadiusFromHubAxis = (p.bladeCOGDistanceFromRoot+p.hubDiameter/2);
 
-        zBlade = bladeCOGRadiusFromHubAxis*sin(theta/180*M_PI);
-        yBlade = bladeCOGRadiusFromHubAxis*cos(theta/180*M_PI);
+//        zBlade = bladeCOGRadiusFromHubAxis*sin(theta/180*M_PI);
+//        yBlade = bladeCOGRadiusFromHubAxis*cos(theta/180*M_PI);
 
-        bladePos = hubBody->TransformPointLocalToParent(ChVector<>(0,yBlade,zBlade));
+//        bladePos = hubBody->TransformPointLocalToParent(ChVector<>(0,yBlade,zBlade));
 
-        bladeBody->SetPos(bladePos);
-        bladeBodies.push_back(bladeBody);
+//        bladeBody->SetPos(bladePos);
+//        bladeBodies.push_back(bladeBody);
 
-        system.Add(bladeBody);
+//        system.Add(bladeBody);
 
-        std::shared_ptr<ChLinkMateFix> bladeConstraint = std::make_shared<ChLinkMateFix>();
-        bladeConstraint->Initialize(hubBody,bladeBody);
-        system.Add(bladeConstraint);
+//        std::shared_ptr<ChLinkMateFix> bladeConstraint = std::make_shared<ChLinkMateFix>();
+//        bladeConstraint->Initialize(hubBody,bladeBody);
+//        system.Add(bladeConstraint);
 
-        qDebug()<< "creating blade nr:" << i;
-        qDebug()<< "theta blade: " << theta;
-        qDebug()<< "yBlade: " << yBlade;
-        qDebug()<< "zBlade: " << zBlade;
+//        qDebug()<< "creating blade nr:" << i;
+//        qDebug()<< "theta blade: " << theta;
+//        qDebug()<< "yBlade: " << yBlade;
+//        qDebug()<< "zBlade: " << zBlade;
 
-        totalBladeMass += bladeBody->GetMass();
-    }
+//        totalBladeMass += bladeBody->GetMass();
+//    }
 
-    double totalMass = platformBody->GetMass() + hubBody->GetMass() + towerBody->GetMass() + nacelleBody->GetMass() + totalBladeMass;
-    qDebug() << "Total mass of all bodies: " << totalMass;
+//    double totalMass = platformBody->GetMass() + hubBody->GetMass() + towerBody->GetMass() + nacelleBody->GetMass() + totalBladeMass;
+//    qDebug() << "Total mass of all bodies: " << totalMass;
 }
 
 void Monopile::update(ChVector<> interfaceForceVec, ChVector<> interfaceTorqueVec){
@@ -355,25 +355,25 @@ void Monopile::render(){
         glColor4d(0,0,1,1);
         CVector monopilePos = CVecFromChVec(platformBody->GetPos());
         glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
-        //strong red, green: nacelle //sky blue
-        glColor4d(0.75,1,0,1);
-        CVector nacellePos = CVecFromChVec(nacelleBody->GetPos());
-        glVertex3d(nacellePos.x,nacellePos.y,nacellePos.z);
-        //strong green, blue: hub //olive
-        glColor4d(0,0.75,1,1);
-        CVector hubPos = CVecFromChVec(hubBody->GetPos());
-        glVertex3d(hubPos.x,hubPos.y,hubPos.z);
+//        //strong red, green: nacelle //sky blue
+//        glColor4d(0.75,1,0,1);
+//        CVector nacellePos = CVecFromChVec(nacelleBody->GetPos());
+//        glVertex3d(nacellePos.x,nacellePos.y,nacellePos.z);
+//        //strong green, blue: hub //olive
+//        glColor4d(0,0.75,1,1);
+//        CVector hubPos = CVecFromChVec(hubBody->GetPos());
+//        glVertex3d(hubPos.x,hubPos.y,hubPos.z);
 
-        //strong red, blue, green: tower //dark pink
-        glColor4d(0.75,1,1,1);
-        CVector towerPos = CVecFromChVec(towerBody->GetPos());
-        glVertex3d(towerPos.x,towerPos.y,towerPos.z);
-        //strong blue, red: blades
-        glColor4d(1,0,0.75,1);
-        for(auto &blade : bladeBodies){
-            CVector bladePos = CVecFromChVec(blade->GetPos());
-            glVertex3d(bladePos.x,bladePos.y,bladePos.z);
-        }
+//        //strong red, blue, green: tower //dark pink
+//        glColor4d(0.75,1,1,1);
+//        CVector towerPos = CVecFromChVec(towerBody->GetPos());
+//        glVertex3d(towerPos.x,towerPos.y,towerPos.z);
+//        //strong blue, red: blades
+//        glColor4d(1,0,0.75,1);
+//        for(auto &blade : bladeBodies){
+//            CVector bladePos = CVecFromChVec(blade->GetPos());
+//            glVertex3d(bladePos.x,bladePos.y,bladePos.z);
+//        }
         //Draw Interface Body: blue
         CVector interfacePos = CVecFromChVec(interfaceBody->GetPos());
         glPointSize(20);
