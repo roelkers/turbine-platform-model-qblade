@@ -59,7 +59,7 @@ PlatformParams::PlatformParams(){
   mooringDiameter = 0.09;
   mooringStiffnessTimesLength = 384243000; //8471133.49;
   mooringUnstretchedLength = 902.2;
-  mooringRaleyghDamping = 0.003000;
+  mooringRaleyghDamping = 0.1000;
   mooringNrElements = 10;
   mooringRadiusToFairleadsFromCenter = 5.2;
   mooringRadiusToAnchorFromCenter = 853.87;
@@ -82,8 +82,8 @@ PlatformParams::PlatformParams(){
   rhoWater = 1025;
   g = 9.81;
 
-  nrRelaxations = 20;
-  nrRelaxationSteps = 300;
+  nrRelaxations = 5;
+  nrRelaxationSteps = 500;
 
   //visualisation params
   cSystemFactor = 50;

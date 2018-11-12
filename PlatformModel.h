@@ -39,6 +39,7 @@ class PlatformModel{
     double getDampingForceZ();
     double getVelocityZ();
     CVector getInterfacePos();
+
 };
 
 #endif

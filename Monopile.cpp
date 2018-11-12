@@ -167,16 +167,19 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
     interfaceBody = std::make_shared<ChBody>();
     system.Add(interfaceBody);
 
+    //Vector from platform COG to the interface
+    ChVector<> vecGtoI = ChVector<>(0,0,-p.distanceGtoE+p.platformLengthBelowTaper+p.platformLengthTaper+p.platformLengthAboveTaper);
+
     aerolasticInterfaceForce = std::make_shared<ChLoadBodyForce> (
-      interfaceBody, //platformBody
+      platformBody, //platformBody
       ChVector<>(0,0,0), //initialize
       false, //local force
-      ChVector<>(0,0,0),
+      vecGtoI,
       true //local point
     );
 
     aerolasticInterfaceTorque = std::make_shared<ChLoadBodyTorque>(
-      interfaceBody,
+      platformBody,
       ChVector<>(0,0,0), //initialize
       false //local torque
     );
@@ -194,11 +197,10 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
 void Monopile::addMasses(ChSystem& system){
 
     ChVector<> vecGtoI = ChVector<>(0,0,-p.distanceGtoE+p.platformLengthBelowTaper+p.platformLengthTaper+p.platformLengthAboveTaper);
-    ChVector<> vecItoY = ChVector<>(0,0,p.towerHeight);
-    ChVector<> vecYtoN = ChVector<>(-p.nacelleDistanceDownstream,0,p.nacelleDistanceToYawBearing);
-    ChVector<> vecYtoH = ChVector<>(p.hubDistanceUpstream,0,p.hubDistanceToYawBearing);
-    ChVector<> vecItoT = ChVector<>(0,0,p.towerCOGDistanceFromBottom);
-
+//    ChVector<> vecItoY = ChVector<>(0,0,p.towerHeight);
+//    ChVector<> vecYtoN = ChVector<>(-p.nacelleDistanceDownstream,0,p.nacelleDistanceToYawBearing);
+//    ChVector<> vecYtoH = ChVector<>(p.hubDistanceUpstream,0,p.hubDistanceToYawBearing);
+//    ChVector<> vecItoT = ChVector<>(0,0,p.towerCOGDistanceFromBottom);
 
     qDebug() << "vecGtoI Length" << vecGtoI.Length();
     ChVector<> interfacePos = platformBody->TransformPointLocalToParent(vecGtoI);
@@ -302,7 +304,7 @@ void Monopile::update(ChVector<> interfaceForceVec, ChVector<> interfaceTorqueVe
         totalDragForce += elementDragForce;
     }
 
-    qDebug() << "totalDragForce:" << totalDragForce;
+    //qDebug() << "totalDragForce:" << totalDragForce;
 
     //qDebug() << "markerVelocity z" << markerVelZ;
 
