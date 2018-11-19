@@ -340,6 +340,11 @@ void Monopile::update(ChVector<> interfaceForceVec, ChVector<> interfaceTorqueVe
 
     //update forces & torques at interface
 
+    qDebug() << "aerolasticeInterfaceForce x: " << interfaceForceVec.x();
+
+    interfaceForceVec.x() = 0;
+    //interfaceTorqueVec = ChVector<>(0,0,0);
+
     qDebug() << "aerolasticeInterfaceForce: " << interfaceForceVec.Length();
     qDebug() << "aerolasticeInterfaceTorque: " << interfaceTorqueVec.Length();
 
