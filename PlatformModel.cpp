@@ -161,7 +161,7 @@ void PlatformModel::update(double endTime, CVector aerolasticInterfaceForce, CVe
     double left_time;
     int restore_oldstep = FALSE;
 
-    double dT = m_qlltSim->getTimeStep();
+    double dT = m_qlltSim->GetStrTimestep();
 
     system.SetStep(dT);
 
