@@ -37,7 +37,20 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     system.SetSolverSharpnessParam(1);
 
     // Change type of integrator:
-    system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT_LINEARIZED);
+    //system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT_LINEARIZED);
+    //system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT);
+    //system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT_PROJECTED);
+    //system.SetTimestepperType(ChTimestepper::Type::TRAPEZOIDAL);
+    system.SetTimestepperType(ChTimestepper::Type::HHT);
+
+    auto mystepper = std::dynamic_pointer_cast<ChTimestepperHHT>(system.GetTimestepper());
+    mystepper->SetAlpha(-1.0/3.0);
+    mystepper->SetStepControl(false);
+    //    mystepper->SetMaxiters(int(qLLTSim->GetModule()->GetStrModelDock()->iterBox->value()));
+    mystepper->SetMaxiters(10);
+    mystepper->SetMode(ChTimestepperHHT::HHT_Mode::ACCELERATION);
+    mystepper->SetModifiedNewton(true);
+    mystepper->SetScaling(false);
 
     //Init Load container
     auto loadcontainer = std::make_shared<ChLoadContainer>();

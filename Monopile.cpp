@@ -174,8 +174,9 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
       platformBody, //platformBody
       ChVector<>(0,0,0), //initialize
       false, //local force
-      vecGtoI,
-      true //local point
+      platformBody->TransformPointLocalToParent(vecGtoI),
+      //platformBody->GetPos(),
+      false //local point
     );
 
     aerolasticInterfaceTorque = std::make_shared<ChLoadBodyTorque>(
@@ -342,11 +343,17 @@ void Monopile::update(ChVector<> interfaceForceVec, ChVector<> interfaceTorqueVe
 
     qDebug() << "aerolasticeInterfaceForce x: " << interfaceForceVec.x();
 
-    interfaceForceVec.x() = 0;
+    //interfaceForceVec.x() = 0;
     //interfaceTorqueVec = ChVector<>(0,0,0);
 
     qDebug() << "aerolasticeInterfaceForce: " << interfaceForceVec.Length();
     qDebug() << "aerolasticeInterfaceTorque: " << interfaceTorqueVec.Length();
+
+    ChVector<> vecGtoI = ChVector<>(0,0,-p.distanceGtoE+p.platformLengthBelowTaper+p.platformLengthTaper+p.platformLengthAboveTaper);
+
+    aerolasticInterfaceForce->SetApplicationPoint(platformBody->TransformPointLocalToParent(vecGtoI),false);
+    interfaceBody->SetPos(platformBody->TransformPointLocalToParent(vecGtoI));
+    //aerolasticInterfaceForce->SetApplicationPoint(platformBody->GetPos(),false);
 
     aerolasticInterfaceForce->SetForce(interfaceForceVec, false);
     aerolasticInterfaceTorque->SetTorque(interfaceTorqueVec);
@@ -427,14 +434,14 @@ void Monopile::render(){
         zAxisEnd = CVecFromChVec(interfaceBody->GetPos()+p.cSystemFactor*interfaceCoord.rot.GetZaxis());
         glVertex3d(zAxisEnd.x,zAxisEnd.y,zAxisEnd.z);
 
-        //Draw Interface Force
+        //Draw Interface Force: green
         glColor4d(0.5,1,0,1);
         glVertex3d(interfacePos.x,interfacePos.y,interfacePos.z);
         ChVector<> aerolasticInterfaceForceAbs = aerolasticInterfaceForce->GetForce();
         CVector aerolasticForceEnd = CVecFromChVec(interfaceBody->GetPos()+aerolasticInterfaceForceAbs*p.forceLineFactor);
         glVertex3d(aerolasticForceEnd.x,aerolasticForceEnd.y,aerolasticForceEnd.z);
 
-        //Draw Interface Force
+        //Draw Interface Torque : red
         glColor4d(1,0,0.5,1);
         glVertex3d(interfacePos.x,interfacePos.y,interfacePos.z);
         ChVector<> aerolasticInterfaceTorqueAbs = aerolasticInterfaceTorque->GetTorque();
