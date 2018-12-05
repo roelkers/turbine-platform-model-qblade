@@ -5,6 +5,7 @@
 #include "chrono_fea/ChMesh.h"
 #include "chrono/physics/ChLoadContainer.h"
 #include "chrono/physics/ChLinkMate.h"
+#include "chrono/core/ChQuaternion.h"
 
 #include "../GlobalFunctions.h"
 #include "../XLLT/QLLTSimulation.h"
@@ -27,9 +28,26 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
     :p(p)
 {
 
+    //interface force & torque
+    interfaceBody = std::make_shared<ChBody>();
+    system.Add(interfaceBody);
+
+    p.initRotQuat.Q_from_NasaAngles(ChVector<>(p.initRot.x()/180*PI,p.initRot.y()/180*PI,p.initRot.z()/180*PI));
+
+    interfaceBody->SetPos(p.initPosInterface);
+    interfaceBody->SetRot(p.initRotQuat);
+
     platformBody= std::make_shared<ChBody>();
-    //set cylinder to setup position
-    platformBody->SetPos(p.platformSetupPos);
+
+    ChVector<> vecGtoI = ChVector<>(0,0,-p.distanceGtoE+p.platformLengthBelowTaper+p.platformLengthTaper+p.platformLengthAboveTaper);
+    p.initPosVec = interfaceBody->TransformPointLocalToParent(-vecGtoI);
+
+    platformBody->SetPos(p.initPosVec);
+    platformBody->SetRot(p.initRotQuat);
+
+    std::shared_ptr<ChLinkMateFix> interfaceConstraint = std::make_shared<ChLinkMateFix>();
+    interfaceConstraint->Initialize(platformBody,interfaceBody);
+    system.Add(interfaceConstraint);
 
     ChVector<> inertiaVector = ChVector<>(p.platformMassMomentInertiaInRollAndPitch,p.platformMassMomentInertiaInRollAndPitch,p.platformMassMomentInertiaInYaw);
 
@@ -47,7 +65,7 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
 
     ChVector<> vecGtoE = ChVector<>(0,0,-p.distanceGtoE);
 
-    ChVector<> zStart = p.platformSetupPos + vecGtoE;
+    ChVector<> zStart = platformBody->TransformPointLocalToParent(p.initPosVec + vecGtoE);
 
     //Create elements below taper
     double platformLengthOfElementBelowTaper = p.platformLengthBelowTaper/p.platformNrElementsBelowTaper;
@@ -163,13 +181,6 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
       true //local torque
     );
 
-    //interface force & torque
-    interfaceBody = std::make_shared<ChBody>();
-    system.Add(interfaceBody);
-
-    //Vector from platform COG to the interface
-    ChVector<> vecGtoI = ChVector<>(0,0,-p.distanceGtoE+p.platformLengthBelowTaper+p.platformLengthTaper+p.platformLengthAboveTaper);
-
     aerolasticInterfaceForce = std::make_shared<ChLoadBodyForce> (
       platformBody, //platformBody
       ChVector<>(0,0,0), //initialize
@@ -203,12 +214,10 @@ void Monopile::addMasses(ChSystem& system){
 //    ChVector<> vecYtoH = ChVector<>(p.hubDistanceUpstream,0,p.hubDistanceToYawBearing);
 //    ChVector<> vecItoT = ChVector<>(0,0,p.towerCOGDistanceFromBottom);
 
-    qDebug() << "vecGtoI Length" << vecGtoI.Length();
-    ChVector<> interfacePos = platformBody->TransformPointLocalToParent(vecGtoI);
-    interfaceBody->SetPos(interfacePos);
-    std::shared_ptr<ChLinkMateFix> interfaceConstraint = std::make_shared<ChLinkMateFix>();
-    interfaceConstraint->Initialize(platformBody,interfaceBody);
-    system.Add(interfaceConstraint);
+//    qDebug() << "vecGtoI Length" << vecGtoI.Length();
+//    ChVector<> interfacePos = platformBody->TransformPointLocalToParent(vecGtoI);
+//    interfaceBody->SetPos(interfacePos);
+
 
 //    ChVector<> nacellePos = platformBody->TransformPointLocalToParent(vecGtoI+vecItoY+vecYtoN);
 //    nacelleBody = std::make_shared<ChBody>();
@@ -482,3 +491,6 @@ CVector Monopile::getInterfacePos(){
     return CVecFromChVec(interfaceBody->GetPos());
 }
 
+ChQuaternion<> Monopile::getInterfaceRot(){
+    return platformBody->GetRot();
+}

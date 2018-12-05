@@ -5,7 +5,7 @@
 #include "chrono/physics/ChBody.h"
 #include "chrono_fea/ChMesh.h"
 #include "chrono/physics/ChLoadContainer.h"
-
+#include "chrono/core/ChQuaternion.h"
 #include "../XLLT/QLLTSimulation.h"
 
 #include "PlatformParams.h"
@@ -41,6 +41,7 @@ public:
 
     std::shared_ptr<chrono::ChBody> getBody(){return platformBody;}
     CVector getInterfacePos();
+    chrono::ChQuaternion<> getInterfaceRot();
 
     std::shared_ptr<chrono::ChLoadBodyForce> getAddedDampingForce() const;
 };

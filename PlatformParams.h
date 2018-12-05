@@ -12,7 +12,7 @@ public:
 
   double distanceGtoE;
 
-  chrono::ChVector<> platformSetupPos;
+//  chrono::ChVector<> platformSetupPos;
 
   double platformMass;
   double platformHeight;
@@ -31,14 +31,19 @@ public:
   int platformNrElementsAboveTaper;
   double platformRadiusAboveTaper;
 
-  double zInit;
+//  double zInit;
 
-  chrono::ChQuaternion<> qRotationX;
-  chrono::ChQuaternion<> qRotationY;
-  chrono::ChQuaternion<> qRotationZ;
+//  chrono::ChQuaternion<> qRotationX;
+//  chrono::ChQuaternion<> qRotationY;
+//  chrono::ChQuaternion<> qRotationZ;
   chrono::ChVector<> initPosVec;
   chrono::ChVector<> initVelVec;
   chrono::ChVector<> initAngVelVec;
+
+  chrono::ChVector<> initPosInterface;
+  chrono::ChVector<> initRot;
+
+  chrono::ChQuaternion<> initRotQuat;
 
   int nrElementsTower;
   double towerMass;

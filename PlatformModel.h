@@ -1,6 +1,7 @@
 #ifndef PLATFORMMODEL_H
 #define PLATFORMMODEL_H
 
+#include "chrono/core/ChQuaternion.h"
 #include "chrono/physics/ChSystem.h"
 #include "chrono/physics/ChBodyEasy.h"
 #include "chrono/physics/ChBody.h"
@@ -35,11 +36,10 @@ class PlatformModel{
     double getRollAngle();
     double getPitchAngle();
     double getYawAngle();
-    //double getDragForceZBottom();
     double getDampingForceZ();
     double getVelocityZ();
     CVector getInterfacePos();
-
+    chrono::ChQuaternion<> getInterfaceRot();
 };
 
 #endif

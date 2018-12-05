@@ -1,5 +1,6 @@
 #include "chrono/physics/ChSystem.h"
 #include "chrono/physics/ChBodyEasy.h"
+#include "chrono/core/ChQuaternion.h"
 
 #include "chrono_mkl/ChSolverMKL.h"
 
@@ -56,22 +57,28 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     auto loadcontainer = std::make_shared<ChLoadContainer>();
     system.Add(loadcontainer);
 
+    //Calculate Position of Platform relative to tower base (interface)
+
+
+    p.initPosInterface = ChVecFromCVec(m_qlltSim->initTrans);
+    p.initRot = ChVecFromCVec(m_qlltSim->initRot);
+
+    //moopile->getBody()->SetPos(initPosMonopile);
+
     //Create monopile
     monopile = std::make_shared<Monopile>(system, p, loadcontainer);
 
-    //translate to rest position, here cylinder is static
-//    double restPosition = calculateRestPositionOfPlatform();
-//    qDebug() << "restPosition: " << restPosition;
-//    ChVector<> restPosVec = ChVector<>(0,0,restPosition);
-
     //Define initial displacement
-    ChCoordsys<> initCoords =ChCoordsys<>(p.initPosVec,p.qRotationZ*p.qRotationY*p.qRotationX);
-    //ChCoordsys<> initCoords =ChCoordsys<>(ChVector<(),p.qRotationZ*p.qRotationY*p.qRotationX);
-    monopile->getBody()->Move(initCoords);
+    //ChCoordsys<> initCoords =ChCoordsys<>(p.initPosVec,p.qRotationZ*p.qRotationY*p.qRotationX);
+    //monopile->getBody()->Move(initCoords);
 
     qDebug() << "monopile pos x:" << monopile->getBody()->GetPos().x();
     qDebug() << "monopile pos y:" << monopile->getBody()->GetPos().y();
     qDebug() << "monopile pos z:" << monopile->getBody()->GetPos().z();
+
+    ChQuaternion<> rotBody = monopile->getBody()->GetRot();
+
+    qDebug() << "initial Rotation" << rotBody.Q_to_NasaAngles().x()/M_PI*180 << " " << rotBody.Q_to_NasaAngles().y()/M_PI*180 << " " << rotBody.Q_to_NasaAngles().z()/M_PI*180;
 
     //set initial velocity
     monopile->getBody()->SetPos_dt(p.initVelVec);
@@ -211,7 +218,7 @@ double PlatformModel::getYPosition(){
 
 double PlatformModel::getZPosition(){
 
-    return monopile->getBody()->GetPos().z()-p.zInit;
+    return monopile->getBody()->GetPos().z()-p.initPosVec.z();
 
 }
 
@@ -267,4 +274,8 @@ double PlatformModel::getVelocityZ(){
 
 CVector PlatformModel::getInterfacePos(){
     return monopile->getInterfacePos();
+}
+
+ChQuaternion<> PlatformModel::getInterfaceRot(){
+    return monopile->getInterfaceRot();
 }
