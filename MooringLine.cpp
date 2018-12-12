@@ -45,6 +45,8 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
 
   sectionCable->SetDensity(p.mooringDensityPerUnit/mooringArea);
 
+  qDebug() << "mooring density: " << p.mooringDensityPerUnit/mooringArea;
+
   //Starting Position of Mooring Line on the Monopile
   double xStart = p.mooringRadiusToFairleadsFromCenter*sin(theta/180*M_PI);
   double yStart = p.mooringRadiusToFairleadsFromCenter*cos(theta/180*M_PI);

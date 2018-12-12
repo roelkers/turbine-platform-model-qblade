@@ -19,10 +19,6 @@
 
 using namespace chrono;
 using namespace chrono::fea;
-std::shared_ptr<chrono::ChLoadBodyForce> Monopile::getAddedDampingForce() const
-{
-    return addedDampingForce;
-}
 
 Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadContainer> loadContainer)
     :p(p)
@@ -32,7 +28,7 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
     interfaceBody = std::make_shared<ChBody>();
     system.Add(interfaceBody);
 
-    p.initRotQuat.Q_from_NasaAngles(ChVector<>(p.initRot.x()/180*PI,p.initRot.y()/180*PI,p.initRot.z()/180*PI));
+    p.initRotQuat.Q_from_NasaAngles(ChVector<>(p.initRot.y()/180*PI,p.initRot.x()/180*PI,p.initRot.z()/180*PI));
 
     interfaceBody->SetPos(p.initPosInterface);
     interfaceBody->SetRot(p.initRotQuat);
@@ -65,7 +61,7 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
 
     ChVector<> vecGtoE = ChVector<>(0,0,-p.distanceGtoE);
 
-    ChVector<> zStart = platformBody->TransformPointLocalToParent(p.initPosVec + vecGtoE);
+    ChVector<> zStart = platformBody->TransformPointLocalToParent(vecGtoE);
 
     //Create elements below taper
     double platformLengthOfElementBelowTaper = p.platformLengthBelowTaper/p.platformNrElementsBelowTaper;
@@ -304,17 +300,15 @@ void Monopile::addMasses(ChSystem& system){
 
 void Monopile::update(ChVector<> interfaceForceVec, ChVector<> interfaceTorqueVec){
 
-    double totalDragForce = 0;
+    double totalBuoyancyForce = 0;
 
     double elementDragForce = 0;
     //update elements
     for(auto &element : monopileElements){
-        elementDragForce = element.update();
-
-        totalDragForce += elementDragForce;
+       totalBuoyancyForce += element.update();
     }
 
-    //qDebug() << "totalDragForce:" << totalDragForce;
+    qDebug() << "totalBuoyancyForce:" << totalBuoyancyForce;
 
     //qDebug() << "markerVelocity z" << markerVelZ;
 
@@ -324,7 +318,7 @@ void Monopile::update(ChVector<> interfaceForceVec, ChVector<> interfaceTorqueVe
 
     ChVector<> addedDampingForceVec = ChVector<>(addedDampingForceX,addedDampingForceY,addedDampingForceZ);
 
-    qDebug() << "addedDampingForce: " << addedDampingForceVec.Length();
+    //qDebug() << "addedDampingForce: " << addedDampingForceVec.Length();
 
     addedDampingForce->SetForce(addedDampingForceVec,true);
 
@@ -350,19 +344,14 @@ void Monopile::update(ChVector<> interfaceForceVec, ChVector<> interfaceTorqueVe
 
     //update forces & torques at interface
 
-    qDebug() << "aerolasticeInterfaceForce x: " << interfaceForceVec.x();
-
-    //interfaceForceVec.x() = 0;
-    //interfaceTorqueVec = ChVector<>(0,0,0);
-
-    qDebug() << "aerolasticeInterfaceForce: " << interfaceForceVec.Length();
-    qDebug() << "aerolasticeInterfaceTorque: " << interfaceTorqueVec.Length();
+//    qDebug() << "aerolasticeInterfaceForce x: " << interfaceForceVec.x();
+//    qDebug() << "aerolasticeInterfaceForce: " << interfaceForceVec.Length();
+//    qDebug() << "aerolasticeInterfaceTorque: " << interfaceTorqueVec.Length();
 
     ChVector<> vecGtoI = ChVector<>(0,0,-p.distanceGtoE+p.platformLengthBelowTaper+p.platformLengthTaper+p.platformLengthAboveTaper);
 
     aerolasticInterfaceForce->SetApplicationPoint(platformBody->TransformPointLocalToParent(vecGtoI),false);
     interfaceBody->SetPos(platformBody->TransformPointLocalToParent(vecGtoI));
-    //aerolasticInterfaceForce->SetApplicationPoint(platformBody->GetPos(),false);
 
     aerolasticInterfaceForce->SetForce(interfaceForceVec, false);
     aerolasticInterfaceTorque->SetTorque(interfaceTorqueVec);
@@ -492,5 +481,5 @@ CVector Monopile::getInterfacePos(){
 }
 
 ChQuaternion<> Monopile::getInterfaceRot(){
-    return platformBody->GetRot();
+    return interfaceBody->GetRot();
 }

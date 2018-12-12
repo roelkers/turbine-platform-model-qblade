@@ -83,7 +83,7 @@ PlatformParams::PlatformParams(){
   rhoWater = 1025;
   g = 9.81;
 
-  nrRelaxations = 5;
+  nrRelaxations = 20;
   nrRelaxationSteps = 500;
 
   //visualisation params

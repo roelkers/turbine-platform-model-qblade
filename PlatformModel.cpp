@@ -58,8 +58,6 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     system.Add(loadcontainer);
 
     //Calculate Position of Platform relative to tower base (interface)
-
-
     p.initPosInterface = ChVecFromCVec(m_qlltSim->initTrans);
     p.initRot = ChVecFromCVec(m_qlltSim->initRot);
 
@@ -143,24 +141,6 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 
 }
 
-//double PlatformModel::calculateRestPositionOfPlatform(){
-//    //To set the monopile at the rest position the gravity force and buoyancy force have to be equal at that point
-//    double massTotal = monopile->getBody()->GetMass()+p.nacelleMass+p.ballastMass;
-//    double areaMonopile = pow(p.towerRadius,2)*M_PI;
-
-//    //we get the length by evaluating the force balance
-//    double displacedLength = massTotal/(areaMonopile*p.rhoWater);
-//    qDebug() << "displaced Length: " << displacedLength;
-
-//    double force_gravity = massTotal*p.g;
-//    double force_buoyancy = displacedLength*areaMonopile*p.rhoWater*p.g;
-
-//    qDebug() << "force_gravity: " << force_gravity;
-//    qDebug() << "force_buoyancy: " << force_buoyancy;
-
-//    return p.seaLevel+0.5*p.towerHeight-displacedLength;
-//}
-
 void PlatformModel::render(){
 
     glNewList(GLPLATFORM,GL_COMPILE);
@@ -218,7 +198,7 @@ double PlatformModel::getYPosition(){
 
 double PlatformModel::getZPosition(){
 
-    return monopile->getBody()->GetPos().z()-p.initPosVec.z();
+    return monopile->getBody()->GetPos().z();
 
 }
 
@@ -254,23 +234,6 @@ double PlatformModel::getYawAngle(){
     double angleNasa = rotBody.Q_to_NasaAngles().z()/M_PI*180;
     return angleNasa;
 }
-
-double PlatformModel::getDampingForceZ(){
-
-    return monopile->getAddedDampingForce()->GetForce().z();
-
-}
-
-double PlatformModel::getVelocityZ(){
-
-    return monopile->getBody()->GetPos_dt().z();
-}
-
-//double PlatformModel::getDragForceZBottom(){
-
-//    ChVector<> force = hydrodynamicDamping->getDragForceZBottom()->GetForce();
-//    return force.Length();
-//}
 
 CVector PlatformModel::getInterfacePos(){
     return monopile->getInterfacePos();

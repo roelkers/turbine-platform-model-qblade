@@ -43,7 +43,7 @@ public:
     CVector getInterfacePos();
     chrono::ChQuaternion<> getInterfaceRot();
 
-    std::shared_ptr<chrono::ChLoadBodyForce> getAddedDampingForce() const;
+    //std::shared_ptr<chrono::ChLoadBodyForce> getAddedDampingForce() const;
 };
 
 #endif // MONOPILE_H

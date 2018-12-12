@@ -27,7 +27,6 @@ class PlatformModel{
     QLLTSimulation *m_qlltSim;
   public:
     PlatformModel(QLLTSimulation *qLLTSim);
-    double calculateRestPositionOfPlatform();
     void update(double endTime, CVector aerolasticInterfaceForce, CVector aerolasticInterfaceTorque);
     void render();
     double getXPosition();
@@ -36,8 +35,6 @@ class PlatformModel{
     double getRollAngle();
     double getPitchAngle();
     double getYawAngle();
-    double getDampingForceZ();
-    double getVelocityZ();
     CVector getInterfacePos();
     chrono::ChQuaternion<> getInterfaceRot();
 };

@@ -5,7 +5,6 @@
 #include "chrono/physics/ChMarker.h"
 #include "chrono_fea/ChBuilderBeam.h"
 #include "chrono/physics/ChSystem.h"
-#include "chrono/physics/ChBodyEasy.h"
 #include "chrono_fea/ChMesh.h"
 #include "chrono/physics/ChLinkMate.h"
 #include "chrono/physics/ChLoadContainer.h"

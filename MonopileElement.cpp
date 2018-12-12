@@ -70,10 +70,6 @@ double MonopileElement::update(){
 
     ChVector<> markerVelocityAbs = marker->GetAbsFrame().GetPos_dt();
     ChVector<> markerVelocityDir = body->TransformDirectionParentToLocal(markerVelocityAbs);
-    //double markerVelocityLength = markerVelocityAbs.Length();
-
-    //qDebug() << "markerVelocityDir Length: "<< markerVelocityDir.Length();
-    //qDebug() << "markerVelocity " << markerVelocityLength;
 
     double markerVelX = markerVelocityDir.x();
     double markerVelY = markerVelocityDir.y();
@@ -81,18 +77,6 @@ double MonopileElement::update(){
 
     AinAbsoluteFrame = body->TransformPointLocalToParent(A);
     BinAbsoluteFrame = body->TransformPointLocalToParent(B);
-
-//    ChVector<> vecABabs = BinAbsoluteFrame - AinAbsoluteFrame;
-//    double projectedLengthXZ = sqrt(pow(vecABabs.x() ,2) + pow(vecABabs.z(),2));
-//    double projectedLengthYZ = sqrt(pow(vecABabs.y() ,2) + pow(vecABabs.z(),2));
-//    double projectedLengthXY = sqrt(pow(vecABabs.x() ,2) + pow(vecABabs.y(),2));
-
-    //qDebug() << "projectedLengthXZ: " << projectedLengthXZ;
-    //qDebug() << "projectedLengthYZ: " << projectedLengthYZ;
-
-//    double areaXZ = projectedLengthXZ*2*p.towerRadius;
-//    double areaYZ = projectedLengthYZ*2*p.towerRadius;
-//    double areaXY = projectedLengthXY*2*p.towerRadius;
 
     double dragForceX;
     double dragForceY;
@@ -140,7 +124,7 @@ double MonopileElement::update(){
     buoyancyForce->SetForce(buoyancyForceVec,false);
     buoyancyForce->SetApplicationPoint(marker->GetAbsCoord().pos,false);
 
-    return dragForceVec.Length();
+    return buoyancyForceZ;
 }
 
 bool MonopileElement::isSubmerged(){
