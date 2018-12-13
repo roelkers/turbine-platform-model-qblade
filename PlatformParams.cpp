@@ -13,16 +13,16 @@ PlatformParams::PlatformParams(){
   platformMassMomentInertiaInRollAndPitch = 4229223000;//1.2622e10;
   platformMassMomentInertiaInYaw = 164230000;
 
-  platformNrElementsBelowTaper = 40;
+  platformNrElementsBelowTaper = 80;
   platformLengthBelowTaper = 108;
   platformRadiusBelowTaper = 4.7;
 
   platformLengthTaper = 8;
-  platformNrElementsTaper = 10;
+  platformNrElementsTaper = 20;
 
   platformLengthAboveTaper = 14;
   platformRadiusAboveTaper = 3.25;
-  platformNrElementsAboveTaper = 10;
+  platformNrElementsAboveTaper = 20;
 
   //Initial rotation of the monopile
 //  qRotationX = Q_from_AngAxis(6 * CH_C_DEG_TO_RAD, VECT_X); //roll angle
@@ -79,11 +79,13 @@ PlatformParams::PlatformParams(){
   addedDampingYaw = 13000000;
   addedYawSpringStiffness = 98340000;
 
-  seaLevel = 0; //sea level [m] in z-direction from origin
+  waveAmplitude = 3;
+  wavePeriod = 10;
+
   rhoWater = 1025;
   g = 9.81;
 
-  nrRelaxations = 20;
+  nrRelaxations = 25;
   nrRelaxationSteps = 500;
 
   //visualisation params

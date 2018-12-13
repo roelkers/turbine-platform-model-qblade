@@ -167,7 +167,8 @@ void PlatformModel::update(double endTime, CVector aerolasticInterfaceForce, CVe
 
     while (system.GetChTime() < endTime) {
 
-        monopile->update(ChVecFromCVec(aerolasticInterfaceForce), ChVecFromCVec(aerolasticInterfaceTorque));
+        calculateSeaLevel(system.GetChTime());
+        monopile->update(ChVecFromCVec(aerolasticInterfaceForce), ChVecFromCVec(aerolasticInterfaceTorque), seaLevel);
 
         restore_oldstep = FALSE;
         left_time = endTime - system.GetChTime();
@@ -183,6 +184,16 @@ void PlatformModel::update(double endTime, CVector aerolasticInterfaceForce, CVe
     }
 
     if (restore_oldstep) dT = old_step;
+}
+
+double PlatformModel::getSeaLevel(){
+
+    return seaLevel;
+}
+
+void PlatformModel::calculateSeaLevel(double time){
+
+    seaLevel = p.waveAmplitude*sin(2*PI/p.wavePeriod*time);
 }
 
 double PlatformModel::getXPosition(){

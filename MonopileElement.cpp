@@ -64,7 +64,7 @@ MonopileElement::MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoa
 
 }
 
-double MonopileElement::update(){
+double MonopileElement::update(double seaLevel){
 
     marker->UpdateState();
 
@@ -88,7 +88,7 @@ double MonopileElement::update(){
     double buoyancyForceZ;
     //check if marker is submerged
 
-    if(isSubmerged()){
+    if(isSubmerged(seaLevel)){
 
         double signX = 0;
         double signY = 0;
@@ -127,8 +127,8 @@ double MonopileElement::update(){
     return buoyancyForceZ;
 }
 
-bool MonopileElement::isSubmerged(){
-    return (marker->GetAbsCoord().pos.z() < p.seaLevel);
+bool MonopileElement::isSubmerged(double seaLevel){
+    return (marker->GetAbsCoord().pos.z() < seaLevel);
 }
 
 void MonopileElement::render(){

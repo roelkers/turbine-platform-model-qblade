@@ -23,12 +23,14 @@ class PlatformModel{
     std::shared_ptr<chrono::fea::ChMesh> mesh = std::make_shared<chrono::fea::ChMesh>();
     std::shared_ptr<Monopile> monopile;
     std::vector<MooringLine> mooringLines;
-
+    double seaLevel;
     QLLTSimulation *m_qlltSim;
   public:
     PlatformModel(QLLTSimulation *qLLTSim);
     void update(double endTime, CVector aerolasticInterfaceForce, CVector aerolasticInterfaceTorque);
     void render();
+    void calculateSeaLevel(double time);
+    double getSeaLevel();
     double getXPosition();
     double getYPosition();
     double getZPosition();

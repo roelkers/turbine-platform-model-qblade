@@ -298,17 +298,17 @@ void Monopile::addMasses(ChSystem& system){
 //    qDebug() << "Total mass of all bodies: " << totalMass;
 }
 
-void Monopile::update(ChVector<> interfaceForceVec, ChVector<> interfaceTorqueVec){
+void Monopile::update(ChVector<> interfaceForceVec, ChVector<> interfaceTorqueVec, double seaLevel){
 
     double totalBuoyancyForce = 0;
 
     double elementDragForce = 0;
     //update elements
     for(auto &element : monopileElements){
-       totalBuoyancyForce += element.update();
+       totalBuoyancyForce += element.update(seaLevel);
     }
 
-    qDebug() << "totalBuoyancyForce:" << totalBuoyancyForce;
+    //qDebug() << "totalBuoyancyForce:" << totalBuoyancyForce;
 
     //qDebug() << "markerVelocity z" << markerVelZ;
 
