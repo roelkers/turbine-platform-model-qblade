@@ -29,6 +29,7 @@ class PlatformModel{
     PlatformModel(QLLTSimulation *qLLTSim);
     void update(double endTime, CVector aerolasticInterfaceForce, CVector aerolasticInterfaceTorque);
     void render();
+    double getSeaLevel();
     double getXPosition();
     double getYPosition();
     double getZPosition();

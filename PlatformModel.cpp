@@ -185,6 +185,11 @@ void PlatformModel::update(double endTime, CVector aerolasticInterfaceForce, CVe
     if (restore_oldstep) dT = old_step;
 }
 
+double PlatformModel::getSeaLevel(){
+
+    return p.seaLevel;
+}
+
 double PlatformModel::getXPosition(){
 
     return monopile->getBody()->GetPos().x();
