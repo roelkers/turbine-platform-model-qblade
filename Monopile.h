@@ -36,7 +36,7 @@ public:
     Monopile(chrono::ChSystem& system, PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer);
 
     void render();
-    void update(chrono::ChVector<> force, chrono::ChVector<> torque, double seaLevel);
+    void update(chrono::ChVector<> force, chrono::ChVector<> torque, double seaLevel, double time);
     void addMasses(chrono::ChSystem &system);
 
     std::shared_ptr<chrono::ChBody> getBody(){return platformBody;}

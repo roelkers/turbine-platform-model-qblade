@@ -38,20 +38,20 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     system.SetSolverSharpnessParam(1);
 
     // Change type of integrator:
-    //system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT_LINEARIZED);
+    system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT_LINEARIZED);
     //system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT);
     //system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT_PROJECTED);
     //system.SetTimestepperType(ChTimestepper::Type::TRAPEZOIDAL);
-    system.SetTimestepperType(ChTimestepper::Type::HHT);
+//    system.SetTimestepperType(ChTimestepper::Type::HHT);
 
-    auto mystepper = std::dynamic_pointer_cast<ChTimestepperHHT>(system.GetTimestepper());
-    mystepper->SetAlpha(-1.0/3.0);
-    mystepper->SetStepControl(false);
-    //    mystepper->SetMaxiters(int(qLLTSim->GetModule()->GetStrModelDock()->iterBox->value()));
-    mystepper->SetMaxiters(10);
-    mystepper->SetMode(ChTimestepperHHT::HHT_Mode::ACCELERATION);
-    mystepper->SetModifiedNewton(true);
-    mystepper->SetScaling(false);
+//    auto mystepper = std::dynamic_pointer_cast<ChTimestepperHHT>(system.GetTimestepper());
+//    mystepper->SetAlpha(-1.0/3.0);
+//    mystepper->SetStepControl(false);
+//    //    mystepper->SetMaxiters(int(qLLTSim->GetModule()->GetStrModelDock()->iterBox->value()));
+//    mystepper->SetMaxiters(10);
+//    mystepper->SetMode(ChTimestepperHHT::HHT_Mode::ACCELERATION);
+//    mystepper->SetModifiedNewton(true);
+//    mystepper->SetScaling(false);
 
     //Init Load container
     auto loadcontainer = std::make_shared<ChLoadContainer>();
@@ -124,9 +124,9 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 
     monopile->getBody()->SetBodyFixed(true);
 
-    for(int i = 0; i< p.nrRelaxations; i++){
-        system.DoStaticRelaxing(p.nrRelaxationSteps);
-    }
+//    for(int i = 0; i< p.nrRelaxations; i++){
+//        system.DoStaticRelaxing(p.nrRelaxationSteps);
+//    }
 
     monopile->getBody()->SetBodyFixed(false);
 
@@ -168,7 +168,7 @@ void PlatformModel::update(double endTime, CVector aerolasticInterfaceForce, CVe
     while (system.GetChTime() < endTime) {
 
         calculateSeaLevel(system.GetChTime());
-        monopile->update(ChVecFromCVec(aerolasticInterfaceForce), ChVecFromCVec(aerolasticInterfaceTorque), seaLevel);
+        monopile->update(ChVecFromCVec(aerolasticInterfaceForce), ChVecFromCVec(aerolasticInterfaceTorque), seaLevel, system.GetChTime());
 
         restore_oldstep = FALSE;
         left_time = endTime - system.GetChTime();
@@ -193,7 +193,7 @@ double PlatformModel::getSeaLevel(){
 
 void PlatformModel::calculateSeaLevel(double time){
 
-    seaLevel = p.waveAmplitude*sin(2*PI/p.wavePeriod*time);
+    seaLevel = p.waveAmplitude*cos(2*PI/p.wavePeriod*time);
 }
 
 double PlatformModel::getXPosition(){

@@ -20,6 +20,8 @@ private:
     double crossSectionArea;
     double volume;
 
+    double waveVelocity;
+
     std::shared_ptr<chrono::ChBody> body;
     chrono::ChVector<> A; //start of element
     chrono::ChVector<> B; //end of element
@@ -35,7 +37,7 @@ private:
 
 public:
     MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<chrono::ChBody> body, double length, chrono::ChVector<> A, chrono::ChVector<> B, double crossSectionArea, double volume);
-    double update(double seaLevel);
+    double update(double seaLevel, double time);
     void render();
     std::shared_ptr<chrono::ChMarker> getMarker() const;
     bool isSubmerged(double seaLevel);

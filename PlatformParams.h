@@ -85,8 +85,11 @@ public:
   double addedDampingYaw;
   double addedYawSpringStiffness;
 
+  double addedMassCoefficient;
+
   double waveAmplitude;
   double wavePeriod;
+  double waveLength;
 
   double rhoWater;
   double g;
