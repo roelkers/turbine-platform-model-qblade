@@ -300,7 +300,7 @@ void Monopile::addMasses(ChSystem& system){
 
 void Monopile::update(ChVector<> interfaceForceVec, ChVector<> interfaceTorqueVec, double seaLevel, double time){
 
-    double totalDragForce = 0;
+    //double totalDragForce = 0;
 
     double elementDragForce = 0;
     //update elements

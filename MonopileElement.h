@@ -20,6 +20,7 @@ private:
     double crossSectionArea;
     double volume;
 
+    chrono::ChVector<> waveVelocityLocalVec;
     double waveVelocity;
 
     std::shared_ptr<chrono::ChBody> body;

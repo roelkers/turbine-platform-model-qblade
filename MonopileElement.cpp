@@ -96,14 +96,30 @@ double MonopileElement::update(double seaLevel, double time){
     double zElement = marker->GetAbsFrame().GetPos().z();
     double omega = 2*PI/p.wavePeriod;
 
-    waveVelocity = p.waveAmplitude*omega*exp(2*PI/p.waveLength*(zElement-seaLevel))*cos(-omega*time);
+    waveVelocity = p.waveAmplitude*omega*exp(2*PI/p.waveLength*(zElement-seaLevel));//*cos(-omega*time);
+    ChVector<> waveVelocityAbsVec = ChVector<>(waveVelocity,0,0);
+    waveVelocityLocalVec = body->TransformDirectionParentToLocal(waveVelocityAbsVec);
 
     if(isSubmerged(seaLevel)){
 
+        double signX = 0;
+        double signY = 0;
+
+        if(markerVelX - waveVelocityLocalVec.x() >= 0) signX = 1;
+        if(markerVelX - waveVelocityLocalVec.x() < 0 ) signX = -1;
+        if(markerVelY - waveVelocityLocalVec.y()  >= 0) signY = 1;
+        if(markerVelY - waveVelocityLocalVec.y()  < 0 ) signY = -1;
+//        if(waveVelocity >= 0) signX = 1;
+//        if(waveVelocity < 0 ) signX = -1;
+        if(markerVelY >= 0) signY = 1;
+        if(markerVelY < 0 ) signY = -1;
+
+//        qDebug() << " signX" << signX;
+//        qDebug() << " waveVelocity - markerVelX" << waveVelocity - markerVelX;
+
         //wave is travelling in positive x direction
-        //dragForceX = 0.5*p.rhoWater*p.dragCoefficientCylinderLateral*(waveVelocity - markerVelX)*abs(waveVelocity - markerVelX)*crossSectionArea;
-        dragForceX = 0.5*p.rhoWater*p.dragCoefficientCylinderLateral*(waveVelocity)*abs(waveVelocity)*crossSectionArea;
-        dragForceY = 0.5*p.rhoWater*p.dragCoefficientCylinderLateral*markerVelY*abs(markerVelY)*crossSectionArea;
+        dragForceX = -signX* 0.5*p.rhoWater*p.dragCoefficientCylinderLateral*pow(markerVelX - waveVelocityLocalVec.x(),2)*crossSectionArea;
+        dragForceY = -signY* 0.5*p.rhoWater*p.dragCoefficientCylinderLateral*pow(markerVelY  -waveVelocityLocalVec.y(),2)*crossSectionArea;
         dragForceZ = 0;
 
         buoyancyForceZ = p.rhoWater*volume*p.g;
@@ -120,9 +136,9 @@ double MonopileElement::update(double seaLevel, double time){
 
     ChVector<> buoyancyForceVec = ChVector<>(0,0,buoyancyForceZ);
 
-    qDebug()<< "dragForceVec" << dragForceVec.Length();
-    qDebug()<< "abs(wavevelocity)" << abs(waveVelocity);
-    qDebug() << "waveVelocity" << waveVelocity;
+    qDebug() << "dragForceX" << dragForceX;
+//    qDebug()<< "dragForceVec" << dragForceVec.Length();
+//    qDebug() << "waveVelocity" << waveVelocity;
 
     dragForce->SetForce(dragForceVec,true);
     dragForce->SetApplicationPoint(marker->GetAbsCoord().pos,false);

@@ -18,7 +18,7 @@ PlatformParams::PlatformParams(){
   platformRadiusBelowTaper = 4.7;
 
   platformLengthTaper = 8;
-  platformNrElementsTaper = 20;
+  platformNrElementsTaper = 10;
 
   platformLengthAboveTaper = 14;
   platformRadiusAboveTaper = 3.25;
@@ -73,8 +73,8 @@ PlatformParams::PlatformParams(){
   https://de.wikipedia.org/wiki/Strömungswiderstandskoeffizient
   dragCoefficientCylinderLateral = 1.20;
 
-  addedDampingX = 0;//100000;
-  addedDampingY = 0;//100000;
+  addedDampingX = 100000;
+  addedDampingY = 100000;
   addedDampingZ = 130000;
   addedDampingYaw = 13000000;
   addedYawSpringStiffness = 98340000;
@@ -83,7 +83,7 @@ PlatformParams::PlatformParams(){
 
   waveAmplitude = 3;
   wavePeriod = 10;
-  waveLength = 156,2;
+  waveLength = 156.2;
 
   rhoWater = 1025;
   g = 9.81;

@@ -37,6 +37,8 @@ class PlatformModel{
     double getRollAngle();
     double getPitchAngle();
     double getYawAngle();
+
+    double getTotalDragForce();
     CVector getInterfacePos();
     chrono::ChQuaternion<> getInterfaceRot();
 };

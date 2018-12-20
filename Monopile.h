@@ -32,6 +32,8 @@ private:
     std::shared_ptr<chrono::ChLoadBodyForce> aerolasticInterfaceForce;
     std::shared_ptr<chrono::ChLoadBodyTorque> aerolasticInterfaceTorque;
 
+    double totalDragForce;
+
 public:
     Monopile(chrono::ChSystem& system, PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer);
 
@@ -42,6 +44,7 @@ public:
     std::shared_ptr<chrono::ChBody> getBody(){return platformBody;}
     CVector getInterfacePos();
     chrono::ChQuaternion<> getInterfaceRot();
+    double getTotalDragForce(){return totalDragForce;}
 
     //std::shared_ptr<chrono::ChLoadBodyForce> getAddedDampingForce() const;
 };
