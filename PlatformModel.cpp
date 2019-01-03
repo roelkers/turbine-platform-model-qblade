@@ -40,11 +40,7 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     system.SetSolverOverrelaxationParam(1);
     system.SetSolverSharpnessParam(1);
 
-
-
-
     int i=m_qlltSim->GetModule()->GetStrModelDock()->intBox->currentIndex();
-
 
     if (i==0)  system.SetTimestepperType(ChTimestepper::Type::HHT);
     else if (i==1)  system.SetTimestepperType(ChTimestepper::Type::NEWMARK);
@@ -57,7 +53,6 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     else if (i==8)  system.SetTimestepperType(ChTimestepper::Type::EULER_EXPLICIT);
     else if (i==9)  system.SetTimestepperType(ChTimestepper::Type::RUNGEKUTTA45);
     else if (i==10)  system.SetTimestepperType(ChTimestepper::Type::HEUN);
-
 
 //    if (system.GetTimestepperType() == ChTimestepper::Type::NEWMARK){
 //    auto mystepper = std::dynamic_pointer_cast<ChTimestepperNewmark>(system.GetTimestepper());
@@ -162,9 +157,9 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 
     monopile->getBody()->SetBodyFixed(true);
 
-//    for(int i = 0; i< p.nrRelaxations; i++){
-//        system.DoStaticRelaxing(p.nrRelaxationSteps);
-//    }
+    for(int i = 0; i< p.nrRelaxations; i++){
+        system.DoStaticRelaxing(p.nrRelaxationSteps);
+    }
 
     monopile->getBody()->SetBodyFixed(false);
 

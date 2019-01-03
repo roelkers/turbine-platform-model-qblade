@@ -96,7 +96,7 @@ double MonopileElement::update(double seaLevel, double time){
     double zElement = marker->GetAbsFrame().GetPos().z();
     double omega = 2*PI/p.wavePeriod;
 
-    waveVelocity = p.waveAmplitude*omega*exp(2*PI/p.waveLength*(zElement-seaLevel));//*cos(-omega*time);
+    waveVelocity = p.waveAmplitude*omega*exp(2*PI/p.waveLength*(zElement-seaLevel))*cos(-omega*time);
     ChVector<> waveVelocityAbsVec = ChVector<>(waveVelocity,0,0);
     waveVelocityLocalVec = body->TransformDirectionParentToLocal(waveVelocityAbsVec);
 
