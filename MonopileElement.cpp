@@ -99,8 +99,9 @@ double MonopileElement::update(double seaLevel, double time){
     waveVelocity = p.waveAmplitude*omega*exp(2*PI/p.waveLength*(zElement-seaLevel))*cos(-omega*time);
     ChVector<> waveVelocityAbsVec = ChVector<>(waveVelocity,0,0);
     waveVelocityLocalVec = body->TransformDirectionParentToLocal(waveVelocityAbsVec);
+    qDebug() << "wave Velocity" << waveVelocity;
 
-    if(isSubmerged(seaLevel)){
+     if(isSubmerged(seaLevel)){
 
         double signX = 0;
         double signY = 0;
