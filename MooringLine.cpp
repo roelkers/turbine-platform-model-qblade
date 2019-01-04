@@ -33,12 +33,16 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
 
   sectionCable = std::make_shared<ChBeamSectionCable>();
   sectionCable->SetDiameter(p.mooringDiameter);
+  qDebug() << "mooring diameter" << p.mooringDiameter;
 
   mooringArea = M_PI*pow(p.mooringDiameter,2)/4;
 
   sectionCable->SetArea(mooringArea);
+  qDebug() << "mooring Area" << mooringArea;
 
   eModMooring = p.mooringStiffnessTimesLength/mooringArea;
+
+  qDebug() << "eModMooring" << eModMooring;
 
   sectionCable->SetYoungModulus(eModMooring);
   sectionCable->SetBeamRaleyghDamping(p.mooringRaleyghDamping);
@@ -86,6 +90,7 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   constraintMooring->Initialize(builder.GetLastBeamNodes().front(), monopile->getBody());
 
   constraintMooring->SetAttachPositionInAbsoluteCoords(pos);
+  //constraintMooring->SetAttachReferenceInAbsoluteCoords(builder.GetLastBeamNodes().GetCoord());
 
   system.Add(constraintMooring);
 

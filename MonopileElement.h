@@ -22,6 +22,10 @@ private:
 
     chrono::ChVector<> waveVelocityLocalVec;
     double waveVelocity;
+    chrono::ChVector<> waveAccelerationLocalVec;
+    double waveAcceleration;
+
+    chrono::ChVector<> markerAccDir;
 
     std::shared_ptr<chrono::ChBody> body;
     chrono::ChVector<> A; //start of element

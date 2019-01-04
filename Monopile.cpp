@@ -75,6 +75,7 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
     ChVector<> A;
     ChVector<> B;
     A = zStart;
+    double totalVolumeBelowTaper = 0;
 
     for(int i = 0; i<p.platformNrElementsBelowTaper; i++){
         B = A+platformLengthOfElementBelowTaper*zAxisMonopile;
@@ -82,8 +83,11 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
         MonopileElement monopileElement(p,loadContainer,platformBody,platformLengthOfElementBelowTaper,A,B,crossSectionAreaBelowTaper,volume);
         monopileElements.push_back(monopileElement);
 
+        totalVolumeBelowTaper = totalVolumeBelowTaper + volume;
         A = B;
     }
+
+    qDebug() << "totalVolume below Taper of Platform" << totalVolumeBelowTaper;
 
     //Taper elements
     double taperLengthOfElement = p.platformLengthTaper/p.platformNrElementsTaper;
@@ -92,6 +96,8 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
     double zTaper = 0.5*taperLengthOfElement;
 
     qDebug()<< "lengthOfElement taper: " << taperLengthOfElement;
+
+    double totalVolumeTaper = 0;
 
     for(int i = 0; i<p.platformNrElementsTaper; i++){
 
@@ -109,9 +115,13 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
         qDebug()<< "z taper: " << zTaper;
         qDebug()<< "crossSectionArea taper:  " << crossSectionAreaTaperElement;
 
+        totalVolumeTaper = totalVolumeTaper + volume;
+
         A = B;
         zTaper = zTaper + taperLengthOfElement;
     }
+
+    qDebug() << "totalVolume Taper of Platform" << totalVolumeTaper;
 
     //Create elements Above taper
     double platformLengthOfElementAboveTaper = p.platformLengthAboveTaper/p.platformNrElementsAboveTaper;
@@ -122,14 +132,20 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
     qDebug()<< "lengthOfElement Above taper: " << platformLengthOfElementAboveTaper;
     qDebug()<< "crossSectionAreaAboveTaper: " << crossSectionAreaAboveTaper;
 
+    double totalVolumeAboveTaper = 0;
+
     for(int i = 0; i<p.platformNrElementsAboveTaper; i++){
         B = A+platformLengthOfElementAboveTaper*zAxisMonopile;
 
         MonopileElement monopileElement(p,loadContainer,platformBody,platformLengthOfElementAboveTaper,A,B,crossSectionAreaAboveTaper,volume);
         monopileElements.push_back(monopileElement);
 
+        totalVolumeAboveTaper = totalVolumeAboveTaper +volume;
+
         A = B;
     }
+
+    qDebug() << "totalVolume Above Taper of Platform" << totalVolumeAboveTaper;
 
 //    //Create tower elements
 //    double towerLengthOfElement = p.towerHeight/p.nrElementsTower;
@@ -300,7 +316,7 @@ void Monopile::addMasses(ChSystem& system){
 
 void Monopile::update(ChVector<> interfaceForceVec, ChVector<> interfaceTorqueVec, double seaLevel, double time){
 
-    //double totalDragForce = 0;
+    double totalDragForce = 0;
 
     double elementDragForce = 0;
     //update elements
@@ -308,7 +324,7 @@ void Monopile::update(ChVector<> interfaceForceVec, ChVector<> interfaceTorqueVe
        totalDragForce += element.update(seaLevel,time);
     }
 
-    qDebug() << "totalDragForce X:" << totalDragForce;
+    qDebug() << "total Force X:" << totalDragForce;
 
     //qDebug() << "markerVelocity z" << markerVelZ;
 

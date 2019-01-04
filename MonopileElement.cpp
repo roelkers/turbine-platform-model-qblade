@@ -75,6 +75,13 @@ double MonopileElement::update(double seaLevel, double time){
     double markerVelY = markerVelocityDir.y();
     double markerVelZ = markerVelocityDir.z();
 
+    ChVector<> markerAccAbs = marker->GetAbsFrame().GetPos_dtdt();
+    markerAccDir = body->TransformDirectionParentToLocal(markerAccAbs);
+
+    double markerAccX = markerAccDir.x();
+    double markerAccY = markerAccDir.y();
+    double markerAccZ = markerAccDir.z();
+
     AinAbsoluteFrame = body->TransformPointLocalToParent(A);
     BinAbsoluteFrame = body->TransformPointLocalToParent(B);
 
@@ -82,9 +89,17 @@ double MonopileElement::update(double seaLevel, double time){
     double forceY;
     double forceZ;
 
-    double dragForceX;
-    double dragForceY;
-    double dragForceZ;
+    double addedMassForceX = 0;
+    double addedMassForceY = 0;
+    double addedMassForceZ = 0;
+
+    double dragForceX = 0;
+    double dragForceY = 0;
+    double dragForceZ = 0;
+
+    double krylovForceX = 0;
+    double krylovForceY = 0;
+    double krylovForceZ = 0;
 
     double addedDampingForceX;
     double addedDampingForceY;
@@ -101,43 +116,63 @@ double MonopileElement::update(double seaLevel, double time){
     waveVelocityLocalVec = body->TransformDirectionParentToLocal(waveVelocityAbsVec);
     qDebug() << "wave Velocity" << waveVelocity;
 
+    waveAcceleration = p.waveAmplitude*pow(omega,2)*exp(2*PI/p.waveLength*(zElement-seaLevel))*sin(-omega*time);
+    ChVector<> waveAccelerationAbsVec = ChVector<>(waveAcceleration,0,0);
+    waveAccelerationLocalVec = body->TransformDirectionParentToLocal(waveAccelerationAbsVec);
+    qDebug() << "wave Acceleration" << waveAcceleration;
+
      if(isSubmerged(seaLevel)){
 
         double signX = 0;
         double signY = 0;
 
-        if(markerVelX - waveVelocityLocalVec.x() >= 0) signX = 1;
-        if(markerVelX - waveVelocityLocalVec.x() < 0 ) signX = -1;
-        if(markerVelY - waveVelocityLocalVec.y()  >= 0) signY = 1;
-        if(markerVelY - waveVelocityLocalVec.y()  < 0 ) signY = -1;
-//        if(waveVelocity >= 0) signX = 1;
-//        if(waveVelocity < 0 ) signX = -1;
-        if(markerVelY >= 0) signY = 1;
-        if(markerVelY < 0 ) signY = -1;
-
-//        qDebug() << " signX" << signX;
-//        qDebug() << " waveVelocity - markerVelX" << waveVelocity - markerVelX;
+        if(waveVelocityLocalVec.x() - markerVelX  >= 0) signX = 1;
+        if(waveVelocityLocalVec.x() - markerVelX < 0 ) signX = -1;
+        if(waveVelocityLocalVec.y() - markerVelY >= 0) signY = 1;
+        if(waveVelocityLocalVec.y() - markerVelY < 0 ) signY = -1;
 
         //wave is travelling in positive x direction
-        dragForceX = -signX* 0.5*p.rhoWater*p.dragCoefficientCylinderLateral*pow(markerVelX - waveVelocityLocalVec.x(),2)*crossSectionArea;
-        dragForceY = -signY* 0.5*p.rhoWater*p.dragCoefficientCylinderLateral*pow(markerVelY  -waveVelocityLocalVec.y(),2)*crossSectionArea;
+        dragForceX = signX* 0.5*p.rhoWater*p.dragCoefficientCylinderLateral*pow(waveVelocityLocalVec.x() - markerVelX,2)*crossSectionArea;
+        dragForceY = signY* 0.5*p.rhoWater*p.dragCoefficientCylinderLateral*pow(waveVelocityLocalVec.y() - markerVelY,2)*crossSectionArea;
         dragForceZ = 0;
+
+        addedMassForceX = p.rhoWater*p.addedMassCoefficient*volume*(waveAccelerationLocalVec.x());//-markerAccX);
+        addedMassForceY = p.rhoWater*p.addedMassCoefficient*volume*(waveAccelerationLocalVec.y());//-markerAccY);
+
+        krylovForceX = p.rhoWater*volume*waveAccelerationLocalVec.x();
+        krylovForceY = p.rhoWater*volume*waveAccelerationLocalVec.y();
 
         buoyancyForceZ = p.rhoWater*volume*p.g;
     }
     else{
-        dragForceX = 0;
-        dragForceY = 0;
+//        dragForceX = 0;
+//        dragForceY = 0;
 
+//        addedMassForceX = 0;
+//        addedMassForceY = 0;
         buoyancyForceZ = 0;
     }
 
-    //ChVector<> dragForceVec = ChVector<>(forceX, forceY, forceZ);
-    ChVector<> dragForceVec = ChVector<>(dragForceX, dragForceY, dragForceZ);
+    forceX = dragForceX + addedMassForceX + krylovForceX;
+    forceY = dragForceY + addedMassForceY + krylovForceY;
+    forceZ = dragForceZ + addedMassForceZ + krylovForceZ;
+
+    ChVector<> dragForceVec = ChVector<>(forceX, forceY, forceZ);
+    //ChVector<> dragForceVec = ChVector<>(dragForceX, dragForceY, dragForceZ);
 
     ChVector<> buoyancyForceVec = ChVector<>(0,0,buoyancyForceZ);
 
+    qDebug() << "waveAccX" << waveAccelerationLocalVec.x();
+
+    qDebug() << "markerAccX" << markerAccX;
+
+    qDebug() << "waveAccX - markerAccX" << waveAccelerationLocalVec.x()-markerAccX;
+
+    qDebug() << "krylovForceX" << krylovForceX;
+    qDebug() << "volume" << volume;
+
     qDebug() << "dragForceX" << dragForceX;
+    qDebug() << "massForceX" << addedMassForceX;
 //    qDebug()<< "dragForceVec" << dragForceVec.Length();
 //    qDebug() << "waveVelocity" << waveVelocity;
 
@@ -147,7 +182,7 @@ double MonopileElement::update(double seaLevel, double time){
     buoyancyForce->SetForce(buoyancyForceVec,false);
     buoyancyForce->SetApplicationPoint(marker->GetAbsCoord().pos,false);
 
-    return dragForceX;
+    return volume;
 }
 
 bool MonopileElement::isSubmerged(double seaLevel){
@@ -214,11 +249,17 @@ void MonopileElement::render(){
         CVector dragForceVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+dragForceAbs);
         glVertex3d(dragForceVecEnd.x,dragForceVecEnd.y,dragForceVecEnd.z);
 
-
+        //wave velocity
         glColor4d(0,0.7,1,0.5);
         glVertex3d(markerPos.x,markerPos.y,markerPos.z);
         CVector waveVelVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+ChVector<>(waveVelocity*1000,0,0));
         glVertex3d(waveVelVecEnd.x,waveVelVecEnd.y,waveVelVecEnd.z);
+
+//        //marker acceleration
+//        glColor4d(1,0.7,0,0.5);
+//        glVertex3d(markerPos.x,markerPos.y,markerPos.z);
+//        CVector markerAccEnd = CVecFromChVec(marker->GetAbsCoord().pos+markerAccDir);
+//        glVertex3d(markerAccEnd.x,markerAccEnd.y,markerAccEnd.z);
 
 //        qDebug() << "addedDampingForceAbs.x()" << addedDampingForceAbs.x();
 //        qDebug() << "addedDampingForceAbs.y()" << addedDampingForceAbs.y();

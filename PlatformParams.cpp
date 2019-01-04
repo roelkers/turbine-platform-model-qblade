@@ -60,8 +60,8 @@ PlatformParams::PlatformParams(){
   mooringDiameter = 0.09;
   mooringStiffnessTimesLength = 384243000; //8471133.49;
   mooringUnstretchedLength = 902.2;
-  mooringRaleyghDamping = 0.1000;
-  mooringNrElements = 10;
+  mooringRaleyghDamping = 1;
+  mooringNrElements = 5;
   mooringRadiusToFairleadsFromCenter = 5.2;
   mooringRadiusToAnchorFromCenter = 853.87;
   distanceZPlatformCOGtoFairlead = 19.9155;
@@ -71,7 +71,7 @@ PlatformParams::PlatformParams(){
   //source: https:en.wikipedia.org/wiki/Drag_coefficient
   dragCoefficientCylinderAxial = 0.82;
   https://de.wikipedia.org/wiki/Strömungswiderstandskoeffizient
-  dragCoefficientCylinderLateral = 1.20;
+  dragCoefficientCylinderLateral = 0.6;
 
   addedDampingX = 100000;
   addedDampingY = 100000;
@@ -88,7 +88,7 @@ PlatformParams::PlatformParams(){
   rhoWater = 1025;
   g = 9.81;
 
-  nrRelaxations = 15;
+  nrRelaxations = 0;
   nrRelaxationSteps = 500;
 
   //visualisation params

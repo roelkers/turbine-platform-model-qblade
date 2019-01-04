@@ -40,51 +40,51 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     system.SetSolverOverrelaxationParam(1);
     system.SetSolverSharpnessParam(1);
 
-//    int i=m_qlltSim->GetModule()->GetStrModelDock()->intBox->currentIndex();
+    int i=m_qlltSim->GetModule()->GetStrModelDock()->intBox->currentIndex();
 
-//    if (i==0)  system.SetTimestepperType(ChTimestepper::Type::HHT);
-//    else if (i==1)  system.SetTimestepperType(ChTimestepper::Type::NEWMARK);
-//    else if (i==2)  system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT_LINEARIZED);
-//    else if (i==3)  system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT_PROJECTED);
-//    else if (i==4)  system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT);
-//    else if (i==5)  system.SetTimestepperType(ChTimestepper::Type::TRAPEZOIDAL);
-//    else if (i==6)  system.SetTimestepperType(ChTimestepper::Type::TRAPEZOIDAL_LINEARIZED);
-//    else if (i==7)  system.SetTimestepperType(ChTimestepper::Type::LEAPFROG);
-//    else if (i==8)  system.SetTimestepperType(ChTimestepper::Type::EULER_EXPLICIT);
-//    else if (i==9)  system.SetTimestepperType(ChTimestepper::Type::RUNGEKUTTA45);
-//    else if (i==10)  system.SetTimestepperType(ChTimestepper::Type::HEUN);
+    if (i==0)  system.SetTimestepperType(ChTimestepper::Type::HHT);
+    else if (i==1)  system.SetTimestepperType(ChTimestepper::Type::NEWMARK);
+    else if (i==2)  system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT_LINEARIZED);
+    else if (i==3)  system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT_PROJECTED);
+    else if (i==4)  system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT);
+    else if (i==5)  system.SetTimestepperType(ChTimestepper::Type::TRAPEZOIDAL);
+    else if (i==6)  system.SetTimestepperType(ChTimestepper::Type::TRAPEZOIDAL_LINEARIZED);
+    else if (i==7)  system.SetTimestepperType(ChTimestepper::Type::LEAPFROG);
+    else if (i==8)  system.SetTimestepperType(ChTimestepper::Type::EULER_EXPLICIT);
+    else if (i==9)  system.SetTimestepperType(ChTimestepper::Type::RUNGEKUTTA45);
+    else if (i==10)  system.SetTimestepperType(ChTimestepper::Type::HEUN);
 
 //    if (system.GetTimestepperType() == ChTimestepper::Type::NEWMARK){
 //    auto mystepper = std::dynamic_pointer_cast<ChTimestepperNewmark>(system.GetTimestepper());
 //    mystepper->SetGammaBeta(double(m_module->GetStrModelDock()->num_ex->value())/10.0,double(m_module->GetStrModelDock()->deg_ex->value())/10.0);
 //    }
 
-//    if (system.GetTimestepperType() == ChTimestepper::Type::HHT){
-//    auto mystepper = std::dynamic_pointer_cast<ChTimestepperHHT>(system.GetTimestepper());
-
-//    mystepper->SetAlpha(-1.0/3.0);
-//    mystepper->SetStepControl(false);
-//    mystepper->SetMaxiters(int(m_qlltSim->GetModule()->GetStrModelDock()->iterBox->value()));
-//    mystepper->SetMode(ChTimestepperHHT::HHT_Mode::ACCELERATION);
-//    mystepper->SetModifiedNewton(true);
-//    mystepper->SetScaling(false);
-//    }
-
-    //Change type of integrator:
-    system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT_LINEARIZED);
-    system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT);
-    system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT_PROJECTED);
-    system.SetTimestepperType(ChTimestepper::Type::TRAPEZOIDAL);
-    system.SetTimestepperType(ChTimestepper::Type::HHT);
-
+    if (system.GetTimestepperType() == ChTimestepper::Type::HHT){
     auto mystepper = std::dynamic_pointer_cast<ChTimestepperHHT>(system.GetTimestepper());
+
     mystepper->SetAlpha(-1.0/3.0);
     mystepper->SetStepControl(false);
-    //    mystepper->SetMaxiters(int(qLLTSim->GetModule()->GetStrModelDock()->iterBox->value()));
-    mystepper->SetMaxiters(10);
+    mystepper->SetMaxiters(int(m_qlltSim->GetModule()->GetStrModelDock()->iterBox->value()));
     mystepper->SetMode(ChTimestepperHHT::HHT_Mode::ACCELERATION);
     mystepper->SetModifiedNewton(true);
     mystepper->SetScaling(false);
+    }
+
+//    //Change type of integrator:
+//    system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT_LINEARIZED);
+//    system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT);
+//    system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT_PROJECTED);
+//    system.SetTimestepperType(ChTimestepper::Type::TRAPEZOIDAL);
+//    system.SetTimestepperType(ChTimestepper::Type::HHT);
+
+//    auto mystepper = std::dynamic_pointer_cast<ChTimestepperHHT>(system.GetTimestepper());
+//    mystepper->SetAlpha(-1.0/3.0);
+//    mystepper->SetStepControl(false);
+//    //    mystepper->SetMaxiters(int(qLLTSim->GetModule()->GetStrModelDock()->iterBox->value()));
+//    mystepper->SetMaxiters(10);
+//    mystepper->SetMode(ChTimestepperHHT::HHT_Mode::ACCELERATION);
+//    mystepper->SetModifiedNewton(true);
+//    mystepper->SetScaling(false);
 
     //Init Load container
     auto loadcontainer = std::make_shared<ChLoadContainer>();
