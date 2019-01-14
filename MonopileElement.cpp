@@ -67,6 +67,11 @@ MonopileElement::MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoa
 double MonopileElement::update(double seaLevel, double time){
 
     marker->UpdateState();
+    ChVector<> markerPosAbs = marker->GetAbsCoord().pos;
+
+    double markerPosX = markerPosAbs.x();
+    double markerPosY = markerPosAbs.y();
+    double markerPosZ = markerPosAbs.z();
 
     ChVector<> markerVelocityAbs = marker->GetAbsFrame().GetPos_dt();
     ChVector<> markerVelocityDir = body->TransformDirectionParentToLocal(markerVelocityAbs);
@@ -110,13 +115,16 @@ double MonopileElement::update(double seaLevel, double time){
 
     double zElement = marker->GetAbsFrame().GetPos().z();
     double omega = 2*PI/p.wavePeriod;
+    double k = 2*PI/p.waveLength;
 
-    waveVelocity = p.waveAmplitude*omega*exp(2*PI/p.waveLength*(zElement-seaLevel))*cos(-omega*time);
+    //waveVelocity = p.waveAmplitude*omega*exp(k*(zElement-seaLevel))*cos(-omega*time);
+    waveVelocity = p.waveAmplitude*omega*exp(k*(zElement-seaLevel))*cos(k*markerPosX-omega*time);
     ChVector<> waveVelocityAbsVec = ChVector<>(waveVelocity,0,0);
     waveVelocityLocalVec = body->TransformDirectionParentToLocal(waveVelocityAbsVec);
     qDebug() << "wave Velocity" << waveVelocity;
 
-    waveAcceleration = p.waveAmplitude*pow(omega,2)*exp(2*PI/p.waveLength*(zElement-seaLevel))*sin(-omega*time);
+    //waveAcceleration = p.waveAmplitude*pow(omega,2)*exp(k*(zElement-seaLevel))*sin(-omega*time);
+    waveAcceleration = p.waveAmplitude*pow(omega,2)*exp(k*(zElement-seaLevel))*sin(k*markerPosX-omega*time);
     ChVector<> waveAccelerationAbsVec = ChVector<>(waveAcceleration,0,0);
     waveAccelerationLocalVec = body->TransformDirectionParentToLocal(waveAccelerationAbsVec);
     qDebug() << "wave Acceleration" << waveAcceleration;
@@ -244,16 +252,16 @@ void MonopileElement::render(){
 //        glVertex3d(zAxisEnd.x,zAxisEnd.y,zAxisEnd.z);
 
         //light red/light green/ blue: drag force
-        glColor4d(1,0.5,0.5,1);
-        glVertex3d(markerPos.x,markerPos.y,markerPos.z);
-        CVector dragForceVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+dragForceAbs);
-        glVertex3d(dragForceVecEnd.x,dragForceVecEnd.y,dragForceVecEnd.z);
+//        glColor4d(1,0.5,0.5,1);
+//        glVertex3d(markerPos.x,markerPos.y,markerPos.z);
+//        CVector dragForceVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+dragForceAbs);
+//        glVertex3d(dragForceVecEnd.x,dragForceVecEnd.y,dragForceVecEnd.z);
 
-        //wave velocity
-        glColor4d(0,0.7,1,0.5);
-        glVertex3d(markerPos.x,markerPos.y,markerPos.z);
-        CVector waveVelVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+ChVector<>(waveVelocity*1000,0,0));
-        glVertex3d(waveVelVecEnd.x,waveVelVecEnd.y,waveVelVecEnd.z);
+//        //wave velocity
+//        glColor4d(0,0.7,1,0.5);
+//        glVertex3d(markerPos.x,markerPos.y,markerPos.z);
+//        CVector waveVelVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+ChVector<>(waveVelocity*1000,0,0));
+//        glVertex3d(waveVelVecEnd.x,waveVelVecEnd.y,waveVelVecEnd.z);
 
 //        //marker acceleration
 //        glColor4d(1,0.7,0,0.5);

@@ -249,26 +249,26 @@ void MooringLine::render(){
 
         //Render react forces inside the link of fairlead
 
-        ChVector<> reactForceFairlead = constraintMooring->Get_react_force();
-        //qDebug() << "reactForceFairlead: " << reactForceFairlead.Length();
-        double tension = reactForceFairlead.Length()/mooringArea;
-        //qDebug() << "mooringTension: " << tension;
+//        ChVector<> reactForceFairlead = constraintMooring->Get_react_force();
+//        //qDebug() << "reactForceFairlead: " << reactForceFairlead.Length();
+//        double tension = reactForceFairlead.Length()/mooringArea;
+//        //qDebug() << "mooringTension: " << tension;
 
-        reactForceFairlead.Normalize();
-        //red: react force
-        glColor4d(1,0,0,1);
-        glVertex3d(fairleadPosCVec.x,fairleadPosCVec.y,fairleadPosCVec.z);
-        CVector reactionForceVectorEnd = CVecFromChVec(fairleadPos+p.dVectorFactor*reactForceFairlead);
-        glVertex3d(reactionForceVectorEnd.x,reactionForceVectorEnd.y,reactionForceVectorEnd.z);
+//        reactForceFairlead.Normalize();
+//        //red: react force
+//        glColor4d(1,0,0,1);
+//        glVertex3d(fairleadPosCVec.x,fairleadPosCVec.y,fairleadPosCVec.z);
+//        CVector reactionForceVectorEnd = CVecFromChVec(fairleadPos+p.dVectorFactor*reactForceFairlead);
+//        glVertex3d(reactionForceVectorEnd.x,reactionForceVectorEnd.y,reactionForceVectorEnd.z);
 
-        //Render react forces inside the link of mooring
-        ChVector<> reactForceMooring = constraintMooring->Get_react_force();
-        reactForceMooring.Normalize();
-        //blue: react force inside mooring
-        glColor4d(0,0,1,1);
-        glVertex3d(fairleadPosCVec.x,fairleadPosCVec.y,fairleadPosCVec.z);
-        reactionForceVectorEnd = CVecFromChVec(fairleadPos-p.dVectorFactor*reactForceMooring);
-        glVertex3d(reactionForceVectorEnd.x,reactionForceVectorEnd.y,reactionForceVectorEnd.z);
+//        //Render react forces inside the link of mooring
+//        ChVector<> reactForceMooring = constraintMooring->Get_react_force();
+//        reactForceMooring.Normalize();
+//        //blue: react force inside mooring
+//        glColor4d(0,0,1,1);
+//        glVertex3d(fairleadPosCVec.x,fairleadPosCVec.y,fairleadPosCVec.z);
+//        reactionForceVectorEnd = CVecFromChVec(fairleadPos-p.dVectorFactor*reactForceMooring);
+//        glVertex3d(reactionForceVectorEnd.x,reactionForceVectorEnd.y,reactionForceVectorEnd.z);
 
     glEnd();
 }

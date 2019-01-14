@@ -413,54 +413,54 @@ void Monopile::render(){
     glBegin(GL_LINES);
 
         //Draw Coordinate system of monopile
-        ChCoordsys<> monopileCoord = platformBody->GetCoord();
-        //red: x-axis
-        glColor4d(1,0,0,1);
-        glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
-        CVector xAxisEnd = CVecFromChVec(platformBody->GetPos()+p.cSystemFactor*monopileCoord.rot.GetXaxis());
-        glVertex3d(xAxisEnd.x,xAxisEnd.y,xAxisEnd.z);
-        //green: y-axis
-        glColor4d(0,1,0,1);
-        glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
-        CVector yAxisEnd = CVecFromChVec(platformBody->GetPos()+p.cSystemFactor*monopileCoord.rot.GetYaxis());
-        glVertex3d(yAxisEnd.x,yAxisEnd.y,yAxisEnd.z);
-        //blue: z-axis
-        glColor4d(0,0,1,1);
-        glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
-        CVector zAxisEnd = CVecFromChVec(platformBody->GetPos()+p.cSystemFactor*monopileCoord.rot.GetZaxis());
-        glVertex3d(zAxisEnd.x,zAxisEnd.y,zAxisEnd.z);
+//        ChCoordsys<> monopileCoord = platformBody->GetCoord();
+//        //red: x-axis
+//        glColor4d(1,0,0,1);
+//        glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
+//        CVector xAxisEnd = CVecFromChVec(platformBody->GetPos()+p.cSystemFactor*monopileCoord.rot.GetXaxis());
+//        glVertex3d(xAxisEnd.x,xAxisEnd.y,xAxisEnd.z);
+//        //green: y-axis
+//        glColor4d(0,1,0,1);
+//        glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
+//        CVector yAxisEnd = CVecFromChVec(platformBody->GetPos()+p.cSystemFactor*monopileCoord.rot.GetYaxis());
+//        glVertex3d(yAxisEnd.x,yAxisEnd.y,yAxisEnd.z);
+//        //blue: z-axis
+//        glColor4d(0,0,1,1);
+//        glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
+//        CVector zAxisEnd = CVecFromChVec(platformBody->GetPos()+p.cSystemFactor*monopileCoord.rot.GetZaxis());
+//        glVertex3d(zAxisEnd.x,zAxisEnd.y,zAxisEnd.z);
 
-        //Draw Coordinate system of interface
-        ChCoordsys<> interfaceCoord = interfaceBody->GetCoord();
-        //red: x-axis
-        glColor4d(1,0,0,1);
-        glVertex3d(interfacePos.x,interfacePos.y,interfacePos.z);
-        xAxisEnd = CVecFromChVec(interfaceBody->GetPos()+p.cSystemFactor*interfaceCoord.rot.GetXaxis());
-        glVertex3d(xAxisEnd.x,xAxisEnd.y,xAxisEnd.z);
-        //green: y-axis
-        glColor4d(0,1,0,1);
-        glVertex3d(interfacePos.x,interfacePos.y,interfacePos.z);
-        yAxisEnd = CVecFromChVec(interfaceBody->GetPos()+p.cSystemFactor*interfaceCoord.rot.GetYaxis());
-        glVertex3d(yAxisEnd.x,yAxisEnd.y,yAxisEnd.z);
-        //blue: z-axis
-        glColor4d(0,0,1,1);
-        glVertex3d(interfacePos.x,interfacePos.y,interfacePos.z);
-        zAxisEnd = CVecFromChVec(interfaceBody->GetPos()+p.cSystemFactor*interfaceCoord.rot.GetZaxis());
-        glVertex3d(zAxisEnd.x,zAxisEnd.y,zAxisEnd.z);
+//        //Draw Coordinate system of interface
+//        ChCoordsys<> interfaceCoord = interfaceBody->GetCoord();
+//        //red: x-axis
+//        glColor4d(1,0,0,1);
+//        glVertex3d(interfacePos.x,interfacePos.y,interfacePos.z);
+//        xAxisEnd = CVecFromChVec(interfaceBody->GetPos()+p.cSystemFactor*interfaceCoord.rot.GetXaxis());
+//        glVertex3d(xAxisEnd.x,xAxisEnd.y,xAxisEnd.z);
+//        //green: y-axis
+//        glColor4d(0,1,0,1);
+//        glVertex3d(interfacePos.x,interfacePos.y,interfacePos.z);
+//        yAxisEnd = CVecFromChVec(interfaceBody->GetPos()+p.cSystemFactor*interfaceCoord.rot.GetYaxis());
+//        glVertex3d(yAxisEnd.x,yAxisEnd.y,yAxisEnd.z);
+//        //blue: z-axis
+//        glColor4d(0,0,1,1);
+//        glVertex3d(interfacePos.x,interfacePos.y,interfacePos.z);
+//        zAxisEnd = CVecFromChVec(interfaceBody->GetPos()+p.cSystemFactor*interfaceCoord.rot.GetZaxis());
+//        glVertex3d(zAxisEnd.x,zAxisEnd.y,zAxisEnd.z);
 
         //Draw Interface Force: green
-        glColor4d(0.5,1,0,1);
-        glVertex3d(interfacePos.x,interfacePos.y,interfacePos.z);
-        ChVector<> aerolasticInterfaceForceAbs = aerolasticInterfaceForce->GetForce();
-        CVector aerolasticForceEnd = CVecFromChVec(interfaceBody->GetPos()+aerolasticInterfaceForceAbs*p.forceLineFactor);
-        glVertex3d(aerolasticForceEnd.x,aerolasticForceEnd.y,aerolasticForceEnd.z);
+//        glColor4d(0.5,1,0,1);
+//        glVertex3d(interfacePos.x,interfacePos.y,interfacePos.z);
+//        ChVector<> aerolasticInterfaceForceAbs = aerolasticInterfaceForce->GetForce();
+//        CVector aerolasticForceEnd = CVecFromChVec(interfaceBody->GetPos()+aerolasticInterfaceForceAbs*p.forceLineFactor);
+//        glVertex3d(aerolasticForceEnd.x,aerolasticForceEnd.y,aerolasticForceEnd.z);
 
         //Draw Interface Torque : red
-        glColor4d(1,0,0.5,1);
-        glVertex3d(interfacePos.x,interfacePos.y,interfacePos.z);
-        ChVector<> aerolasticInterfaceTorqueAbs = aerolasticInterfaceTorque->GetTorque();
-        CVector aerolasticTorqueEnd = CVecFromChVec(interfaceBody->GetPos()+aerolasticInterfaceTorqueAbs*p.forceLineFactor);
-        glVertex3d(aerolasticTorqueEnd.x,aerolasticTorqueEnd.y,aerolasticTorqueEnd.z);
+//        glColor4d(1,0,0.5,1);
+//        glVertex3d(interfacePos.x,interfacePos.y,interfacePos.z);
+//        ChVector<> aerolasticInterfaceTorqueAbs = aerolasticInterfaceTorque->GetTorque();
+//        CVector aerolasticTorqueEnd = CVecFromChVec(interfaceBody->GetPos()+aerolasticInterfaceTorqueAbs*p.forceLineFactor);
+//        glVertex3d(aerolasticTorqueEnd.x,aerolasticTorqueEnd.y,aerolasticTorqueEnd.z);
 //        //hub c-system
 //        //red: x-axis
 //        ChCoordsys<> hubCoord = hubBody->GetCoord();
@@ -480,11 +480,11 @@ void Monopile::render(){
 //        glVertex3d(zAxisEnd.x,zAxisEnd.y,zAxisEnd.z);
 
         //Draw Added Damping Force: light green
-        glColor4d(1,0.5,0,1);
-        glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
-        ChVector<> addedDampingForceAbs = addedDampingForce->GetForce();
-        CVector bottomForceEnd = CVecFromChVec(platformBody->GetPos()+addedDampingForceAbs*p.forceLineFactor);
-        glVertex3d(bottomForceEnd.x,bottomForceEnd.y,bottomForceEnd.z);
+//        glColor4d(1,0.5,0,1);
+//        glVertex3d(monopilePos.x,monopilePos.y,monopilePos.z);
+//        ChVector<> addedDampingForceAbs = addedDampingForce->GetForce();
+//        CVector bottomForceEnd = CVecFromChVec(platformBody->GetPos()+addedDampingForceAbs*p.forceLineFactor);
+//        glVertex3d(bottomForceEnd.x,bottomForceEnd.y,bottomForceEnd.z);
     glEnd();
     //Render Elements
     for(auto &element : monopileElements){
