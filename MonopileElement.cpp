@@ -16,7 +16,7 @@ std::shared_ptr<chrono::ChMarker> MonopileElement::getMarker() const
     return marker;
 }
 
-MonopileElement::MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<chrono::ChBody> body, double length, ChVector<> A, ChVector<> B, double crossSectionArea, double volume)
+MonopileElement::MonopileElement(PlatformParams &p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<chrono::ChBody> body, double length, ChVector<> const& A, ChVector<> const& B, double crossSectionArea, double volume)
     :p(p),
      body(body),
      A(body->TransformPointParentToLocal(A)),
@@ -27,7 +27,7 @@ MonopileElement::MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoa
      crossSectionArea(crossSectionArea),
      volume(volume)
 {
-    //Set marker in center of element
+    //Set marker position to center of element
     ChVector<> markerPosition = (A + B)/2;
 
     marker = std::make_shared<ChMarker>();
@@ -64,7 +64,7 @@ MonopileElement::MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoa
 
 }
 
-double MonopileElement::update(double seaLevel, double time){
+void MonopileElement::update(double seaLevel, double time){
 
     marker->UpdateState();
     ChVector<> markerPosAbs = marker->GetAbsCoord().pos;
@@ -106,11 +106,7 @@ double MonopileElement::update(double seaLevel, double time){
     double krylovForceY = 0;
     double krylovForceZ = 0;
 
-    double addedDampingForceX;
-    double addedDampingForceY;
-    double addedDampingForceZ;
-
-    double buoyancyForceZ;
+    double buoyancyForceZ = 0;
     //check if marker is submerged
 
     double zElement = marker->GetAbsFrame().GetPos().z();
@@ -152,14 +148,6 @@ double MonopileElement::update(double seaLevel, double time){
 
         buoyancyForceZ = p.rhoWater*volume*p.g;
     }
-    else{
-//        dragForceX = 0;
-//        dragForceY = 0;
-
-//        addedMassForceX = 0;
-//        addedMassForceY = 0;
-        buoyancyForceZ = 0;
-    }
 
     forceX = dragForceX + addedMassForceX + krylovForceX;
     forceY = dragForceY + addedMassForceY + krylovForceY;
@@ -170,49 +158,26 @@ double MonopileElement::update(double seaLevel, double time){
 
     ChVector<> buoyancyForceVec = ChVector<>(0,0,buoyancyForceZ);
 
-//    qDebug() << "waveAccX" << waveAccelerationLocalVec.x();
-
-//    qDebug() << "markerAccX" << markerAccX;
-
-//    qDebug() << "waveAccX - markerAccX" << waveAccelerationLocalVec.x()-markerAccX;
-
-//    qDebug() << "krylovForceX" << krylovForceX;
-//    qDebug() << "volume" << volume;
-
-//    qDebug() << "dragForceX" << dragForceX;
-//    qDebug() << "massForceX" << addedMassForceX;
-//    qDebug()<< "dragForceVec" << dragForceVec.Length();
-//    qDebug() << "waveVelocity" << waveVelocity;
-
     dragForce->SetForce(dragForceVec,true);
     dragForce->SetApplicationPoint(marker->GetAbsCoord().pos,false);
 
     buoyancyForce->SetForce(buoyancyForceVec,false);
     buoyancyForce->SetApplicationPoint(marker->GetAbsCoord().pos,false);
-
-    return volume;
 }
 
-bool MonopileElement::isSubmerged(double seaLevel){
+bool MonopileElement::isSubmerged(double seaLevel) const{
     return (marker->GetAbsCoord().pos.z() < seaLevel);
 }
 
-void MonopileElement::render(){
+void MonopileElement::render() const{
 
-//    qDebug() << "render damping element";
     glLineWidth(3);
 
     CVector markerPos = CVecFromChVec(marker->GetAbsCoord().pos);
-    //    qDebug()<< "markerPos.x :" << markerPos.x;
-    //    qDebug()<< "markerPos.y :" << markerPos.y;
-    //    qDebug()<< "markerPos.z :" << markerPos.z;
 
-    ChVector<> dragForceAbs = body->TransformDirectionLocalToParent(dragForce->GetForce());
+    //ChVector<> dragForceAbs = body->TransformDirectionLocalToParent(dragForce->GetForce());
     //ChVector<> force = body->TransformDirectionLocalToParent(dampingForce->GetForce());
 
-//    qDebug() << " damping force x: " << force.x();
-//    qDebug() << " damping force y: " << force.y();
-//    qDebug() << " damping force z: " << force.z();
     glPointSize(10);
     glBegin(GL_POINTS);
         //red/light green/blue: marker

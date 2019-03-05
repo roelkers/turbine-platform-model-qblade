@@ -27,20 +27,20 @@ class PlatformModel{
     QLLTSimulation *m_qlltSim;
   public:
     PlatformModel(QLLTSimulation *qLLTSim);
-    void update(double endTime, CVector aerolasticInterfaceForce, CVector aerolasticInterfaceTorque);
-    void render();
+    void update(double endTime, CVector const &aerolasticInterfaceForce, CVector const&aerolasticInterfaceTorque);
+    void render()const;
     void calculateSeaLevel(double time);
-    double getSeaLevel();
-    double getXPosition();
-    double getYPosition();
-    double getZPosition();
-    double getRollAngle();
-    double getPitchAngle();
-    double getYawAngle();
+    double getSeaLevel() const;
+    double getXPosition() const;
+    double getYPosition() const;
+    double getZPosition() const;
+    double getRollAngle() const;
+    double getPitchAngle() const;
+    double getYawAngle() const;
 
-    double getTotalDragForce();
-    CVector getInterfacePos();
-    chrono::ChQuaternion<> getInterfaceRot();
+    double getTotalDragForce() const;
+    CVector getInterfacePos() const;
+    chrono::ChQuaternion<> getInterfaceRot()const;
     double getMooringLineForceUpstream1();
     double getMooringLineForceUpstream2();
     double getMooringLineForceDownstream();

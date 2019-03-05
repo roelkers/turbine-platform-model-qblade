@@ -6,8 +6,6 @@ PlatformParams::PlatformParams(){
 
   distanceGtoE = 30.0845;
 
-  //platformSetupPos = ChVector<>(0,0,-89.9155);
-  //platformSetupPos = ChVector<>(0,0,0);
   platformHeight = 130;
   platformMass = 7466330;
   platformMassMomentInertiaInRollAndPitch = 4229223000;//1.2622e10;
@@ -23,16 +21,6 @@ PlatformParams::PlatformParams(){
   platformLengthAboveTaper = 14;
   platformRadiusAboveTaper = 3.25;
   platformNrElementsAboveTaper = 20;
-
-  //Initial rotation of the monopile
-//  qRotationX = Q_from_AngAxis(6 * CH_C_DEG_TO_RAD, VECT_X); //roll angle
-//  qRotationY= Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_Y); //pitch angle
-//  qRotationZ= Q_from_AngAxis(0 * CH_C_DEG_TO_RAD, VECT_Z); //yaw angle
-  //Translate to initial Position
-
-  //zInit = -89.9155;
-
-  //initPosVec = ChVector<>(0,0,zInit);
 
   initVelVec = ChVector<>(0,0,0);
   initAngVelVec = ChVector<>(0,0,0);
@@ -80,7 +68,6 @@ PlatformParams::PlatformParams(){
   addedYawSpringStiffness = 98340000;
 
   addedMassCoefficient = 0.969954;
-  //addedMassCoefficient = 0.001;
 
   waveAmplitude = 3;
   wavePeriod = 10;

@@ -34,12 +34,7 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     mkl_solver_speed->SetSparsityPatternLock(false);
     mkl_solver_speed->SetVerbose(false);
 
-//    //default settings of system
-//    system.SetTol(2e-4);
-//    system.SetTolForce(1e-3);
-//    system.SetSolverOverrelaxationParam(1);
-//    system.SetSolverSharpnessParam(1);
-
+    //Set Timestepper type to the same timestepper as used in the structural simulation
     int i=m_qlltSim->GetModule()->GetStrModelDock()->intBox->currentIndex();
 
     if (i==0)  system.SetTimestepperType(ChTimestepper::Type::HHT);
@@ -54,37 +49,16 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     else if (i==9)  system.SetTimestepperType(ChTimestepper::Type::RUNGEKUTTA45);
     else if (i==10)  system.SetTimestepperType(ChTimestepper::Type::HEUN);
 
-//    if (system.GetTimestepperType() == ChTimestepper::Type::NEWMARK){
-//    auto mystepper = std::dynamic_pointer_cast<ChTimestepperNewmark>(system.GetTimestepper());
-//    mystepper->SetGammaBeta(double(m_module->GetStrModelDock()->num_ex->value())/10.0,double(m_module->GetStrModelDock()->deg_ex->value())/10.0);
-//    }
-
     if (system.GetTimestepperType() == ChTimestepper::Type::HHT){
-    auto mystepper = std::dynamic_pointer_cast<ChTimestepperHHT>(system.GetTimestepper());
+        auto mystepper = std::dynamic_pointer_cast<ChTimestepperHHT>(system.GetTimestepper());
 
-    mystepper->SetAlpha(-1.0/3.0);
-    mystepper->SetStepControl(false);
-    mystepper->SetMaxiters(int(m_qlltSim->GetModule()->GetStrModelDock()->iterBox->value()));
-    mystepper->SetMode(ChTimestepperHHT::HHT_Mode::ACCELERATION);
-    mystepper->SetModifiedNewton(true);
-    mystepper->SetScaling(false);
+        mystepper->SetAlpha(-1.0/3.0);
+        mystepper->SetStepControl(false);
+        mystepper->SetMaxiters(int(m_qlltSim->GetModule()->GetStrModelDock()->iterBox->value()));
+        mystepper->SetMode(ChTimestepperHHT::HHT_Mode::ACCELERATION);
+        mystepper->SetModifiedNewton(true);
+        mystepper->SetScaling(false);
     }
-
-//    //Change type of integrator:
-//    system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT_LINEARIZED);
-//    system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT);
-//    system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT_PROJECTED);
-//    system.SetTimestepperType(ChTimestepper::Type::TRAPEZOIDAL);
-//    system.SetTimestepperType(ChTimestepper::Type::HHT);
-
-//    auto mystepper = std::dynamic_pointer_cast<ChTimestepperHHT>(system.GetTimestepper());
-//    mystepper->SetAlpha(-1.0/3.0);
-//    mystepper->SetStepControl(false);
-//    //    mystepper->SetMaxiters(int(qLLTSim->GetModule()->GetStrModelDock()->iterBox->value()));
-//    mystepper->SetMaxiters(10);
-//    mystepper->SetMode(ChTimestepperHHT::HHT_Mode::ACCELERATION);
-//    mystepper->SetModifiedNewton(true);
-//    mystepper->SetScaling(false);
 
     //Init Load container
     auto loadcontainer = std::make_shared<ChLoadContainer>();
@@ -94,14 +68,8 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     p.initPosInterface = ChVecFromCVec(m_qlltSim->initTrans);
     p.initRot = ChVecFromCVec(m_qlltSim->initRot);
 
-    //moopile->getBody()->SetPos(initPosMonopile);
-
     //Create monopile
     monopile = std::make_shared<Monopile>(system, p, loadcontainer);
-
-    //Define initial displacement
-    //ChCoordsys<> initCoords =ChCoordsys<>(p.initPosVec,p.qRotationZ*p.qRotationY*p.qRotationX);
-    //monopile->getBody()->Move(initCoords);
 
     qDebug() << "monopile pos x:" << monopile->getBody()->GetPos().x();
     qDebug() << "monopile pos y:" << monopile->getBody()->GetPos().y();
@@ -121,9 +89,6 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     system.Set_G_acc(ChVector<>(0,0,-p.g));
     mesh->SetAutomaticGravity(true);
     //system.Set_G_acc(ChVector<>(0,0,0));
-
-    //Add nacelle, tower and hub mass
-    monopile->addMasses(system);
 
     //Angular increment of Mooring Line on Monopile
     double thetaInc;
@@ -153,8 +118,6 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 
     }
 
-    //system.DoStepDynamics(m_qlltSim->getTimeStep());
-
     monopile->getBody()->SetBodyFixed(true);
 
     for(int i = 0; i< p.nrRelaxations; i++){
@@ -174,21 +137,21 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
 
 }
 
-void PlatformModel::render(){
+void PlatformModel::render() const{
 
     glNewList(GLPLATFORM,GL_COMPILE);
     {
         monopile->render();
 
-        for(int i = 0; i<mooringLines.size(); i ++) {
-            mooringLines[i].render(i);
+        for(auto mooringLine : mooringLines) {
+            mooringLine.render();
         }
     }
     glEndList();
 
 }
 
-void PlatformModel::update(double endTime, CVector aerolasticInterfaceForce, CVector aerolasticInterfaceTorque){
+void PlatformModel::update(double endTime, CVector const &aerolasticInterfaceForce, CVector const &aerolasticInterfaceTorque) {
 
     double left_time;
 
@@ -210,11 +173,11 @@ void PlatformModel::update(double endTime, CVector aerolasticInterfaceForce, CVe
 
 }
 
-double PlatformModel::getTotalDragForce(){
+double PlatformModel::getTotalDragForce() const{
     return monopile->getTotalDragForce();
 }
 
-double PlatformModel::getSeaLevel(){
+double PlatformModel::getSeaLevel() const{
 
     return seaLevel;
 }
@@ -224,77 +187,71 @@ void PlatformModel::calculateSeaLevel(double time){
     seaLevel = p.waveAmplitude*cos(2*PI/p.wavePeriod*time);
 }
 
-double PlatformModel::getXPosition(){
+double PlatformModel::getXPosition() const{
 
     return monopile->getBody()->GetPos().x();
 
 }
 
-double PlatformModel::getYPosition(){
+double PlatformModel::getYPosition() const{
 
     return monopile->getBody()->GetPos().y();
 }
 
-double PlatformModel::getZPosition(){
+double PlatformModel::getZPosition() const{
 
     return monopile->getBody()->GetPos().z();
 
 }
 
-double PlatformModel::getRollAngle(){
+double PlatformModel::getRollAngle() const{
 
     ChQuaternion<> rotBody = monopile->getBody()->GetRot();
 
     //rotate monopile back from setup position to get correct angle
-//    ChQuaternion<> qSetup = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
-//    ChQuaternion<> rotCorrected = rotBody*qSetup;
     double angleNasa = rotBody.Q_to_NasaAngles().y()/M_PI*180;
     return angleNasa;
 }
 
-double PlatformModel::getPitchAngle(){
+double PlatformModel::getPitchAngle() const{
 
     ChQuaternion<> rotBody = monopile->getBody()->GetRot();
 
     //rotate monopile back from setup position to get correct angle
-//    ChQuaternion<> qSetup = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
-//    ChQuaternion<> rotCorrected = rotBody*qSetup;
     double angleNasa = rotBody.Q_to_NasaAngles().x()/M_PI*180;
     return angleNasa;
 }
 
-double PlatformModel::getYawAngle(){
+double PlatformModel::getYawAngle() const{
 
     ChQuaternion<> rotBody = monopile->getBody()->GetRot();
 
       //rotate monopile back from setup position to get correct angle
-//    ChQuaternion<> qSetup = Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X);
-//    ChQuaternion<> rotCorrected = rotBody*qSetup;
     double angleNasa = rotBody.Q_to_NasaAngles().z()/M_PI*180;
     return angleNasa;
 }
 
-CVector PlatformModel::getInterfacePos(){
+CVector PlatformModel::getInterfacePos() const{
     return monopile->getInterfacePos();
 }
 
-ChQuaternion<> PlatformModel::getInterfaceRot(){
+ChQuaternion<> PlatformModel::getInterfaceRot() const{
     return monopile->getInterfaceRot();
 }
 
-double PlatformModel::getMooringLineForceDownstream(){
+double PlatformModel::getMooringLineForceDownstream() {
 
     return mooringLines.at(2).getTensionForce();
 
 }
 
-double PlatformModel::getMooringLineForceUpstream1(){
+double PlatformModel::getMooringLineForceUpstream1() {
 
     return mooringLines.at(1).getTensionForce();
 
 }
 
-double PlatformModel::getMooringLineForceUpstream2(){
+double PlatformModel::getMooringLineForceUpstream2() {
 
     return mooringLines.at(0).getTensionForce();
 

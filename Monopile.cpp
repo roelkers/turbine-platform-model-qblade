@@ -20,7 +20,7 @@
 using namespace chrono;
 using namespace chrono::fea;
 
-Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadContainer> loadContainer)
+Monopile::Monopile(ChSystem &system, PlatformParams &p, std::shared_ptr<ChLoadContainer> loadContainer)
     :p(p)
 {
 
@@ -147,32 +147,6 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
 
     qDebug() << "totalVolume Above Taper of Platform" << totalVolumeAboveTaper;
 
-//    //Create tower elements
-//    double towerLengthOfElement = p.towerHeight/p.nrElementsTower;
-//    double crossSectionAreaTowerElement = 0;
-//    double currentTowerRadius = 0;
-//    double z_tower = 0.5*towerLengthOfElement;
-
-//    for(int i = 0; i<p.nrElementsTower; i++){
-
-//        B = A+towerLengthOfElement*zAxisMonopile;
-//        //calculate linear tower radius
-//        currentTowerRadius = (p.towerRadiusTop-p.platformRadiusAboveTaper)/p.towerHeight*z_tower + p.platformRadiusAboveTaper;
-
-//        volume = M_PI*pow(currentTowerRadius,2)*towerLengthOfElement;
-//        crossSectionAreaTowerElement = 2*currentTowerRadius*towerLengthOfElement;
-
-//        MonopileElement monopileElement(p,loadContainer,platformBody,towerLengthOfElement,A,B,crossSectionAreaTowerElement ,volume);
-//        monopileElements.push_back(monopileElement);
-
-//        qDebug()<< "element volume tower: " << volume;
-//        qDebug()<< "z tower: " << z_tower;
-//        qDebug()<< "crossSectionArea tower:  " << crossSectionAreaTowerElement;
-
-//        A = B;
-//        z_tower = z_tower + towerLengthOfElement;
-//    }
-
     addedDampingForce = std::make_shared<ChLoadBodyForce> (
       platformBody, //platformBody
       ChVector<>(0,0,0), //initialize
@@ -217,153 +191,35 @@ Monopile::Monopile(ChSystem &system, PlatformParams p, std::shared_ptr<ChLoadCon
 
 }
 
+void Monopile::update(ChVector<> const& interfaceForceVec, ChVector<> const& interfaceTorqueVec, double seaLevel, double time){
 
-void Monopile::addMasses(ChSystem& system){
-
-    ChVector<> vecGtoI = ChVector<>(0,0,-p.distanceGtoE+p.platformLengthBelowTaper+p.platformLengthTaper+p.platformLengthAboveTaper);
-//    ChVector<> vecItoY = ChVector<>(0,0,p.towerHeight);
-//    ChVector<> vecYtoN = ChVector<>(-p.nacelleDistanceDownstream,0,p.nacelleDistanceToYawBearing);
-//    ChVector<> vecYtoH = ChVector<>(p.hubDistanceUpstream,0,p.hubDistanceToYawBearing);
-//    ChVector<> vecItoT = ChVector<>(0,0,p.towerCOGDistanceFromBottom);
-
-//    qDebug() << "vecGtoI Length" << vecGtoI.Length();
-//    ChVector<> interfacePos = platformBody->TransformPointLocalToParent(vecGtoI);
-//    interfaceBody->SetPos(interfacePos);
-
-
-//    ChVector<> nacellePos = platformBody->TransformPointLocalToParent(vecGtoI+vecItoY+vecYtoN);
-//    nacelleBody = std::make_shared<ChBody>();
-//    nacelleBody->SetPos(nacellePos);
-//    nacelleBody->SetMass(p.nacelleMass);
-//    system.Add(nacelleBody);
-
-//    qDebug() << "nacelle mass:" << nacelleBody->GetMass();
-
-//    std::shared_ptr<ChLinkMateFix> nacelleConstraint = std::make_shared<ChLinkMateFix>();
-//    nacelleConstraint->Initialize(platformBody,nacelleBody);
-//    system.Add(nacelleConstraint);
-
-//    ChVector<> hubPos = platformBody->TransformPointLocalToParent(vecGtoI+vecItoY+vecYtoH);
-//    hubBody = std::make_shared<ChBody>();
-//    hubBody->SetPos(hubPos);
-//    hubBody->SetMass(p.hubMass);
-//    hubBody->SetRot(platformBody->GetRot());
-//    system.Add(hubBody);
-
-//    //qDebug() << "nacelle mass:" << nacelleBody->GetMass();
-
-//    std::shared_ptr<ChLinkMateFix> hubConstraint = std::make_shared<ChLinkMateFix>();
-//    hubConstraint->Initialize(platformBody,hubBody);
-//    system.Add(hubConstraint);
-
-//    ChVector<> towerPos = platformBody->TransformPointLocalToParent(vecGtoI+vecItoT);
-//    towerBody = std::make_shared<ChBody>();
-//    towerBody->SetPos(towerPos);
-//    towerBody->SetMass(p.towerMass);
-//    system.Add(towerBody);
-
-//    std::shared_ptr<ChLinkMateFix> towerConstraint = std::make_shared<ChLinkMateFix>();
-//    towerConstraint->Initialize(platformBody,towerBody);
-//    system.Add(towerConstraint);
-
-//    //Create Blades
-//    double thetaInc;
-//    if(p.bladeNr>0){
-//        thetaInc = 360/p.bladeNr;
-//    }
-//    double theta = 0;
-
-//    std::shared_ptr<ChBody> bladeBody;
-//    ChVector<> bladePos;
-//    double zBlade = 0;
-//    double yBlade = 0;
-//    double totalBladeMass = 0;
-//    for(int i = 0; i < p.bladeNr; i++){
-//        theta = theta + thetaInc;
-//        bladeBody = std::make_shared<ChBody>();
-//        bladeBody->SetMass(p.bladeMass);
-
-//        double xStart = p.mooringRadiusToFairleadsFromCenter*sin(theta/180*M_PI);
-//        double yStart = p.mooringRadiusToFairleadsFromCenter*cos(theta/180*M_PI);
-
-//        double bladeCOGRadiusFromHubAxis = (p.bladeCOGDistanceFromRoot+p.hubDiameter/2);
-
-//        zBlade = bladeCOGRadiusFromHubAxis*sin(theta/180*M_PI);
-//        yBlade = bladeCOGRadiusFromHubAxis*cos(theta/180*M_PI);
-
-//        bladePos = hubBody->TransformPointLocalToParent(ChVector<>(0,yBlade,zBlade));
-
-//        bladeBody->SetPos(bladePos);
-//        bladeBodies.push_back(bladeBody);
-
-//        system.Add(bladeBody);
-
-//        std::shared_ptr<ChLinkMateFix> bladeConstraint = std::make_shared<ChLinkMateFix>();
-//        bladeConstraint->Initialize(hubBody,bladeBody);
-//        system.Add(bladeConstraint);
-
-//        qDebug()<< "creating blade nr:" << i;
-//        qDebug()<< "theta blade: " << theta;
-//        qDebug()<< "yBlade: " << yBlade;
-//        qDebug()<< "zBlade: " << zBlade;
-
-//        totalBladeMass += bladeBody->GetMass();
-//    }
-
-//    double totalMass = platformBody->GetMass() + hubBody->GetMass() + towerBody->GetMass() + nacelleBody->GetMass() + totalBladeMass;
-//    qDebug() << "Total mass of all bodies: " << totalMass;
-}
-
-void Monopile::update(ChVector<> interfaceForceVec, ChVector<> interfaceTorqueVec, double seaLevel, double time){
-
-    double totalDragForce = 0;
-
-    double elementDragForce = 0;
     //update elements
     for(auto &element : monopileElements){
-       totalDragForce += element.update(seaLevel,time);
+       element.update(seaLevel,time);
     }
-
-    qDebug() << "total Force X:" << totalDragForce;
-
-    //qDebug() << "markerVelocity z" << markerVelZ;
 
     double addedDampingForceX = -platformBody->GetPos_dt().x()*p.addedDampingX;
     double addedDampingForceY = -platformBody->GetPos_dt().y()*p.addedDampingY;
     double addedDampingForceZ = -platformBody->GetPos_dt().z()*p.addedDampingZ;
 
     ChVector<> addedDampingForceVec = ChVector<>(addedDampingForceX,addedDampingForceY,addedDampingForceZ);
-
-    //qDebug() << "addedDampingForce: " << addedDampingForceVec.Length();
-
     addedDampingForce->SetForce(addedDampingForceVec,true);
 
     //Calculate torque due to artifical yaw spring stiffness
-
     double addedYawSpringTorqueZ = -platformBody->GetRot().Q_to_NasaAngles().z()*p.addedYawSpringStiffness;
 
     ChVector<> yawSpringTorque = ChVector<>(0,0,addedYawSpringTorqueZ);
-
     addedYawSpringTorque->SetTorque(addedYawSpringTorqueZ);
 
     //Calculate additional damping of platform around yaw-axis
 
     //Angular speed expressed in local coords
     ChVector<> platformAngularSpeed = platformBody->GetWvel_loc();
-
     double platformYawSpeed = platformAngularSpeed.z();
     ChVector<> torque = ChVector<>(0,0,-platformYawSpeed*p.addedDampingYaw);
-
-    //qDebug() << "yaw damping" << -platformYawSpeed*p.addedDampingYaw;
-
     addedYawDampingTorque->SetTorque(torque);
 
     //update forces & torques at interface
-
-//    qDebug() << "aerolasticeInterfaceForce x: " << interfaceForceVec.x();
-//    qDebug() << "aerolasticeInterfaceForce: " << interfaceForceVec.Length();
-//    qDebug() << "aerolasticeInterfaceTorque: " << interfaceTorqueVec.Length();
-
     ChVector<> vecGtoI = ChVector<>(0,0,-p.distanceGtoE+p.platformLengthBelowTaper+p.platformLengthTaper+p.platformLengthAboveTaper);
 
     aerolasticInterfaceForce->SetApplicationPoint(platformBody->TransformPointLocalToParent(vecGtoI),false);
@@ -373,7 +229,7 @@ void Monopile::update(ChVector<> interfaceForceVec, ChVector<> interfaceTorqueVe
     aerolasticInterfaceTorque->SetTorque(interfaceTorqueVec);
 }
 
-void Monopile::render(){
+void Monopile::render() const{
     glPointSize(10);
     glLineWidth(3);
 
@@ -492,10 +348,10 @@ void Monopile::render(){
     }
 }
 
-CVector Monopile::getInterfacePos(){
+CVector Monopile::getInterfacePos() const{
     return CVecFromChVec(interfaceBody->GetPos());
 }
 
-ChQuaternion<> Monopile::getInterfaceRot(){
+chrono::ChQuaternion<> Monopile::getInterfaceRot() const{
     return interfaceBody->GetRot();
 }

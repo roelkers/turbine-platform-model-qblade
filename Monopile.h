@@ -35,18 +35,15 @@ private:
     double totalDragForce;
 
 public:
-    Monopile(chrono::ChSystem& system, PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer);
+    Monopile(chrono::ChSystem & system, PlatformParams & p, std::shared_ptr<chrono::ChLoadContainer> loadContainer);
 
-    void render();
-    void update(chrono::ChVector<> force, chrono::ChVector<> torque, double seaLevel, double time);
-    void addMasses(chrono::ChSystem &system);
+    void render() const;
+    void update(chrono::ChVector<> const& force, chrono::ChVector<> const& torque, double seaLevel, double time);
 
-    std::shared_ptr<chrono::ChBody> getBody(){return platformBody;}
-    CVector getInterfacePos();
-    chrono::ChQuaternion<> getInterfaceRot();
-    double getTotalDragForce(){return totalDragForce;}
-
-    //std::shared_ptr<chrono::ChLoadBodyForce> getAddedDampingForce() const;
+    std::shared_ptr<chrono::ChBody> getBody() const {return platformBody;}
+    CVector  getInterfacePos() const;
+    chrono::ChQuaternion<> getInterfaceRot() const;
+    double getTotalDragForce() const{return totalDragForce;}
 };
 
 #endif // MONOPILE_H

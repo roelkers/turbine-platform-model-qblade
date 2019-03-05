@@ -27,7 +27,7 @@ std::shared_ptr<chrono::fea::ChLinkPointFrame> MooringLine::getConstraintMooring
     return constraintMooring;
 }
 
-MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, PlatformParams p, double theta, std::shared_ptr<Monopile> monopile, std::shared_ptr<ChLoadContainer> loadContainer)
+MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, PlatformParams &p, double theta, std::shared_ptr<Monopile> monopile, std::shared_ptr<ChLoadContainer> loadContainer)
 :p(p)
 {
 
@@ -90,7 +90,6 @@ MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, Platfor
   constraintMooring->Initialize(builder.GetLastBeamNodes().front(), monopile->getBody());
 
   constraintMooring->SetAttachPositionInAbsoluteCoords(pos);
-  //constraintMooring->SetAttachReferenceInAbsoluteCoords(builder.GetLastBeamNodes().GetCoord());
 
   system.Add(constraintMooring);
 
@@ -147,7 +146,6 @@ void MooringLine::setRestLengthAndPosition(){
     //Iterate over beam elements to set the rest length and rest position
     for(auto &element : beamElements){
         massTotal += element->GetMass();
-        //qDebug() << "initial length"<<element->GetRestLength();
 
         element->SetRestLength(setupLengthOfElement*frac);
         CVector pos = CVecFromChVec(element->GetNodeA()->GetX0());
@@ -157,14 +155,9 @@ void MooringLine::setRestLengthAndPosition(){
         lvec.Normalize();
         lvec *= setupLengthOfElement*frac;
 
-        //element->GetNodeA()->SetD(-ChVecFromCVec(lvec));
-        //element->GetNodeB()->SetD(ChVecFromCVec(lvec));
-
         pos = pos0+lvec;
         ChVector<> chvec(pos.x,pos.y,pos.z);
         element->GetNodeB()->SetX0(chvec);
-
-        //qDebug() << "new rest length"<<CVector(pos-pos0).VAbs() <<frac;
     }
 
     qDebug() << "cable mass:" << massTotal;
@@ -173,27 +166,6 @@ void MooringLine::setRestLengthAndPosition(){
 
 
 double MooringLine::getTensionForce(){
-    /*
-    double strain, currentLength;
-    std::shared_ptr<ChBeamSectionCable> sec;
-
-    double totalLength = 0;
-
-    qDebug() << "testing cable force";
-    std::vector<std::shared_ptr<ChElementCableANCF>> beamElements = builder.GetLastBeamElements();
-    for (auto &element : beamElements){
-        ChVector<> elementVector = element->GetNodeA()->GetPos()-element->GetNodeB()->GetPos();
-        double currentLength = elementVector.Length();
-        qDebug() << "length of element after init" << currentLength;
-        strain = (currentLength-restLengthOfElement)/restLengthOfElement;
-        sec =  element->GetSection();
-        double tensionForce = strain*sec->E*sec->Area;
-        qDebug() << "tensionForce: analytically" << strain*sec->E*sec->Area;
-        totalLength = totalLength + currentLength;
-    }
-
-    qDebug() << "total length of mooring line after init: " << totalLength;
-    */
 
     ChVector<> fairleadForce = constraintMooring->Get_react_force();
 
@@ -201,7 +173,7 @@ double MooringLine::getTensionForce(){
 
 }
 
-void MooringLine::render(int index){
+void MooringLine::render(){
     glPointSize(0.1);
     glLineWidth(1);
 
@@ -241,24 +213,10 @@ void MooringLine::render(int index){
             ChVector<> nodeD = node->GetD();
             CVector nodePosCVec = CVecFromChVec(nodePos);
             //green: directional vector
-            if(index == 0){
-                glColor4d(1,0,0,1);
-            }
-            else if(index == 1){
-                glColor4d(0,1,0,1);
-            }
-            else if(index == 2){
-                glColor4d(0,0,1,1);
-            }
+             glColor4d(0,1,0,1);
             glVertex3d(nodePosCVec.x,nodePosCVec.y,nodePosCVec.z);
             CVector dVectorEnd = CVecFromChVec(nodePos+p.dVectorFactor*nodeD);
             glVertex3d(dVectorEnd.x,dVectorEnd.y,dVectorEnd.z);
-            /*
-            qDebug() << "nodeD x:" << nodeD.x();
-            qDebug() << "nodeD y:" << nodeD.y();
-            qDebug() << "nodeD z:" << nodeD.z();
-            */
-            //qDebug() << "nodeD Length x:" << nodeD.Length();
         }
 
         //Render react forces inside the link of fairlead
