@@ -173,7 +173,6 @@ void PlatformModel::update(double endTime, CVector const &aerolasticInterfaceFor
 
 }
 
-<<<<<<< HEAD
 double PlatformModel::getTotalDragForce() const{
     return monopile->getTotalDragForce();
 }
@@ -189,14 +188,6 @@ void PlatformModel::calculateSeaLevel(double time){
 }
 
 double PlatformModel::getXPosition() const{
-=======
-double PlatformModel::getSeaLevel(){
-
-    return p.seaLevel;
-}
-
-double PlatformModel::getXPosition(){
->>>>>>> master
 
     return monopile->getBody()->GetPos().x();
 
