@@ -12,8 +12,6 @@ public:
 
   double distanceGtoE;
 
-//  chrono::ChVector<> platformSetupPos;
-
   double platformMass;
   double platformHeight;
   double platformRadius;
@@ -31,11 +29,6 @@ public:
   int platformNrElementsAboveTaper;
   double platformRadiusAboveTaper;
 
-//  double zInit;
-
-//  chrono::ChQuaternion<> qRotationX;
-//  chrono::ChQuaternion<> qRotationY;
-//  chrono::ChQuaternion<> qRotationZ;
   chrono::ChVector<> initPosVec;
   chrono::ChVector<> initVelVec;
   chrono::ChVector<> initAngVelVec;
@@ -85,7 +78,12 @@ public:
   double addedDampingYaw;
   double addedYawSpringStiffness;
 
-  double seaLevel;
+  double addedMassCoefficient;
+
+  double waveAmplitude;
+  double wavePeriod;
+  double waveLength;
+
   double rhoWater;
   double g;
 

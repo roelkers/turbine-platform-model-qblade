@@ -27,18 +27,22 @@ std::shared_ptr<chrono::fea::ChLinkPointFrame> MooringLine::getConstraintMooring
     return constraintMooring;
 }
 
-MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, PlatformParams p, double theta, std::shared_ptr<Monopile> monopile, std::shared_ptr<ChLoadContainer> loadContainer)
+MooringLine::MooringLine(ChSystem& system, std::shared_ptr<ChMesh> mesh, PlatformParams &p, double theta, std::shared_ptr<Monopile> monopile, std::shared_ptr<ChLoadContainer> loadContainer)
 :p(p)
 {
 
   sectionCable = std::make_shared<ChBeamSectionCable>();
   sectionCable->SetDiameter(p.mooringDiameter);
+  qDebug() << "mooring diameter" << p.mooringDiameter;
 
   mooringArea = M_PI*pow(p.mooringDiameter,2)/4;
 
   sectionCable->SetArea(mooringArea);
+  qDebug() << "mooring Area" << mooringArea;
 
   eModMooring = p.mooringStiffnessTimesLength/mooringArea;
+
+  qDebug() << "eModMooring" << eModMooring;
 
   sectionCable->SetYoungModulus(eModMooring);
   sectionCable->SetBeamRaleyghDamping(p.mooringRaleyghDamping);
@@ -142,7 +146,6 @@ void MooringLine::setRestLengthAndPosition(){
     //Iterate over beam elements to set the rest length and rest position
     for(auto &element : beamElements){
         massTotal += element->GetMass();
-        //qDebug() << "initial length"<<element->GetRestLength();
 
         element->SetRestLength(setupLengthOfElement*frac);
         CVector pos = CVecFromChVec(element->GetNodeA()->GetX0());
@@ -152,14 +155,9 @@ void MooringLine::setRestLengthAndPosition(){
         lvec.Normalize();
         lvec *= setupLengthOfElement*frac;
 
-        //element->GetNodeA()->SetD(-ChVecFromCVec(lvec));
-        //element->GetNodeB()->SetD(ChVecFromCVec(lvec));
-
         pos = pos0+lvec;
         ChVector<> chvec(pos.x,pos.y,pos.z);
         element->GetNodeB()->SetX0(chvec);
-
-        //qDebug() << "new rest length"<<CVector(pos-pos0).VAbs() <<frac;
     }
 
     qDebug() << "cable mass:" << massTotal;
@@ -167,27 +165,12 @@ void MooringLine::setRestLengthAndPosition(){
 }
 
 
-void MooringLine::getTensionForce(){
+double MooringLine::getTensionForce(){
 
-    double strain, currentLength;
-    std::shared_ptr<ChBeamSectionCable> sec;
+    ChVector<> fairleadForce = constraintMooring->Get_react_force();
 
-    double totalLength = 0;
+    return fairleadForce.Length();
 
-    qDebug() << "testing cable force";
-    std::vector<std::shared_ptr<ChElementCableANCF>> beamElements = builder.GetLastBeamElements();
-    for (auto &element : beamElements){
-        ChVector<> elementVector = element->GetNodeA()->GetPos()-element->GetNodeB()->GetPos();
-        double currentLength = elementVector.Length();
-        qDebug() << "length of element after init" << currentLength;
-        strain = (currentLength-restLengthOfElement)/restLengthOfElement;
-        sec =  element->GetSection();
-        double tensionForce = strain*sec->E*sec->Area;
-        qDebug() << "tensionForce: analytically" << strain*sec->E*sec->Area;
-        totalLength = totalLength + currentLength;
-    }
-
-    qDebug() << "total length of mooring line after init: " << totalLength;
 }
 
 void MooringLine::render(){
@@ -206,13 +189,13 @@ void MooringLine::render(){
     glLineWidth(3);
     glBegin(GL_LINES);
         //Render Coordinate system of fairlead
-
+        /*
         ChVector<> fairleadPos = builder.GetLastBeamNodes().front()->GetPos();
         ChVector<> fairleadD = builder.GetLastBeamNodes().front()->GetD();
         CVector fairleadPosCVec = CVecFromChVec(fairleadPos);
         //green: directional vector
         glColor4d(0,1,0,1);
-        /*
+
         glVertex3d(fairleadPosCVec.x,fairleadPosCVec.y,fairleadPosCVec.z);
         CVector dVectorEnd = CVecFromChVec(fairleadPos+p.dVectorFactor*fairleadD);
         glVertex3d(dVectorEnd.x,dVectorEnd.y,dVectorEnd.z);
@@ -230,40 +213,34 @@ void MooringLine::render(){
             ChVector<> nodeD = node->GetD();
             CVector nodePosCVec = CVecFromChVec(nodePos);
             //green: directional vector
-            glColor4d(0,1,0,1);
+             glColor4d(0,1,0,1);
             glVertex3d(nodePosCVec.x,nodePosCVec.y,nodePosCVec.z);
             CVector dVectorEnd = CVecFromChVec(nodePos+p.dVectorFactor*nodeD);
             glVertex3d(dVectorEnd.x,dVectorEnd.y,dVectorEnd.z);
-            /*
-            qDebug() << "nodeD x:" << nodeD.x();
-            qDebug() << "nodeD y:" << nodeD.y();
-            qDebug() << "nodeD z:" << nodeD.z();
-            */
-            //qDebug() << "nodeD Length x:" << nodeD.Length();
         }
 
         //Render react forces inside the link of fairlead
 
-        ChVector<> reactForceFairlead = constraintMooring->Get_react_force();
-        //qDebug() << "reactForceFairlead: " << reactForceFairlead.Length();
-        double tension = reactForceFairlead.Length()/mooringArea;
-        //qDebug() << "mooringTension: " << tension;
+//        ChVector<> reactForceFairlead = constraintMooring->Get_react_force();
+//        //qDebug() << "reactForceFairlead: " << reactForceFairlead.Length();
+//        double tension = reactForceFairlead.Length()/mooringArea;
+//        //qDebug() << "mooringTension: " << tension;
 
-        reactForceFairlead.Normalize();
-        //red: react force
-        glColor4d(1,0,0,1);
-        glVertex3d(fairleadPosCVec.x,fairleadPosCVec.y,fairleadPosCVec.z);
-        CVector reactionForceVectorEnd = CVecFromChVec(fairleadPos+p.dVectorFactor*reactForceFairlead);
-        glVertex3d(reactionForceVectorEnd.x,reactionForceVectorEnd.y,reactionForceVectorEnd.z);
+//        reactForceFairlead.Normalize();
+//        //red: react force
+//        glColor4d(1,0,0,1);
+//        glVertex3d(fairleadPosCVec.x,fairleadPosCVec.y,fairleadPosCVec.z);
+//        CVector reactionForceVectorEnd = CVecFromChVec(fairleadPos+p.dVectorFactor*reactForceFairlead);
+//        glVertex3d(reactionForceVectorEnd.x,reactionForceVectorEnd.y,reactionForceVectorEnd.z);
 
-        //Render react forces inside the link of mooring
-        ChVector<> reactForceMooring = constraintMooring->Get_react_force();
-        reactForceMooring.Normalize();
-        //blue: react force inside mooring
-        glColor4d(0,0,1,1);
-        glVertex3d(fairleadPosCVec.x,fairleadPosCVec.y,fairleadPosCVec.z);
-        reactionForceVectorEnd = CVecFromChVec(fairleadPos-p.dVectorFactor*reactForceMooring);
-        glVertex3d(reactionForceVectorEnd.x,reactionForceVectorEnd.y,reactionForceVectorEnd.z);
+//        //Render react forces inside the link of mooring
+//        ChVector<> reactForceMooring = constraintMooring->Get_react_force();
+//        reactForceMooring.Normalize();
+//        //blue: react force inside mooring
+//        glColor4d(0,0,1,1);
+//        glVertex3d(fairleadPosCVec.x,fairleadPosCVec.y,fairleadPosCVec.z);
+//        reactionForceVectorEnd = CVecFromChVec(fairleadPos-p.dVectorFactor*reactForceMooring);
+//        glVertex3d(reactionForceVectorEnd.x,reactionForceVectorEnd.y,reactionForceVectorEnd.z);
 
     glEnd();
 }
