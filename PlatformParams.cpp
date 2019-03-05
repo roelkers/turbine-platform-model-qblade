@@ -70,7 +70,7 @@ PlatformParams::PlatformParams(){
 
   //source: https:en.wikipedia.org/wiki/Drag_coefficient
   dragCoefficientCylinderAxial = 0.82;
-  https://de.wikipedia.org/wiki/Strömungswiderstandskoeffizient
+  //https://de.wikipedia.org/wiki/Strömungswiderstandskoeffizient
   dragCoefficientCylinderLateral = 0.6;
 
   addedDampingX = 100000;
@@ -80,6 +80,7 @@ PlatformParams::PlatformParams(){
   addedYawSpringStiffness = 98340000;
 
   addedMassCoefficient = 0.969954;
+  //addedMassCoefficient = 0.001;
 
   waveAmplitude = 3;
   wavePeriod = 10;
@@ -88,7 +89,7 @@ PlatformParams::PlatformParams(){
   rhoWater = 1025;
   g = 9.81;
 
-  nrRelaxations = 0;
+  nrRelaxations = 25;
   nrRelaxationSteps = 500;
 
   //visualisation params

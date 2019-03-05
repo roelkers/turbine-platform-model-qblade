@@ -41,6 +41,9 @@ class PlatformModel{
     double getTotalDragForce();
     CVector getInterfacePos();
     chrono::ChQuaternion<> getInterfaceRot();
+    double getMooringLineForceUpstream1();
+    double getMooringLineForceUpstream2();
+    double getMooringLineForceDownstream();
 };
 
 #endif

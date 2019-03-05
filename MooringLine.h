@@ -31,9 +31,9 @@ private:
 
 public:
   MooringLine(chrono::ChSystem& system, std::shared_ptr<chrono::fea::ChMesh> mesh, PlatformParams p, double theta, std::shared_ptr<Monopile> monopile, std::shared_ptr<chrono::ChLoadContainer> loadContainer);
-  void render();
+  void render(int index);
   void setRestLengthAndPosition();
-  void getTensionForce();
+  double getTensionForce();
   std::shared_ptr<chrono::fea::ChLinkPointFrame> getConstraintMooring() const;
 };
 

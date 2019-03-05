@@ -121,13 +121,13 @@ double MonopileElement::update(double seaLevel, double time){
     waveVelocity = p.waveAmplitude*omega*exp(k*(zElement-seaLevel))*cos(k*markerPosX-omega*time);
     ChVector<> waveVelocityAbsVec = ChVector<>(waveVelocity,0,0);
     waveVelocityLocalVec = body->TransformDirectionParentToLocal(waveVelocityAbsVec);
-    qDebug() << "wave Velocity" << waveVelocity;
+    //qDebug() << "wave Velocity" << waveVelocity;
 
     //waveAcceleration = p.waveAmplitude*pow(omega,2)*exp(k*(zElement-seaLevel))*sin(-omega*time);
     waveAcceleration = p.waveAmplitude*pow(omega,2)*exp(k*(zElement-seaLevel))*sin(k*markerPosX-omega*time);
     ChVector<> waveAccelerationAbsVec = ChVector<>(waveAcceleration,0,0);
     waveAccelerationLocalVec = body->TransformDirectionParentToLocal(waveAccelerationAbsVec);
-    qDebug() << "wave Acceleration" << waveAcceleration;
+    //qDebug() << "wave Acceleration" << waveAcceleration;
 
      if(isSubmerged(seaLevel)){
 
@@ -144,8 +144,8 @@ double MonopileElement::update(double seaLevel, double time){
         dragForceY = signY* 0.5*p.rhoWater*p.dragCoefficientCylinderLateral*pow(waveVelocityLocalVec.y() - markerVelY,2)*crossSectionArea;
         dragForceZ = 0;
 
-        addedMassForceX = p.rhoWater*p.addedMassCoefficient*volume*(waveAccelerationLocalVec.x());//-markerAccX);
-        addedMassForceY = p.rhoWater*p.addedMassCoefficient*volume*(waveAccelerationLocalVec.y());//-markerAccY);
+        addedMassForceX = p.rhoWater*volume*p.addedMassCoefficient*waveAccelerationLocalVec.x();
+        addedMassForceY = p.rhoWater*volume*p.addedMassCoefficient*waveAccelerationLocalVec.y();
 
         krylovForceX = p.rhoWater*volume*waveAccelerationLocalVec.x();
         krylovForceY = p.rhoWater*volume*waveAccelerationLocalVec.y();
@@ -170,17 +170,17 @@ double MonopileElement::update(double seaLevel, double time){
 
     ChVector<> buoyancyForceVec = ChVector<>(0,0,buoyancyForceZ);
 
-    qDebug() << "waveAccX" << waveAccelerationLocalVec.x();
+//    qDebug() << "waveAccX" << waveAccelerationLocalVec.x();
 
-    qDebug() << "markerAccX" << markerAccX;
+//    qDebug() << "markerAccX" << markerAccX;
 
-    qDebug() << "waveAccX - markerAccX" << waveAccelerationLocalVec.x()-markerAccX;
+//    qDebug() << "waveAccX - markerAccX" << waveAccelerationLocalVec.x()-markerAccX;
 
-    qDebug() << "krylovForceX" << krylovForceX;
-    qDebug() << "volume" << volume;
+//    qDebug() << "krylovForceX" << krylovForceX;
+//    qDebug() << "volume" << volume;
 
-    qDebug() << "dragForceX" << dragForceX;
-    qDebug() << "massForceX" << addedMassForceX;
+//    qDebug() << "dragForceX" << dragForceX;
+//    qDebug() << "massForceX" << addedMassForceX;
 //    qDebug()<< "dragForceVec" << dragForceVec.Length();
 //    qDebug() << "waveVelocity" << waveVelocity;
 

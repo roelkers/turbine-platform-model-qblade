@@ -172,8 +172,8 @@ void MooringLine::setRestLengthAndPosition(){
 }
 
 
-void MooringLine::getTensionForce(){
-
+double MooringLine::getTensionForce(){
+    /*
     double strain, currentLength;
     std::shared_ptr<ChBeamSectionCable> sec;
 
@@ -193,9 +193,15 @@ void MooringLine::getTensionForce(){
     }
 
     qDebug() << "total length of mooring line after init: " << totalLength;
+    */
+
+    ChVector<> fairleadForce = constraintMooring->Get_react_force();
+
+    return fairleadForce.Length();
+
 }
 
-void MooringLine::render(){
+void MooringLine::render(int index){
     glPointSize(0.1);
     glLineWidth(1);
 
@@ -211,13 +217,13 @@ void MooringLine::render(){
     glLineWidth(3);
     glBegin(GL_LINES);
         //Render Coordinate system of fairlead
-
+        /*
         ChVector<> fairleadPos = builder.GetLastBeamNodes().front()->GetPos();
         ChVector<> fairleadD = builder.GetLastBeamNodes().front()->GetD();
         CVector fairleadPosCVec = CVecFromChVec(fairleadPos);
         //green: directional vector
         glColor4d(0,1,0,1);
-        /*
+
         glVertex3d(fairleadPosCVec.x,fairleadPosCVec.y,fairleadPosCVec.z);
         CVector dVectorEnd = CVecFromChVec(fairleadPos+p.dVectorFactor*fairleadD);
         glVertex3d(dVectorEnd.x,dVectorEnd.y,dVectorEnd.z);
@@ -235,7 +241,15 @@ void MooringLine::render(){
             ChVector<> nodeD = node->GetD();
             CVector nodePosCVec = CVecFromChVec(nodePos);
             //green: directional vector
-            glColor4d(0,1,0,1);
+            if(index == 0){
+                glColor4d(1,0,0,1);
+            }
+            else if(index == 1){
+                glColor4d(0,1,0,1);
+            }
+            else if(index == 2){
+                glColor4d(0,0,1,1);
+            }
             glVertex3d(nodePosCVec.x,nodePosCVec.y,nodePosCVec.z);
             CVector dVectorEnd = CVecFromChVec(nodePos+p.dVectorFactor*nodeD);
             glVertex3d(dVectorEnd.x,dVectorEnd.y,dVectorEnd.z);

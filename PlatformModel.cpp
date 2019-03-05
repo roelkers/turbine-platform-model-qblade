@@ -34,11 +34,11 @@ PlatformModel::PlatformModel(QLLTSimulation *qLLTSim)
     mkl_solver_speed->SetSparsityPatternLock(false);
     mkl_solver_speed->SetVerbose(false);
 
-    //default settings of system
-    system.SetTol(2e-4);
-    system.SetTolForce(1e-3);
-    system.SetSolverOverrelaxationParam(1);
-    system.SetSolverSharpnessParam(1);
+//    //default settings of system
+//    system.SetTol(2e-4);
+//    system.SetTolForce(1e-3);
+//    system.SetSolverOverrelaxationParam(1);
+//    system.SetSolverSharpnessParam(1);
 
     int i=m_qlltSim->GetModule()->GetStrModelDock()->intBox->currentIndex();
 
@@ -180,8 +180,8 @@ void PlatformModel::render(){
     {
         monopile->render();
 
-        for(auto & mooringLine : mooringLines) {
-            mooringLine.render();
+        for(int i = 0; i<mooringLines.size(); i ++) {
+            mooringLines[i].render(i);
         }
     }
     glEndList();
@@ -190,9 +190,7 @@ void PlatformModel::render(){
 
 void PlatformModel::update(double endTime, CVector aerolasticInterfaceForce, CVector aerolasticInterfaceTorque){
 
-    double old_step;
     double left_time;
-    int restore_oldstep = FALSE;
 
     double dT = m_qlltSim->GetStrTimestep();
 
@@ -203,20 +201,13 @@ void PlatformModel::update(double endTime, CVector aerolasticInterfaceForce, CVe
         calculateSeaLevel(system.GetChTime());
         monopile->update(ChVecFromCVec(aerolasticInterfaceForce), ChVecFromCVec(aerolasticInterfaceTorque), seaLevel, system.GetChTime());
 
-        restore_oldstep = FALSE;
         left_time = endTime - system.GetChTime();
         if (left_time < 1e-12) break;  // - no integration if backward or null frame step.
-        if (left_time < (1.3 * dT))  // - step changed if too little frame step
-        {
-            old_step = dT;
-            dT = left_time;
-            restore_oldstep = TRUE;
-        }
+        if (left_time < (1.3 * dT))  dT = left_time; // - step changed if too little frame step
         if (!system.DoStepDynamics(dT)) break;  // ***  Single integration step,
 
     }
 
-    if (restore_oldstep) dT = old_step;
 }
 
 double PlatformModel::getTotalDragForce(){
@@ -289,4 +280,22 @@ CVector PlatformModel::getInterfacePos(){
 
 ChQuaternion<> PlatformModel::getInterfaceRot(){
     return monopile->getInterfaceRot();
+}
+
+double PlatformModel::getMooringLineForceDownstream(){
+
+    return mooringLines.at(2).getTensionForce();
+
+}
+
+double PlatformModel::getMooringLineForceUpstream1(){
+
+    return mooringLines.at(1).getTensionForce();
+
+}
+
+double PlatformModel::getMooringLineForceUpstream2(){
+
+    return mooringLines.at(0).getTensionForce();
+
 }
