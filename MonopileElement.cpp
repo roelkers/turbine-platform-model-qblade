@@ -16,7 +16,7 @@ std::shared_ptr<chrono::ChMarker> MonopileElement::getMarker() const
     return marker;
 }
 
-MonopileElement::MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<chrono::ChBody> body, double length, ChVector<> A, ChVector<> B, double crossSectionArea, double volume)
+MonopileElement::MonopileElement(PlatformParams &p, std::shared_ptr<chrono::ChLoadContainer> loadContainer, std::shared_ptr<chrono::ChBody> body, double length, ChVector<> const& A, ChVector<> const& B, double crossSectionArea, double volume)
     :p(p),
      body(body),
      A(body->TransformPointParentToLocal(A)),
@@ -27,7 +27,7 @@ MonopileElement::MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoa
      crossSectionArea(crossSectionArea),
      volume(volume)
 {
-    //Set marker in center of element
+    //Set marker position to center of element
     ChVector<> markerPosition = (A + B)/2;
 
     marker = std::make_shared<ChMarker>();
@@ -59,14 +59,19 @@ MonopileElement::MonopileElement(PlatformParams p, std::shared_ptr<chrono::ChLoa
         false //not a local point
     );
 
-    //loadContainer->Add(dragForce);
+    loadContainer->Add(dragForce);
     loadContainer->Add(buoyancyForce);
 
 }
 
-double MonopileElement::update(){
+void MonopileElement::update(double seaLevel, double time){
 
     marker->UpdateState();
+    ChVector<> markerPosAbs = marker->GetAbsCoord().pos;
+
+    double markerPosX = markerPosAbs.x();
+    double markerPosY = markerPosAbs.y();
+    double markerPosZ = markerPosAbs.z();
 
     ChVector<> markerVelocityAbs = marker->GetAbsFrame().GetPos_dt();
     ChVector<> markerVelocityDir = body->TransformDirectionParentToLocal(markerVelocityAbs);
@@ -75,78 +80,104 @@ double MonopileElement::update(){
     double markerVelY = markerVelocityDir.y();
     double markerVelZ = markerVelocityDir.z();
 
+    ChVector<> markerAccAbs = marker->GetAbsFrame().GetPos_dtdt();
+    markerAccDir = body->TransformDirectionParentToLocal(markerAccAbs);
+
+    double markerAccX = markerAccDir.x();
+    double markerAccY = markerAccDir.y();
+    double markerAccZ = markerAccDir.z();
+
     AinAbsoluteFrame = body->TransformPointLocalToParent(A);
     BinAbsoluteFrame = body->TransformPointLocalToParent(B);
 
-    double dragForceX;
-    double dragForceY;
+    double forceX;
+    double forceY;
+    double forceZ;
 
-    double addedDampingForceX;
-    double addedDampingForceY;
-    double addedDampingForceZ;
+    double addedMassForceX = 0;
+    double addedMassForceY = 0;
+    double addedMassForceZ = 0;
 
-    double buoyancyForceZ;
+    double dragForceX = 0;
+    double dragForceY = 0;
+    double dragForceZ = 0;
+
+    double krylovForceX = 0;
+    double krylovForceY = 0;
+    double krylovForceZ = 0;
+
+    double buoyancyForceZ = 0;
     //check if marker is submerged
 
-    if(isSubmerged()){
+    double zElement = marker->GetAbsFrame().GetPos().z();
+    double omega = 2*PI/p.wavePeriod;
+    double k = 2*PI/p.waveLength;
+
+    //waveVelocity = p.waveAmplitude*omega*exp(k*(zElement-seaLevel))*cos(-omega*time);
+    waveVelocity = p.waveAmplitude*omega*exp(k*(zElement-seaLevel))*cos(k*markerPosX-omega*time);
+    ChVector<> waveVelocityAbsVec = ChVector<>(waveVelocity,0,0);
+    waveVelocityLocalVec = body->TransformDirectionParentToLocal(waveVelocityAbsVec);
+    //qDebug() << "wave Velocity" << waveVelocity;
+
+    //waveAcceleration = p.waveAmplitude*pow(omega,2)*exp(k*(zElement-seaLevel))*sin(-omega*time);
+    waveAcceleration = p.waveAmplitude*pow(omega,2)*exp(k*(zElement-seaLevel))*sin(k*markerPosX-omega*time);
+    ChVector<> waveAccelerationAbsVec = ChVector<>(waveAcceleration,0,0);
+    waveAccelerationLocalVec = body->TransformDirectionParentToLocal(waveAccelerationAbsVec);
+    //qDebug() << "wave Acceleration" << waveAcceleration;
+
+     if(isSubmerged(seaLevel)){
 
         double signX = 0;
         double signY = 0;
 
-        if(markerVelX >= 0) signX = 1;
-        if(markerVelX < 0 ) signX = -1;
-        if(markerVelY >= 0) signY = 1;
-        if(markerVelY < 0 ) signY = -1;
+        if(waveVelocityLocalVec.x() - markerVelX  >= 0) signX = 1;
+        if(waveVelocityLocalVec.x() - markerVelX < 0 ) signX = -1;
+        if(waveVelocityLocalVec.y() - markerVelY >= 0) signY = 1;
+        if(waveVelocityLocalVec.y() - markerVelY < 0 ) signY = -1;
 
-        dragForceX = -signX * 0.5*p.rhoWater*p.dragCoefficientCylinderLateral*pow(markerVelX,2)*crossSectionArea;
-        dragForceY = -signY * 0.5*p.rhoWater*p.dragCoefficientCylinderLateral*pow(markerVelY,2)*crossSectionArea;
+        //wave is travelling in positive x direction
+        dragForceX = signX* 0.5*p.rhoWater*p.dragCoefficientCylinderLateral*pow(waveVelocityLocalVec.x() - markerVelX,2)*crossSectionArea;
+        dragForceY = signY* 0.5*p.rhoWater*p.dragCoefficientCylinderLateral*pow(waveVelocityLocalVec.y() - markerVelY,2)*crossSectionArea;
+        dragForceZ = 0;
+
+        addedMassForceX = p.rhoWater*volume*p.addedMassCoefficient*waveAccelerationLocalVec.x();
+        addedMassForceY = p.rhoWater*volume*p.addedMassCoefficient*waveAccelerationLocalVec.y();
+
+        krylovForceX = p.rhoWater*volume*waveAccelerationLocalVec.x();
+        krylovForceY = p.rhoWater*volume*waveAccelerationLocalVec.y();
 
         buoyancyForceZ = p.rhoWater*volume*p.g;
     }
-    else{
-        dragForceX = 0;
-        dragForceY = 0;
 
-        buoyancyForceZ = 0;
-    }
+    forceX = dragForceX + addedMassForceX + krylovForceX;
+    forceY = dragForceY + addedMassForceY + krylovForceY;
+    forceZ = dragForceZ + addedMassForceZ + krylovForceZ;
 
-    ChVector<> dragForceVec = ChVector<>(dragForceX, dragForceY, 0);
+    ChVector<> dragForceVec = ChVector<>(forceX, forceY, forceZ);
+    //ChVector<> dragForceVec = ChVector<>(dragForceX, dragForceY, dragForceZ);
 
     ChVector<> buoyancyForceVec = ChVector<>(0,0,buoyancyForceZ);
-
-    ChVector<> addedDampingForceVec = ChVector<>(addedDampingForceX,addedDampingForceY,addedDampingForceZ);
-
-    //qDebug()<< "dragForceVec" << dragForceVec.Length();
 
     dragForce->SetForce(dragForceVec,true);
     dragForce->SetApplicationPoint(marker->GetAbsCoord().pos,false);
 
     buoyancyForce->SetForce(buoyancyForceVec,false);
     buoyancyForce->SetApplicationPoint(marker->GetAbsCoord().pos,false);
-
-    return buoyancyForceZ;
 }
 
-bool MonopileElement::isSubmerged(){
-    return (marker->GetAbsCoord().pos.z() < p.seaLevel);
+bool MonopileElement::isSubmerged(double seaLevel) const{
+    return (marker->GetAbsCoord().pos.z() < seaLevel);
 }
 
-void MonopileElement::render(){
+void MonopileElement::render() const{
 
-//    qDebug() << "render damping element";
     glLineWidth(3);
 
     CVector markerPos = CVecFromChVec(marker->GetAbsCoord().pos);
-    //    qDebug()<< "markerPos.x :" << markerPos.x;
-    //    qDebug()<< "markerPos.y :" << markerPos.y;
-    //    qDebug()<< "markerPos.z :" << markerPos.z;
 
-    ChVector<> dragForceAbs = body->TransformDirectionLocalToParent(dragForce->GetForce());
+    //ChVector<> dragForceAbs = body->TransformDirectionLocalToParent(dragForce->GetForce());
     //ChVector<> force = body->TransformDirectionLocalToParent(dampingForce->GetForce());
 
-//    qDebug() << " damping force x: " << force.x();
-//    qDebug() << " damping force y: " << force.y();
-//    qDebug() << " damping force z: " << force.z();
     glPointSize(10);
     glBegin(GL_POINTS);
         //red/light green/blue: marker
@@ -186,10 +217,22 @@ void MonopileElement::render(){
 //        glVertex3d(zAxisEnd.x,zAxisEnd.y,zAxisEnd.z);
 
         //light red/light green/ blue: drag force
-        //glColor4d(1,0.5,0.5,1);
-        //glVertex3d(markerPos.x,markerPos.y,markerPos.z);
-        //CVector dragForceVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+dragForceAbs*p.forceLineFactor);
-        //glVertex3d(dragForceVecEnd.x,dragForceVecEnd.y,dragForceVecEnd.z);
+//        glColor4d(1,0.5,0.5,1);
+//        glVertex3d(markerPos.x,markerPos.y,markerPos.z);
+//        CVector dragForceVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+dragForceAbs);
+//        glVertex3d(dragForceVecEnd.x,dragForceVecEnd.y,dragForceVecEnd.z);
+
+//        //wave velocity
+//        glColor4d(0,0.7,1,0.5);
+//        glVertex3d(markerPos.x,markerPos.y,markerPos.z);
+//        CVector waveVelVecEnd = CVecFromChVec(marker->GetAbsCoord().pos+ChVector<>(waveVelocity*1000,0,0));
+//        glVertex3d(waveVelVecEnd.x,waveVelVecEnd.y,waveVelVecEnd.z);
+
+//        //marker acceleration
+//        glColor4d(1,0.7,0,0.5);
+//        glVertex3d(markerPos.x,markerPos.y,markerPos.z);
+//        CVector markerAccEnd = CVecFromChVec(marker->GetAbsCoord().pos+markerAccDir);
+//        glVertex3d(markerAccEnd.x,markerAccEnd.y,markerAccEnd.z);
 
 //        qDebug() << "addedDampingForceAbs.x()" << addedDampingForceAbs.x();
 //        qDebug() << "addedDampingForceAbs.y()" << addedDampingForceAbs.y();
